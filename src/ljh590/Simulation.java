@@ -11,14 +11,10 @@ public class Simulation {
 		Model m = new Model();
 		m.start();
 		JFrame frame = new JFrame("Simulation");
-		frame.setSize(1220, 850);
+		frame.setSize(1220, 820);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		SimComponent sim = new SimComponent(m, frame);
-		ModelComponent mod = new ModelComponent(m, frame);
-		
-		frame.add(sim);
-		frame.add(mod);
 		
 //		frame.pack();
 		frame.setVisible(true);

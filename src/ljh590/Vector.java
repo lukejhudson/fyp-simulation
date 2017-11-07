@@ -56,6 +56,10 @@ public class Vector {
 	public double normalise() {
 		return Math.hypot(x, y);
 	}
+	
+	public double sqrNorm() {
+		return x * x + y * y;
+	}
 
 	public void unitVector() {
 		double d = normalise();

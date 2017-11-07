@@ -7,7 +7,7 @@ public class Particle {
 
 	private Vector pos;
 	private Vector vel;
-	private int radius = 25;
+	private int radius;
 	// Mass of hydrogen atom
 	private double mass = 1.67E-27;
 
@@ -20,6 +20,12 @@ public class Particle {
 		this.pos = new Vector(x,y);
 		this.vel = new Vector(-1, -1);
 	}
+	
+	public Particle(int r) {
+		this.radius = r;
+		this.pos = new Vector(-1, -1);
+		this.vel = new Vector(0, 0);
+	}
 
 	public Particle() {
 		this.pos = new Vector(-1, -1);
@@ -29,6 +35,12 @@ public class Particle {
 	public Particle(Vector pos, Vector vel) {
 		this.pos = new Vector(pos);
 		this.vel = new Vector(vel);
+	}
+	
+	public Particle(Vector pos, Vector vel, int r) {
+		this.pos = new Vector(pos);
+		this.vel = new Vector(vel);
+		this.radius = r;
 	}
 
 	public void move() {
@@ -118,6 +130,6 @@ public class Particle {
 	}
 
 	public Particle createCopy() {
-		return new Particle(pos, vel);
+		return new Particle(pos, vel, radius);
 	}
 }
