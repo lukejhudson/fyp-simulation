@@ -111,8 +111,12 @@ public class Vector {
 	public void setY(double y) {
 		this.y = y;
 	}
+	
+	public boolean equals(Vector v) {
+	    return x == v.x && y == v.y;
+	}
 
 	public String toString() {
-		return "(" + this.x + ", " + this.y + ")";
+		return "(" + Math.round(this.x) + ", " + Math.round(this.y) + ")";
 	}
 }

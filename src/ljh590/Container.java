@@ -7,19 +7,24 @@ public class Container {
 	private double actualWidth;
 	private int height;
 	private double actualHeight;
+	private double pixelSize;
 	
-	public Container(int width, int height) {
+	public Container(int width, int height, double pixelSize) {
 		this.setWidth(width);
 		this.setHeight(height);
 	}
 	
 	public void setPixelSize(double pixelSize) {
-		this.setActualWidth(width * pixelSize);
-		this.setActualHeight(height * pixelSize);
+		this.pixelSize = pixelSize;
+		setActualWidth(width * pixelSize);
+		setActualHeight(height * pixelSize);
 	}
 	
 	public void moveWall(int newWidth) {
 		widthChange = newWidth - width;
+		if (widthChange > 10) {
+			widthChange = 10;
+		}
 		setWidth(newWidth);
 	}
 	
@@ -48,7 +53,7 @@ public class Container {
 
 	public void setWidth(int width) {
 		this.width = width;
-		actualWidth *= (double) width / ((double) width - (double) widthChange);
+		this.actualWidth = width * pixelSize;
 	}
 
 	public double getActualWidth() {
@@ -65,6 +70,7 @@ public class Container {
 
 	public void setHeight(int height) {
 		this.height = height;
+		this.actualHeight = height * pixelSize;
 	}
 
 	public double getActualHeight() {

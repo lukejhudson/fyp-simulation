@@ -126,7 +126,7 @@ public class Particle {
 	}
 	
 	public String toString() {
-		return "<P:(" + pos.getX() + ", " + pos.getY() + ") V:(" + vel.getX() + ", " + vel.getY() +")>";
+		return "<P:" + pos + " V:" + vel + ">";
 	}
 
 	public Particle createCopy() {

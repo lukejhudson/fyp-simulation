@@ -101,8 +101,8 @@ public class ModelComponent extends JComponent {
 
 			public void mouseReleased(MouseEvent e) {
 				System.out.println("RELEASED: " + e.getPoint());
-				mouseX = e.getX();
 				draggingWall = false;
+				cont.setWidthChange(0);
 				model.setBufferMaxSize(10);
 			}
 		});

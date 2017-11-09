@@ -16,6 +16,10 @@ import javax.swing.Timer;
  */
 public class Model extends Thread implements ActionListener {
 
+	private enum Wall {
+		N, E, S, W
+	};
+
 	// Boltzmann constant, k
 	private final double k = 1.38E-23;
 	// Diameter of hydrogen atom
@@ -75,16 +79,16 @@ public class Model extends Thread implements ActionListener {
 		this.T = T;
 		this.numParticles = numParticles;
 		this.delay = delay;
-		this.container = new Container(defaultWidth, defaultHeight);
-		System.out.println(container.getActualVolume());
+		pixelSize = particleDiam / (2 * radius);
+		this.container = new Container(defaultWidth, defaultHeight, pixelSize);
 		setup();
 	}
 
 	private void setup() {
 		this.particles = new CopyOnWriteArrayList<Particle>();
 		this.buffer = new CopyOnWriteArrayList<CopyOnWriteArrayList<Particle>>();
-		this.pixelSize = particleDiam / (2 * radius);
-		this.container.setPixelSize(pixelSize);
+		pixelSize = particleDiam / (2 * radius);
+		container.setPixelSize(pixelSize);
 		this.previousTs = new CopyOnWriteArrayList<Double>();
 		this.previousPs = new CopyOnWriteArrayList<Double>();
 		if (benchmark) {
@@ -94,19 +98,19 @@ public class Model extends Thread implements ActionListener {
 			particles.add(new Particle(radius));
 		}
 		spawn();
-
-		double prevActualRms = Math.sqrt((3 * k * defaultT) / particles.get(0).getMass());
-		double newActualRms = Math.sqrt((3 * k * T) / particles.get(0).getMass());
-		double speedIncrease = newActualRms / prevActualRms;
+		double expectedActualMSS = calculateExpectedActualMSS(defaultT);
+		double expectedActualRMSS = Math.sqrt(expectedActualMSS);
+		double newActualRMSS = Math.sqrt((3 * k * T) / particles.get(0).getMass());
+		double speedIncrease = newActualRMSS / expectedActualRMSS;
 		System.out.println(speedIncrease);
 		for (Particle p : particles) {
 			// Multiply x and y velocities by (1/sqrt2)
 			p.getVel().scale(speedIncrease);
 		}
 		this.speedRatio = 1;
-		double rms = Math.sqrt(meanSquareSpeed());
-		this.speedRatio = newActualRms / rms;
-		System.out.println("rms: " + rms + "\nnewActualRms: " + newActualRms + "\nspeedRatio: " + speedRatio);
+		double rmss = Math.sqrt(meanSquareSpeed());
+		this.speedRatio = newActualRMSS / rmss;
+		System.out.println("rmss: " + rmss + "\nnewActualRMSS: " + newActualRMSS + "\nspeedRatio: " + speedRatio);
 
 		// double actualRms = Math.sqrt((3 * k * T) /
 		// particles.get(0).getMass());
@@ -192,6 +196,17 @@ public class Model extends Thread implements ActionListener {
 		// If the two particles are overlapping
 		if (n.sqrNorm() < Math.pow((2 * p.getRadius()), 2)) {
 			// System.out.println("COLLISION");
+			if (p.getPos().equals(q.getPos())) {
+				// Move p a tiny bit
+				Vector tinyVel = new Vector(p.getVel());
+				p.getPos().add(tinyVel.scale(0.1));
+				// Move q a tiny bit
+				tinyVel = new Vector(q.getVel());
+				q.getPos().add(tinyVel.scale(0.1));
+				// Recalculate distance
+				n = new Vector(p.getPos());
+				n.sub(q.getPos());
+			}
 			// Move particles back to where they collided
 			double dr = ((2 * p.getRadius()) - n.normalise()) / 2;
 			Vector un = new Vector(n);
@@ -228,7 +243,6 @@ public class Model extends Thread implements ActionListener {
 			// System.out.println("P : v1: " + v1 + ", v2: " + v2);
 			v1.add(v2);
 			// System.out.println(v1);
-
 			p.setVel(v1);
 			v1 = new Vector(un);
 			v1.scale(v2nNew);
@@ -249,48 +263,71 @@ public class Model extends Thread implements ActionListener {
 		int r = p.getRadius();
 		if (p.getX() < r) { // Left wall
 			p.setX(r);
-			double vx = p.getVelX();
-			p.setVelX(-vx);
-			collideWallSpeed(p);
-			currP += (p.getMass() * Math.abs(vx * speedRatio)) / container.getActualVolume();
+			collideWallSpeed(p, Wall.W);
+			currP += (p.getMass() * Math.abs(p.getVelX() * speedRatio)) / container.getActualVolume();
 		} else if (p.getX() > (wallX - r)) { // Right wall
 			p.setX(wallX - r);
-			double vx = p.getVelX();
-			double factor = 1 - ((double) container.getWidthChange() / 10);
-//			if (factor < 1) {
-//				factor = 1;
-//			}
-//			System.out.println(container.getWidthChange() + "   " + factor);
-			p.setVelX(-vx * factor);
-			collideWallSpeed(p);
-			currP += (p.getMass() * Math.abs(vx * speedRatio)) / container.getActualVolume();
+			collideWallSpeed(p, Wall.E);
+			currP += (p.getMass() * Math.abs(p.getVelX() * speedRatio)) / container.getActualVolume();
 		}
 		if (p.getY() < r) { // Top wall
 			p.setY(r);
-			double vy = p.getVelY();
-			p.setVelY(-vy);
-			collideWallSpeed(p);
-			currP += (p.getMass() * Math.abs(vy * speedRatio)) / container.getActualVolume();
+			collideWallSpeed(p, Wall.N);
+			currP += (p.getMass() * Math.abs(p.getVelY() * speedRatio)) / container.getActualVolume();
 		} else if (p.getY() > (wallY - r)) { // Bottom wall
 			p.setY(wallY - r);
-			double vy = p.getVelY();
-			p.setVelY(-vy);
-			collideWallSpeed(p);
-			currP += (p.getMass() * Math.abs(vy * speedRatio)) / container.getActualVolume();
+			collideWallSpeed(p, Wall.S);
+			currP += (p.getMass() * Math.abs(p.getVelY() * speedRatio)) / container.getActualVolume();
 		}
 	}
 
-	private void collideWallSpeed(Particle p) {
-		double expectedMss = (3 * k * T) / particles.get(0).getMass();
-		double actualMss = p.getVel().sqrNorm() * speedRatio * speedRatio;
-		double difference = expectedMss - actualMss;
-		double ratioMss = (actualMss + (difference / 5)) / actualMss;
+	private void collideWallSpeed(Particle p, Wall w) {
+		double expectedMSS = calculateExpectedActualMSS(T);
+		double actualMSS = p.getVel().sqrNorm() * speedRatio * speedRatio;
+		double difference = expectedMSS - actualMSS;
+		double ratioMSS = (actualMSS + (difference / 5d)) / actualMSS;
+		p.getVel().scale(Math.abs(ratioMSS) + 0.03d);
+		// System.out.println("expected: " + expectedMss);
+		// System.out.println("actual: " + actualMss);
+		// System.out.println("diff: " + difference);
+		// System.out.println("ratio: " + ratioMss);
 
-		p.getVel().scale(Math.abs(ratioMss) + 0.03);
-//		System.out.println("expected: " + expectedMss);
-//		System.out.println("actual: " + actualMss);
-//		System.out.println("diff: " + difference);
-//		System.out.println("ratio: " + ratioMss);
+		double factor = 1 - ((double) container.getWidthChange() / 10d);
+		// Only the right wall can push particles
+		if (w != Wall.E && factor > 1) {
+			factor = 1;
+		}
+		if (factor < 0.5) {
+			factor = 0.5;
+		}
+		// Don't let particles get too fast
+		if ((actualMSS / expectedMSS) > 30) {
+			factor = 0.8;
+		}
+		// System.out.println(container.getWidthChange() + " " + factor);
+		assert (factor > 0);
+		double vx, vy;
+		switch (w) {
+		case N:
+			vy = p.getVelY();
+			p.setVelY(-vy);
+			p.getVel().scale(factor);
+			break;
+		case E:
+			vx = p.getVelX();
+			p.setVelX(-vx * factor);
+			break;
+		case S:
+			vy = p.getVelY();
+			p.setVelY(-vy);
+			p.getVel().scale(factor);
+			break;
+		case W:
+			vx = p.getVelX();
+			p.setVelX(-vx);
+			p.getVel().scale(factor);
+			break;
+		}
 	}
 
 	private void calculateCurrT() {
@@ -320,6 +357,9 @@ public class Model extends Thread implements ActionListener {
 		// previousPs.add(currP * speedRatio);
 		double pressure = (numParticles * particles.get(0).getMass() * meanSquareSpeed())
 				/ (2 * container.getActualVolume());
+		// System.out.println("numParticles: " + numParticles + "\nmass: " +
+		// particles.get(0).getMass() + "\nMSS: "
+		// + meanSquareSpeed() + "\nvol: " + container.getActualVolume());
 		previousPs.add(pressure);
 	}
 
@@ -377,6 +417,7 @@ public class Model extends Thread implements ActionListener {
 		// System.out.println("rms: " + rms + "\nnewActualRms: " + newActualRms
 		// + "\nspeedRatio: " + speedRatio);
 		T = newT;
+		calculateExpectedActualMSS(T);
 	}
 
 	public int getNumParticles() {
@@ -386,19 +427,19 @@ public class Model extends Thread implements ActionListener {
 	public void setNumParticles(int numParticles) {
 		Model.defaultNumParticles = numParticles;
 	}
-	
+
 	public int getBufferMaxSize() {
 		return bufferMaxSize;
 	}
-	
-	public void setBufferMaxSize(int b) { 
+
+	public void setBufferMaxSize(int b) {
 		bufferMaxSize = b;
 	}
 
 	public CopyOnWriteArrayList<Particle> getBuffer() {
 		return buffer.remove(0);
 	}
-	
+
 	public void rollbackBuffer() {
 		timer.stop();
 		if (!buffer.isEmpty()) {
@@ -456,9 +497,15 @@ public class Model extends Thread implements ActionListener {
 		return tot / previousTs.size();
 	}
 
+	private double calculateExpectedActualMSS(double temp) {
+		return (3 * k * temp) / particles.get(0).getMass();
+	}
+
 	public void setParticleSize(int size) {
-		this.changeSize = true;
-		this.newSize = size;
+		changeSize = true;
+		newSize = size;
+		pixelSize = particleDiam / (2 * radius);
+		container.setPixelSize(pixelSize);
 	}
 
 	public void restartSim() {

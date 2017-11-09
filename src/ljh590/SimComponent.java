@@ -77,7 +77,7 @@ public class SimComponent extends JComponent {
 		sizeParticlesSlider.setMinorTickSpacing(5);
 		sizeParticlesSlider.setPaintTicks(true);
 		sizeParticlesSlider.setPaintLabels(true);
-		JLabel sizeParticlesValue = new JLabel("50");
+		JLabel sizeParticlesValue = new JLabel("10");
 		sizeParticlesSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				model.setParticleSize(sizeParticlesSlider.getValue());
@@ -92,7 +92,7 @@ public class SimComponent extends JComponent {
 		particleOptions.add(sizeParticles, BorderLayout.EAST);
 		
 		
-		JSlider tempSlider = new JSlider(SwingConstants.HORIZONTAL, 200, 4000, 300);
+		JSlider tempSlider = new JSlider(SwingConstants.HORIZONTAL, 200, 4000000, 300);
 		JLabel tempValue = new JLabel("300");
 		tempSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
@@ -100,11 +100,11 @@ public class SimComponent extends JComponent {
 				tempValue.setText(Integer.toString(tempSlider.getValue()));
 			}
 		});
-		JLabel tempLabel = new JLabel("Average particle temperature", SwingConstants.CENTER);
+		JLabel tempLabel = new JLabel("Wall temperature", SwingConstants.CENTER);
 		tempSlider.setMajorTickSpacing(600);
 		tempSlider.setMinorTickSpacing(100);
-		tempSlider.setPaintTicks(true);
-		tempSlider.setPaintLabels(true);
+//		tempSlider.setPaintTicks(true);
+//		tempSlider.setPaintLabels(true);
 		tempComp.add(tempLabel, BorderLayout.NORTH);
 		tempComp.add(tempSlider, BorderLayout.CENTER);
 		tempComp.add(tempValue, BorderLayout.EAST);
