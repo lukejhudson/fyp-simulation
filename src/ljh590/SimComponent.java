@@ -92,7 +92,7 @@ public class SimComponent extends JComponent {
 		particleOptions.add(sizeParticles, BorderLayout.EAST);
 		
 		
-		JSlider tempSlider = new JSlider(SwingConstants.HORIZONTAL, 200, 4000000, 300);
+		JSlider tempSlider = new JSlider(SwingConstants.HORIZONTAL, 200, 4000, 300);
 		JLabel tempValue = new JLabel("300");
 		tempSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {

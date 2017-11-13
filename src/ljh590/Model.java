@@ -195,7 +195,7 @@ public class Model extends Thread implements ActionListener {
 		// System.out.println("after " + p.getPos());
 		// If the two particles are overlapping
 		if (n.sqrNorm() < Math.pow((2 * p.getRadius()), 2)) {
-			// System.out.println("COLLISION");
+			System.out.println("COLLISION");
 			if (p.getPos().equals(q.getPos())) {
 				// Move p a tiny bit
 				Vector tinyVel = new Vector(p.getVel());
@@ -283,10 +283,33 @@ public class Model extends Thread implements ActionListener {
 
 	private void collideWallSpeed(Particle p, Wall w) {
 		double expectedMSS = calculateExpectedActualMSS(T);
+		// System.out.println("expected: " + expectedMSS + "\nactual: " +
+		// meanSquareSpeed());
 		double actualMSS = p.getVel().sqrNorm() * speedRatio * speedRatio;
+		// System.out.println("expected: " + expectedMSS + "\nactual: " + actualMSS);
 		double difference = expectedMSS - actualMSS;
-		double ratioMSS = (actualMSS + (difference / 5d)) / actualMSS;
-		p.getVel().scale(Math.abs(ratioMSS) + 0.03d);
+		double ratioMSS;
+		if (difference > 0) { // Wants to speed up
+			ratioMSS = (actualMSS + (difference / 4d)) / actualMSS;
+			System.out.println(">0: " + ratioMSS);
+		} else { // Wants to slow down
+			ratioMSS = (actualMSS + (difference / 15d)) / actualMSS;
+			System.out.println("<0: " + ratioMSS);
+		}
+		// System.out.println("\nexpected: " + Math.sqrt(expectedMSS)/speedRatio +
+		// "\nactual: " + Math.sqrt(meanSquareSpeed())/speedRatio);
+		System.out.println("\nexpected RMS: " + expectedMSS + "\nactual RMS:   " + meanSquareSpeed());
+		System.out.println("difference: " + difference);
+		// System.out.println("average: " + averageSpeed());
+		// System.out.println("before: " + p.getVel().normalise());
+		double before = actualMSS;
+		System.out.println("before:   " + before);
+		p.getVel().scale(Math.sqrt(Math.abs(ratioMSS)));// * 1.0363);// + 0.03d);
+		// System.out.println("after: " + p.getVel().normalise());
+		double after = p.getVel().sqrNorm() * speedRatio * speedRatio;
+		System.out.println("after:    " + after);
+		System.out.println("diff2: " + (before - after));
+		System.out.println("ratio: " + (difference / (before - after)));
 		// System.out.println("expected: " + expectedMss);
 		// System.out.println("actual: " + actualMss);
 		// System.out.println("diff: " + difference);
@@ -369,6 +392,14 @@ public class Model extends Thread implements ActionListener {
 			squareSpeed += p.getVel().sqrNorm() * speedRatio * speedRatio;
 		}
 		return squareSpeed /= numParticles;
+	}
+
+	private double averageSpeed() {
+		double speed = 0;
+		for (Particle p : particles) {
+			speed += p.getVel().normalise();
+		}
+		return speed /= numParticles;
 	}
 
 	private void spawn() {
