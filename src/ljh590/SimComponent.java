@@ -1,159 +1,161 @@
 package ljh590;
 
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Graphics;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.SwingConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 @SuppressWarnings("serial")
 public class SimComponent extends JComponent {
 
-	private Model model;
+	private SimModel model;
 	private JFrame frame;
-	private ModelComponent comp;
-	private JLabel currT;
-	private JLabel currP;
+	private int fps = 60;
+	private CopyOnWriteArrayList<Particle> particles;
+	private Container cont;
+	private int r;
+	private boolean refresh = true;
+	private boolean clear = false;
 
-	public SimComponent(Model m, JFrame frame) {
+	private boolean draggingWall = false;
+	private int mouseX = 0;
+
+	public SimComponent(SimModel m, JFrame frame, JLabel currT, JLabel currP) {
 		super();
 		this.model = m;
 		this.frame = frame;
-		setLayout(new BorderLayout());
-		
-		JPanel UI = new JPanel(new BorderLayout());
-		
-		JPanel sliders = sliderBar();
-		JPanel buttons = buttonBar();
-		comp = new ModelComponent(m, frame, currT, currP);
-		
-		UI.add(sliders, BorderLayout.CENTER);
-		UI.add(buttons, BorderLayout.EAST);
-		
-		frame.add(comp, BorderLayout.CENTER);
-		frame.add(UI, BorderLayout.SOUTH);
+		this.cont = model.getContainer();
+
+		System.out.println("Starting GUI");
+
+		Thread t = new Thread(new Runnable() {
+			public void run() {
+				while (true) {
+					if (!model.bufferEmpty()) {
+						particles = model.getBuffer();
+						r = particles.get(0).getRadius();
+						if (refresh) {
+							frame.repaint();
+							refresh = false;
+						}
+						if (draggingWall) {
+							cont.moveWall(mouseX);
+						}
+					}
+					try {
+						if (fps != 0) {
+							Thread.sleep(1000 / fps);
+						}
+						while (fps == 0) {
+							Thread.sleep(100);
+						}
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					String T = String.format("<html>Average temperature<br>of particles: %6.0f K</html>",
+							model.getAverageT());
+					currT.setText(T);
+					String P = String.format("<html>Average pressure<br>on container: %6.2f Pa</html>",
+							model.getAverageP());
+					currP.setText(P);
+				}
+			}
+		});
+
+		Thread timer = new Thread(new Runnable() {
+			public void run() {
+				while (true) {
+					if (!refresh) {
+						refresh = true;
+					}
+					try {
+						Thread.sleep(1000 / 60);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		timer.start();
+
+		t.start();
+
+		addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				System.out.println("PRESSED: " + e.getPoint());
+				mouseX = e.getX();
+				int width = cont.getWidth();
+				if (Math.abs(width - e.getX()) < 10) {
+					draggingWall = true;
+					model.setBufferMaxSize(1);
+					model.rollbackBuffer();
+				}
+			}
+
+			public void mouseReleased(MouseEvent e) {
+				System.out.println("RELEASED: " + e.getPoint());
+				draggingWall = false;
+				cont.setWidthChange(0);
+				model.setBufferMaxSize(10);
+			}
+		});
+		addMouseMotionListener(new MouseMotionAdapter() {
+			// Whenever the mouse is moved
+			public void mouseMoved(MouseEvent e) {
+				// System.out.println("MOVED: " + e.getPoint());
+				int width = cont.getWidth();
+				if (Math.abs(width - e.getX()) < 10) {
+					setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
+				} else if (!draggingWall) {
+					setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				}
+			}
+
+			// WHenever the mouse is moved while mouse is pressed
+			public void mouseDragged(MouseEvent e) {
+				// System.out.println("DRAGGED: " + e.getPoint());
+				int x = e.getX();
+				if (draggingWall) {
+					if (x > 1200) {
+						mouseX = 1200;
+					} else if (x < 500) {
+						mouseX = 500;
+					} else {
+						mouseX = e.getX();
+					}
+				}
+			}
+		});
 	}
 
-	private JPanel sliderBar() {
-		JPanel sliderBar = new JPanel(new BorderLayout());
-		JPanel tempComp = new JPanel(new BorderLayout());
-		JPanel fps = new JPanel(new BorderLayout());
-		JPanel stats = new JPanel(new BorderLayout());
-		
-		JPanel tempAndStats = new JPanel(new BorderLayout());
-		
-		JPanel particleOptions = new JPanel(new BorderLayout());
-		JPanel noParticles = new JPanel(new BorderLayout());
-		JPanel sizeParticles = new JPanel(new BorderLayout());
-		
-		JLabel noParticlesLabel = new JLabel("Number of particles", SwingConstants.CENTER);
-		JSlider noParticlesSlider = new JSlider(SwingConstants.HORIZONTAL, 1, 500, 250);
-		noParticlesSlider.setMajorTickSpacing(100);
-		noParticlesSlider.setMinorTickSpacing(25);
-		noParticlesSlider.setPaintTicks(true);
-		noParticlesSlider.setPaintLabels(true);
-		JLabel noParticlesValue = new JLabel("250");
-		noParticlesSlider.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				model.setNumParticles(noParticlesSlider.getValue());
-				noParticlesValue.setText(Integer.toString(noParticlesSlider.getValue()));
-			}
-		});
-		noParticles.add(noParticlesLabel, BorderLayout.NORTH);
-		noParticles.add(noParticlesSlider, BorderLayout.CENTER);
-		noParticles.add(noParticlesValue, BorderLayout.EAST);
-		
-		JLabel sizeParticlesLabel = new JLabel("Particle size", SwingConstants.CENTER);
-		JSlider sizeParticlesSlider = new JSlider(SwingConstants.HORIZONTAL, 2, 100, 10);
-		sizeParticlesSlider.setMajorTickSpacing(10);
-		sizeParticlesSlider.setMinorTickSpacing(5);
-		sizeParticlesSlider.setPaintTicks(true);
-		sizeParticlesSlider.setPaintLabels(true);
-		JLabel sizeParticlesValue = new JLabel("10");
-		sizeParticlesSlider.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				model.setParticleSize(sizeParticlesSlider.getValue());
-				sizeParticlesValue.setText(Integer.toString(sizeParticlesSlider.getValue()));
-			}
-		});
-		sizeParticles.add(sizeParticlesLabel, BorderLayout.NORTH);
-		sizeParticles.add(sizeParticlesSlider, BorderLayout.CENTER);
-		sizeParticles.add(sizeParticlesValue, BorderLayout.EAST);
-		
-		particleOptions.add(noParticles, BorderLayout.CENTER);
-		particleOptions.add(sizeParticles, BorderLayout.EAST);
-		
-		
-		JSlider tempSlider = new JSlider(SwingConstants.HORIZONTAL, 200, 4000, 300);
-		JLabel tempValue = new JLabel("300");
-		tempSlider.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				model.setT(tempSlider.getValue());
-				tempValue.setText(Integer.toString(tempSlider.getValue()));
-			}
-		});
-		JLabel tempLabel = new JLabel("Wall temperature", SwingConstants.CENTER);
-		tempSlider.setMajorTickSpacing(600);
-		tempSlider.setMinorTickSpacing(100);
-//		tempSlider.setPaintTicks(true);
-//		tempSlider.setPaintLabels(true);
-		tempComp.add(tempLabel, BorderLayout.NORTH);
-		tempComp.add(tempSlider, BorderLayout.CENTER);
-		tempComp.add(tempValue, BorderLayout.EAST);
-		
-		currT = new JLabel("<html>Average temperature<br>of particles: </html>");
-		currP = new JLabel("<html>Average pressure<br>on container: </html>");
-		stats.add(currT, BorderLayout.NORTH);
-		stats.add(currP, BorderLayout.SOUTH);
-		
-		JSlider fpsSlider = new JSlider(SwingConstants.HORIZONTAL, 0, 500, 60);
-		JLabel fpsLabel = new JLabel("Iterations per second", SwingConstants.CENTER);
-		JLabel fpsValue = new JLabel("60");
-		fpsSlider.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				comp.setFps(fpsSlider.getValue());
-				fpsValue.setText(Integer.toString(fpsSlider.getValue()));
-			}
-		});
-		fpsSlider.setMajorTickSpacing(100);
-		fpsSlider.setMinorTickSpacing(25);
-		fpsSlider.setPaintTicks(true);
-		fpsSlider.setPaintLabels(true);
-		fps.add(fpsSlider, BorderLayout.CENTER);
-		fps.add(fpsLabel, BorderLayout.NORTH);
-		fps.add(fpsValue, BorderLayout.EAST);
-		
-		tempAndStats.add(stats, BorderLayout.WEST);
-		tempAndStats.add(tempComp, BorderLayout.EAST);
-		
-		sliderBar.add(tempAndStats, BorderLayout.WEST);
-		sliderBar.add(particleOptions, BorderLayout.CENTER);
-		sliderBar.add(fps, BorderLayout.EAST);
-		
-		return sliderBar;
+	@Override
+	public void paintComponent(Graphics g) {
+		g.setColor(Color.BLACK);
+		g.drawRect(0, 0, cont.getWidth(), cont.getHeight());
+		g.setColor(Color.CYAN);
+
+		// System.out.println(particles);
+		// double tot = 0;
+		for (Particle p : particles) {
+			g.fillOval((int) p.getX() - r, (int) p.getY() - r, 2 * r, 2 * r);
+			// tot += p.getVel().normalise();
+		}
+		// tot /= particles.size();
+		// System.out.println("Average speed: " + tot);
 	}
-	
-	private JPanel buttonBar() {
-		JPanel buttons = new JPanel(new BorderLayout());
-		
-		JButton restart = new JButton("Restart");
-		restart.addActionListener(e -> model.restartSim());
-		JButton pause = new JButton("Pause");
-		pause.addActionListener(e -> model.pauseSim());
-		JButton resume = new JButton("Resume");
-		resume.addActionListener(e -> model.resumeSim());
-		
-		buttons.add(restart, BorderLayout.NORTH);
-		buttons.add(pause, BorderLayout.CENTER);
-		buttons.add(resume, BorderLayout.SOUTH);
-		return buttons;
+
+	public void setFps(int fps) {
+		this.fps = fps;
+	}
+
+	public int getFps() {
+		return this.fps;
 	}
 }
