@@ -48,32 +48,34 @@ public class ControlPanel extends JComponent {
 		UI.add(sliders, BorderLayout.CENTER);
 		UI.add(buttons, BorderLayout.EAST);
 		
-		System.out.println(model.getContainer().getWidth() + 600);
 		view.setMinimumSize(new Dimension(200, frame.getHeight()));
 		view.setPreferredSize(new Dimension(200, frame.getHeight()));
 //		view.setMaximumSize(new Dimension(200, frame.getHeight()));
 		c.fill = GridBagConstraints.BOTH;
-		c.anchor = GridBagConstraints.FIRST_LINE_START;
-		c.weightx = 1.0;
-		c.weighty = 1.0;
-//		c.ipady = 0;
+		c.anchor = GridBagConstraints.FIRST_LINE_START; // Stick to top left
+		c.weightx = 0.5;
+		c.weighty = 0.5;
 //		c.ipadx = 0;
+//		c.ipady = 0;
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridheight = 2;
 		frame.add(view, c); // Graphs
+		
 		comp.setMinimumSize(new Dimension(model.getContainer().getWidth() + 300, model.getContainer().getHeight()));
 		comp.setPreferredSize(new Dimension(model.getContainer().getWidth() + 300, model.getContainer().getHeight()));
 //		c.fill = GridBagConstraints.BOTH;
-//		c.ipady = 0;
 //		c.ipadx = 0;
+//		c.ipady = 0;
 		c.gridx = 1;
 		c.gridy = 0;
 		c.gridheight = 1;
 		frame.add(comp, c); // Simulation
+		
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.ipady = 0;
+		c.anchor = GridBagConstraints.PAGE_END; // Stick to bottom
 		c.ipadx = 20;
+		c.ipady = 0;
 		c.gridx = 1;
 		c.gridy = 1;
 		frame.add(UI, c); // Bottom bar

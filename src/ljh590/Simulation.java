@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -551,5 +552,13 @@ public class Simulation extends Thread implements ActionListener {
 
 	public void pauseSim() {
 		timer.stop();
+	}
+
+	public ArrayList<Double> getSpeeds() {
+		ArrayList<Double> speeds = new ArrayList<Double>();
+		for (Particle p : particles) {
+			speeds.add(p.getVel().normalise());
+		}
+		return speeds;
 	}
 }

@@ -1,5 +1,6 @@
 package ljh590;
 
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -73,5 +74,9 @@ public class SimModel extends Observable {
 
 	public void resumeSim() {
 		sim.resumeSim();
+	}
+	
+	public ArrayList<Double> getSpeeds() {
+		return sim.getSpeeds();
 	}
 }
