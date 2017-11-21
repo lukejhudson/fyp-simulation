@@ -68,6 +68,8 @@ public class Simulation extends Thread implements ActionListener {
 
 	private int iterations = 0;
 	private int iterLimit = 5000;
+	
+	private boolean isInsulated = false;
 
 	private Timer timer;
 
@@ -100,7 +102,7 @@ public class Simulation extends Thread implements ActionListener {
 		spawn();
 		double expectedActualMSS = calculateExpectedActualMSS(defaultT);
 		double expectedActualRMSS = Math.sqrt(expectedActualMSS);
-		double newActualRMSS = Math.sqrt((3 * k * T) / particles.get(0).getMass());
+		double newActualRMSS = Math.sqrt(calculateExpectedActualMSS(T));
 		double speedIncrease = newActualRMSS / expectedActualRMSS;
 		System.out.println(speedIncrease);
 		for (Particle p : particles) {
@@ -287,33 +289,35 @@ public class Simulation extends Thread implements ActionListener {
 		// meanSquareSpeed());
 		double actualMSS = p.getVel().sqrNorm() * speedRatio * speedRatio;
 		// System.out.println("expected: " + expectedMSS + "\nactual: " + actualMSS);
-		double difference = expectedMSS - actualMSS;
-		double ratioMSS;
-		if (difference > 0) { // Wants to speed up
-			ratioMSS = (actualMSS + (difference / 4d)) / actualMSS;
-//			System.out.println(">0: " + ratioMSS);
-		} else { // Wants to slow down
-			ratioMSS = (actualMSS + (difference / 15d)) / actualMSS;
-//			System.out.println("<0: " + ratioMSS);
+		if (!isInsulated) {
+			double difference = expectedMSS - actualMSS;
+			double ratioMSS;
+			if (difference > 0) { // Wants to speed up
+				ratioMSS = (actualMSS + (difference / 4d)) / actualMSS;
+//				System.out.println(">0: " + ratioMSS);
+			} else { // Wants to slow down
+				ratioMSS = (actualMSS + (difference / 15d)) / actualMSS;
+//				System.out.println("<0: " + ratioMSS);
+			}
+			// System.out.println("\nexpected: " + Math.sqrt(expectedMSS)/speedRatio +
+			// "\nactual: " + Math.sqrt(meanSquareSpeed())/speedRatio);
+//			System.out.println("\nexpected RMS: " + expectedMSS + "\nactual RMS:   " + meanSquareSpeed());
+//			System.out.println("difference: " + difference);
+			// System.out.println("average: " + averageSpeed());
+			// System.out.println("before: " + p.getVel().normalise());
+//			double before = actualMSS;
+//			System.out.println("before:   " + before);
+			p.getVel().scale(Math.sqrt(Math.abs(ratioMSS)));// * 1.0363);// + 0.03d);
+			// System.out.println("after: " + p.getVel().normalise());
+//			double after = p.getVel().sqrNorm() * speedRatio * speedRatio;
+//			System.out.println("after:    " + after);
+//			System.out.println("diff2: " + (before - after));
+//			System.out.println("ratio: " + (difference / (before - after)));
+			// System.out.println("expected: " + expectedMss);
+			// System.out.println("actual: " + actualMss);
+			// System.out.println("diff: " + difference);
+			// System.out.println("ratio: " + ratioMss);
 		}
-		// System.out.println("\nexpected: " + Math.sqrt(expectedMSS)/speedRatio +
-		// "\nactual: " + Math.sqrt(meanSquareSpeed())/speedRatio);
-//		System.out.println("\nexpected RMS: " + expectedMSS + "\nactual RMS:   " + meanSquareSpeed());
-//		System.out.println("difference: " + difference);
-		// System.out.println("average: " + averageSpeed());
-		// System.out.println("before: " + p.getVel().normalise());
-//		double before = actualMSS;
-//		System.out.println("before:   " + before);
-		p.getVel().scale(Math.sqrt(Math.abs(ratioMSS)));// * 1.0363);// + 0.03d);
-		// System.out.println("after: " + p.getVel().normalise());
-//		double after = p.getVel().sqrNorm() * speedRatio * speedRatio;
-//		System.out.println("after:    " + after);
-//		System.out.println("diff2: " + (before - after));
-//		System.out.println("ratio: " + (difference / (before - after)));
-		// System.out.println("expected: " + expectedMss);
-		// System.out.println("actual: " + actualMss);
-		// System.out.println("diff: " + difference);
-		// System.out.println("ratio: " + ratioMss);
 
 		double factor = 1 - ((double) container.getWidthChange() / 10d);
 		// Only the right wall can push particles
@@ -326,6 +330,9 @@ public class Simulation extends Thread implements ActionListener {
 		// Don't let particles get too fast
 		if ((actualMSS / expectedMSS) > 30) {
 			factor = 0.8;
+		}
+		if (factor < 1 && isInsulated) {
+			factor = 1;
 		}
 		// System.out.println(container.getWidthChange() + " " + factor);
 		assert (factor > 0);
@@ -448,7 +455,7 @@ public class Simulation extends Thread implements ActionListener {
 		// System.out.println("rms: " + rms + "\nnewActualRms: " + newActualRms
 		// + "\nspeedRatio: " + speedRatio);
 		T = newT;
-		calculateExpectedActualMSS(T);
+//		calculateExpectedActualMSS(T);
 	}
 
 	public int getNumParticles() {
@@ -528,8 +535,12 @@ public class Simulation extends Thread implements ActionListener {
 		return tot / previousTs.size();
 	}
 
-	private double calculateExpectedActualMSS(double temp) {
+	public double calculateExpectedActualMSS(double temp) {
 		return (3 * k * temp) / particles.get(0).getMass();
+	}
+	
+	public double calculateExpectedMSS(double temp) {
+		return ((3 * k * temp) / particles.get(0).getMass()) / (speedRatio * speedRatio);
 	}
 
 	public void setParticleSize(int size) {

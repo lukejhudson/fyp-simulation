@@ -7,7 +7,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class SimModel extends Observable {
 
 	public enum Changed {
-		NumParticles, ParticleSize, T, Restart
+		NumParticles, ParticleSize, T, Restart, WallMoved
 	};
 
 	private Simulation sim;
@@ -78,5 +78,19 @@ public class SimModel extends Observable {
 	
 	public ArrayList<Double> getSpeeds() {
 		return sim.getSpeeds();
+	}
+	
+	public double calculateExpectedActualMSS(double temp) {
+		return sim.calculateExpectedActualMSS(temp);
+	}
+
+	public double calculateExpectedMSS(double temp) {
+		return sim.calculateExpectedMSS(temp);
+	}
+
+	public void moveWall(int x) {
+		sim.getContainer().moveWall(x);
+		setChanged();
+		notifyObservers(Changed.WallMoved);
 	}
 }

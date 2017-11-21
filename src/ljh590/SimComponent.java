@@ -46,7 +46,7 @@ public class SimComponent extends JComponent {
 							refresh = false;
 						}
 						if (draggingWall) {
-							cont.moveWall(mouseX);
+							model.moveWall(mouseX);
 						}
 					}
 					try {

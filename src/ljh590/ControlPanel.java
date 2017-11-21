@@ -62,8 +62,8 @@ public class ControlPanel extends JComponent {
 		c.gridheight = 2;
 		frame.add(view, c); // Graphs
 		
-		comp.setMinimumSize(new Dimension(model.getContainer().getWidth() + 300, model.getContainer().getHeight()));
-		comp.setPreferredSize(new Dimension(model.getContainer().getWidth() + 300, model.getContainer().getHeight()));
+		comp.setMinimumSize(new Dimension(model.getContainer().getWidth() + 300, model.getContainer().getHeight() + 10));
+		comp.setPreferredSize(new Dimension(model.getContainer().getWidth() + 300, model.getContainer().getHeight() + 10));
 //		c.fill = GridBagConstraints.BOTH;
 //		c.ipadx = 0;
 //		c.ipady = 0;
@@ -83,7 +83,7 @@ public class ControlPanel extends JComponent {
 
 	private JPanel sliderBar() {
 		// Whole thing
-		JPanel sliderBar = new JPanel(new GridLayout(1, 5));
+		JPanel sliderBar = new JPanel(new GridLayout(0, 5));
 		// Temp slider, label and value
 		JPanel tempComp = new JPanel(new BorderLayout());
 		// FPS slider, label and value
@@ -169,11 +169,11 @@ public class ControlPanel extends JComponent {
 		fps.add(fpsValue, BorderLayout.EAST);
 		
 		
-		sliderBar.add(stats, 0, 0);
-		sliderBar.add(tempComp, 0, 1);
-		sliderBar.add(sizeParticles, 0, 2);
-		sliderBar.add(numParticles, 0, 3);
-		sliderBar.add(fps, 0, 4);
+		sliderBar.add(stats);
+		sliderBar.add(tempComp);
+		sliderBar.add(sizeParticles);
+		sliderBar.add(numParticles);
+		sliderBar.add(fps);
 		
 		return sliderBar;
 	}
