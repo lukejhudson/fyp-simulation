@@ -293,10 +293,10 @@ public class Simulation extends Thread implements ActionListener {
 			double difference = expectedMSS - actualMSS;
 			double ratioMSS;
 			if (difference > 0) { // Wants to speed up
-				ratioMSS = (actualMSS + (difference / 4d)) / actualMSS;
+				ratioMSS = (actualMSS + (difference / 2d)) / actualMSS;
 //				System.out.println(">0: " + ratioMSS);
 			} else { // Wants to slow down
-				ratioMSS = (actualMSS + (difference / 15d)) / actualMSS;
+				ratioMSS = (actualMSS + (difference / 7d)) / actualMSS;
 //				System.out.println("<0: " + ratioMSS);
 			}
 			// System.out.println("\nexpected: " + Math.sqrt(expectedMSS)/speedRatio +
@@ -329,7 +329,7 @@ public class Simulation extends Thread implements ActionListener {
 		}
 		// Don't let particles get too fast
 		if ((actualMSS / expectedMSS) > 30) {
-			factor = 0.8;
+			factor = 0.5;
 		}
 		if (factor < 1 && isInsulated) {
 			factor = 1;
@@ -571,5 +571,13 @@ public class Simulation extends Thread implements ActionListener {
 			speeds.add(p.getVel().normalise());
 		}
 		return speeds;
+	}
+	
+	public void setIsInsulated(boolean b) {
+		this.isInsulated = b;
+	}
+	
+	public boolean getIsInsulated() {
+		return this.isInsulated;
 	}
 }

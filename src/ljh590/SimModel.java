@@ -90,7 +90,17 @@ public class SimModel extends Observable {
 
 	public void moveWall(int x) {
 		sim.getContainer().moveWall(x);
-		setChanged();
-		notifyObservers(Changed.WallMoved);
+		if (sim.getContainer().getWidthChange() != 0) {
+			setChanged();
+			notifyObservers(Changed.WallMoved);
+		}
+	}
+	
+	public void setIsInsulated(boolean b) {
+		sim.setIsInsulated(b);
+	}
+	
+	public boolean getIsInsulated() {
+		return sim.getIsInsulated();
 	}
 }

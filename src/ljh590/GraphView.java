@@ -1,11 +1,16 @@
 package ljh590;
 
+import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 import info.monitorenter.gui.chart.Chart2D;
 import info.monitorenter.gui.chart.IAxis;
@@ -15,7 +20,6 @@ import info.monitorenter.gui.chart.TracePoint2D;
 import info.monitorenter.gui.chart.labelformatters.LabelFormatterAutoUnits;
 import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
 import info.monitorenter.gui.chart.traces.Trace2DBijective;
-import info.monitorenter.gui.chart.traces.Trace2DReplacing;
 import info.monitorenter.util.Range;
 
 public class GraphView extends JComponent implements Observer {
@@ -41,7 +45,7 @@ public class GraphView extends JComponent implements Observer {
 	 */
 	public GraphView(SimModel model) {
 		super();
-		setLayout(new GridLayout(0, 1));
+		setLayout(new GridLayout(2, 0));
 		this.model = model;
 		this.cont = model.getContainer();
 		this.speedDistChart = new Chart2D();
@@ -83,9 +87,7 @@ public class GraphView extends JComponent implements Observer {
 		// yAxis.setStartMajorTick(true);
 
 		this.pvChart = new Chart2D();
-		this.pvTrace = new Trace2DBijective();
-		pvTrace.setName("Speed distribution");
-		pvChart.addTrace(pvTrace);
+		pvAddTrace();
 		// speedDistChart.getAxisX().setFormatter(new
 		// LabelFormatterAutoUnits());
 		pvChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Volume"));
@@ -100,9 +102,31 @@ public class GraphView extends JComponent implements Observer {
 		// speedDistChart.getAxisX().setPaintScale(false);
 		// speedDistChart.getAxisY().setPaintScale(false);
 
+		JPanel pvComponents = new JPanel(new BorderLayout());
+		JPanel pvButtons = new JPanel(new GridLayout(1, 0));
+		JButton pvAddTrace = new JButton("Add trace");
+		pvAddTrace.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pvAddTrace();
+			}
+		});
+		pvButtons.add(pvAddTrace);
+		JButton pvRemoveTraces = new JButton("Remove traces");
+		pvRemoveTraces.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pvChart.removeAllTraces();
+				pvAddTrace();
+			}
+		});
+		pvButtons.add(pvRemoveTraces);
+		pvComponents.add(pvChart, BorderLayout.CENTER);
+		pvComponents.add(pvButtons, BorderLayout.SOUTH);
+
 		add(speedDistChart);
-		add(pvChart);
-		
+		add(pvComponents);
+
 		Thread speedDistThread = new Thread(new Runnable() {
 			public void run() {
 				while (true) {
@@ -144,7 +168,8 @@ public class GraphView extends JComponent implements Observer {
 		case Restart:
 			// System.out.println("Restart");
 			speedDistTrace.removeAllPoints();
-			pvTrace.removeAllPoints();
+//			pvChart.removeAllTraces();
+//			pvAddTrace();
 			break;
 		case T:
 			// System.out.println("T");
@@ -185,5 +210,11 @@ public class GraphView extends JComponent implements Observer {
 		double volume = cont.getVolume();
 
 		pvTrace.addPoint(volume, pressure);
+	}
+	
+	private void pvAddTrace() {
+		pvTrace = new Trace2DBijective();
+		pvChart.addTrace(pvTrace);
+		pvTrace.setName("");
 	}
 }
