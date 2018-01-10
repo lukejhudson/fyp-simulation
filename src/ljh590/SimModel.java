@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import ljh590.GraphView.Mode;
+
 public class SimModel extends Observable {
 
 	public enum Changed {
-		NumParticles, ParticleSize, T, Restart, WallMoved
+		NumParticles, ParticleSize, T, Restart, WallMoved, HeatEngines, ActivationEnergy
 	};
 
 	private Simulation sim;
@@ -34,6 +36,10 @@ public class SimModel extends Observable {
 
 	public double getAverageP() {
 		return sim.getAverageP();
+	}
+	
+	public double getAverageTChange() {
+		return sim.getAverageTChange();
 	}
 
 	public void setBufferMaxSize(int i) {
@@ -80,6 +86,10 @@ public class SimModel extends Observable {
 		return sim.getSpeeds();
 	}
 	
+	public ArrayList<Double> getEnergies() {
+		return sim.getEnergies();
+	}
+	
 	public double calculateExpectedActualMSS(double temp) {
 		return sim.calculateExpectedActualMSS(temp);
 	}
@@ -102,5 +112,39 @@ public class SimModel extends Observable {
 	
 	public boolean getIsInsulated() {
 		return sim.getIsInsulated();
+	}
+	
+	public void changeMode(Mode mode) {
+		setChanged();
+		switch (mode) {
+		case HeatEngines:
+			notifyObservers(Changed.HeatEngines);
+		case ActivationEnergy:
+			notifyObservers(Changed.ActivationEnergy);
+			break;
+		default:
+			System.out.println("DEFAULT MODE???");
+			break;
+		}
+	}
+
+	public void setActivationEnergy(double e) {
+		sim.setActivationEnergy(e);
+	}
+	
+	public double getActivationEnergy() {
+		return sim.getActivationEnergy();
+	}
+	
+	public double getActualActivationEnergy() {
+		return sim.getActualActivationEnergy();
+	}
+	
+	public void setDisappearOnActEnergy(boolean b) {
+		sim.setDisappearOnActEnergy(b);
+	}
+	
+	public boolean isDisappearOnActEnergy() {
+		return sim.isDisappearOnActEnergy();
 	}
 }

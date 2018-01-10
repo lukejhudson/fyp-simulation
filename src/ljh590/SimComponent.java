@@ -27,6 +27,13 @@ public class SimComponent extends JComponent {
 	private boolean draggingWall = false;
 	private int mouseX = 0;
 
+	// Are we automatically moving the wall inwards?
+	private boolean autoMoveWallIn = false;
+	// Are we automatically moving the wall outwards?
+	private boolean autoMoveWallOut = false;
+	
+	private boolean colourParticlesAtActEnergy;
+
 	public SimComponent(SimModel m, JFrame frame, JLabel currT, JLabel currP) {
 		super();
 		this.model = m;
@@ -125,8 +132,8 @@ public class SimComponent extends JComponent {
 				if (draggingWall) {
 					if (x > 1200) {
 						mouseX = 1200;
-					} else if (x < 500) {
-						mouseX = 500;
+					} else if (x < 300) {
+						mouseX = 300;
 					} else {
 						mouseX = e.getX();
 					}
@@ -139,13 +146,21 @@ public class SimComponent extends JComponent {
 	public void paintComponent(Graphics g) {
 		g.setColor(Color.BLACK);
 		g.drawRect(0, 0, cont.getWidth(), cont.getHeight());
-		g.setColor(Color.CYAN);
 
 		// System.out.println(particles);
 		// double tot = 0;
+		double energy;
 		for (Particle p : particles) {
-			g.fillOval((int) p.getX() - r, (int) p.getY() - r, 2 * r, 2 * r);
-			// tot += p.getVel().normalise();
+			if (p.isActive()) {
+				energy = Math.pow(p.getVel().normalise(), 2);
+				if (colourParticlesAtActEnergy && energy > model.getActivationEnergy()) {
+					g.setColor(Color.RED);
+				} else {
+					g.setColor(Color.CYAN);
+				}
+				g.fillOval((int) p.getX() - r, (int) p.getY() - r, 2 * r, 2 * r);
+				// tot += p.getVel().normalise();
+			}
 		}
 		// tot /= particles.size();
 		// System.out.println("Average speed: " + tot);
@@ -157,5 +172,68 @@ public class SimComponent extends JComponent {
 
 	public int getFps() {
 		return this.fps;
+	}
+
+	public void moveWallInAuto(int d) {
+		Thread t = new Thread(new Runnable() {
+			public void run() {
+				if (autoMoveWallOut) {
+					autoMoveWallOut = false;
+				}
+				autoMoveWallIn = true;
+				model.setBufferMaxSize(1);
+				model.rollbackBuffer();
+				while (model.getContainer().getWidth() > 300 && autoMoveWallIn) {
+					model.moveWall(model.getContainer().getWidth() - d);
+					try {
+						Thread.sleep(20);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				if (autoMoveWallIn) {
+					model.moveWall(300);
+					model.setBufferMaxSize(10);
+					autoMoveWallIn = false;
+				}
+			}
+		});
+		t.start();
+	}
+
+	public void moveWallOutAuto(int d) {
+		Thread t = new Thread(new Runnable() {
+			public void run() {
+				if (autoMoveWallIn) {
+					autoMoveWallIn = false;
+				}
+				autoMoveWallOut = true;
+				model.setBufferMaxSize(1);
+				model.rollbackBuffer();
+				while (model.getContainer().getWidth() < 1200 && autoMoveWallOut) {
+					model.moveWall(model.getContainer().getWidth() + d);
+					try {
+						Thread.sleep(20);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				if (autoMoveWallOut) {
+					model.moveWall(1200);
+					model.setBufferMaxSize(10);
+					autoMoveWallOut = false;
+				}
+			}
+		});
+		t.start();
+	}
+
+	public void stopWalls() {
+		autoMoveWallIn = false;
+		autoMoveWallOut = false;
+	}
+	
+	public void setColouringParticles(boolean b) {
+		colourParticlesAtActEnergy = b;
 	}
 }

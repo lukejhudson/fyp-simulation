@@ -11,7 +11,7 @@ public class SimulationGUI {
 		Simulation sim = new Simulation();
 		sim.start();
 		JFrame frame = new JFrame("Simulation");
-		frame.setSize(1500, 820);
+		frame.setSize(1500, 880);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		ControlPanel pan = new ControlPanel(sim, frame);

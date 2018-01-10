@@ -10,6 +10,8 @@ public class Particle {
 	private int radius;
 	// Mass of hydrogen atom
 	private double mass = 1.67E-27;
+	// Whether the particle is active and can interact with other particles
+	private boolean active = true;
 
 	public Particle(int x, int y, int vx, int vy) {
 		this.pos = new Vector(x, y);
@@ -41,6 +43,13 @@ public class Particle {
 		this.pos = new Vector(pos);
 		this.vel = new Vector(vel);
 		this.radius = r;
+	}
+
+	public Particle(Vector pos, Vector vel, int r, boolean active) {
+		this.pos = new Vector(pos);
+		this.vel = new Vector(vel);
+		this.radius = r;
+		this.active = active;
 	}
 
 	public void move() {
@@ -130,6 +139,14 @@ public class Particle {
 	}
 
 	public Particle createCopy() {
-		return new Particle(pos, vel, radius);
+		return new Particle(pos, vel, radius, active);
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 }
