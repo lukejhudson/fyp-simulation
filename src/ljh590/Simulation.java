@@ -318,45 +318,53 @@ public class Simulation extends Thread implements ActionListener {
 	}
 
 	private void collideWallSpeed(Particle p, Wall w) {
+		// The squared speed that we expect for this temperature (in m/s^2)
 		double expectedMSS = calculateExpectedActualMSS(T);
-		// System.out.println("expected: " + expectedMSS + "\nactual: " +
-		// meanSquareSpeed());
+		// The actual squared speed of the particle (in m/s^2)
 		double actualMSS = p.getVel().sqrNorm() * speedRatio * speedRatio;
-		// System.out.println("expected: " + expectedMSS + "\nactual: " +
-		// actualMSS);
+		// The energy of the particle before changing its speed
 		double prevEnergy = Math.pow(p.getVel().normalise(), 2);
-		// System.out.println("prevEnergy: " + prevEnergy);
 
+		// When insulation is off and a particle collides with any wall, move
+		// its speed closer to the expected speed for this temperature (the only
+		// debatable part here is the 2.0 and 7.0)
 		if (!isInsulated) {
 			double difference = expectedMSS - actualMSS;
 			double ratioMSS;
 			if (difference > 0) { // Wants to speed up
-				ratioMSS = (actualMSS + (difference / 2d)) / actualMSS;
-				// System.out.println(">0: " + ratioMSS);
+				ratioMSS = (actualMSS + (difference / 2.0)) / actualMSS;
 			} else { // Wants to slow down
-				ratioMSS = (actualMSS + (difference / 7d)) / actualMSS;
-				// System.out.println("<0: " + ratioMSS);
+				ratioMSS = (actualMSS + (difference / 7.0)) / actualMSS;
 			}
 			p.getVel().scale(Math.sqrt(Math.abs(ratioMSS)));
 		}
 
+		// Calculate initial factor based on how far the right wall has been
+		// moved
 		double factor = 1 - ((double) container.getWidthChange() / 10d);
 		// Only the right wall can push particles
 		if (w != Wall.E && factor > 1) {
 			factor = 1;
 		}
-		// Only particles colliding with the right wall will lose energy when
-		// moving the wall outwards
+		// When insulation is off, only particles colliding with the right wall
+		// will lose energy when moving the wall outwards (stops the particles
+		// from losing too much energy)
 		if (w != Wall.E && !isInsulated) {// factor < 1) {
 			factor = 1;
 		}
-		// Don't slow down too much
+
+		// tempScaleFactor is used to ensure the particles slow down at the
+		// correct rate when moving the wall outwards (to return to their
+		// original temperature)
+
+		// Approximate values that tempScaleFactor should produce:
 		// 4000k --> 0.97
 		// 1000k --> 0.95
 		// 500k --> 0.89
 		// 300k --> 0.875
 		// 200k --> 0.8
 		double tempScaleFactor = 0.98 - (200 / (5.5 * (double) T));
+		// double tempScaleFactor = 0.5; // Previous value
 		// System.out.println(tempScaleFactor);
 		if (factor < tempScaleFactor) {
 			factor = tempScaleFactor;
@@ -366,14 +374,18 @@ public class Simulation extends Thread implements ActionListener {
 			factor = 0.5;
 		}
 		// So particles won't slow down when moving the wall outward (not
-		// insulated
-		// only)
+		// insulated only)
 		// if (factor < 1 && !isInsulated) {
 		// factor = 1;
 		// }
-		// System.out.println(container.getWidthChange() + " " + factor);
 		// if (!isInsulated) factor = 1;
-		double afterEnergy = 0;
+
+		// Scale the particle's speed by the factor. When the right wall is
+		// moving in, only particles which are pushed by it are affected (and
+		// only their x-velocity is scaled). When the right wall is moving
+		// outwards, all particles' velocities are scaled by the factor (except
+		// for particles which collide with the right wall, which for some
+		// unknown reason only have their x-velocity scaled still).
 		assert (factor > 0);
 		double vx, vy;
 		switch (w) {
@@ -381,27 +393,26 @@ public class Simulation extends Thread implements ActionListener {
 			vy = p.getVelY();
 			p.setVelY(-vy);
 			p.getVel().scale(factor);
-			afterEnergy = Math.pow(p.getVel().normalise(), 2);
 			break;
 		case E:
 			vx = p.getVelX();
 			p.setVelX(-vx * factor);
-			afterEnergy = Math.pow(p.getVel().normalise(), 2);
 			break;
 		case S:
 			vy = p.getVelY();
 			p.setVelY(-vy);
 			p.getVel().scale(factor);
-			afterEnergy = Math.pow(p.getVel().normalise(), 2);
 			break;
 		case W:
 			vx = p.getVelX();
 			p.setVelX(-vx);
 			p.getVel().scale(factor);
-			afterEnergy = Math.pow(p.getVel().normalise(), 2);
 			break;
 		}
+		double afterEnergy = Math.pow(p.getVel().normalise(), 2);
 		// System.out.println("afterEnergy: " + afterEnergy);
+		// Keep track of the change in energy to create the entropy vs
+		// temperature graph
 		tChange += (afterEnergy - prevEnergy);
 	}
 
