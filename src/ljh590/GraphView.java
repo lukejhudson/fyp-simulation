@@ -10,7 +10,6 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
@@ -20,10 +19,11 @@ import info.monitorenter.gui.chart.IRangePolicy;
 import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.TracePoint2D;
 import info.monitorenter.gui.chart.ZoomableChart;
-import info.monitorenter.gui.chart.labelformatters.LabelFormatterAutoUnits;
 import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
 import info.monitorenter.gui.chart.traces.Trace2DBijective;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
+import info.monitorenter.gui.chart.traces.painters.TracePainterDisc;
+import info.monitorenter.gui.chart.traces.painters.TracePainterVerticalBar;
 import info.monitorenter.util.Range;
 
 public class GraphView extends JComponent implements Observer {
@@ -62,6 +62,10 @@ public class GraphView extends JComponent implements Observer {
 	private double highestEnergy;
 	private double energyDistBarWidth;
 
+	// Boltzmann factor vs reactions/sec
+	private Chart2D bmfRsChart;
+	private ITrace2D bmfRsTrace;
+
 	private Chart2D bmFactChart;
 	private ITrace2D bmFactTrace;
 
@@ -81,6 +85,7 @@ public class GraphView extends JComponent implements Observer {
 		createPVChart();
 		createETChart();
 		createEnergyDistChart();
+		createBMFRsChart();
 
 		add(speedDistChart);
 		add(pvComponents);
@@ -90,8 +95,7 @@ public class GraphView extends JComponent implements Observer {
 	private void createSpeedDistChart() {
 		speedDistChart = new Chart2D();
 		speedDistTrace = new Trace2DBijective();
-		speedDistTrace.setTracePainter(
-				new info.monitorenter.gui.chart.traces.painters.TracePainterVerticalBar(5, speedDistChart));
+		speedDistTrace.setTracePainter(new TracePainterVerticalBar(5, speedDistChart));
 		speedDistTrace.setName("Speed distribution");
 		// Add the speedDistTrace to the chart. This has to be done before
 		// adding points (deadlock prevention):
@@ -166,7 +170,7 @@ public class GraphView extends JComponent implements Observer {
 		pvComponents.add(pvChart, BorderLayout.CENTER);
 		pvComponents.add(pvButtons, BorderLayout.SOUTH);
 	}
-	
+
 	private void createETChart() {
 		// pvChart = new Chart2D();
 		etChart = new Chart2D();
@@ -175,10 +179,12 @@ public class GraphView extends JComponent implements Observer {
 		etChart.getAxisY().setAxisTitle(new IAxis.AxisTitle("Entropy (Heat transfer / temperature)"));
 		// etChart.getAxisX().setAxisTitle(new IAxis.AxisTitle(""));
 		// etChart.getAxisY().setAxisTitle(new IAxis.AxisTitle(""));
-//		IRangePolicy etRangePolicyX = new RangePolicyFixedViewport(new Range(0, pvXAxisMax));
-//		etChart.getAxisX().setRangePolicy(etRangePolicyX);
-//		IRangePolicy etRangePolicyY = new RangePolicyFixedViewport(new Range(0, pvYAxisMax));
-//		etChart.getAxisY().setRangePolicy(etRangePolicyY);
+		// IRangePolicy etRangePolicyX = new RangePolicyFixedViewport(new
+		// Range(0, pvXAxisMax));
+		// etChart.getAxisX().setRangePolicy(etRangePolicyX);
+		// IRangePolicy etRangePolicyY = new RangePolicyFixedViewport(new
+		// Range(0, pvYAxisMax));
+		// etChart.getAxisY().setRangePolicy(etRangePolicyY);
 
 		etComponents = new JPanel(new BorderLayout());
 		JPanel etButtons = new JPanel(new GridLayout(1, 0));
@@ -210,8 +216,7 @@ public class GraphView extends JComponent implements Observer {
 		Trace2DBijective t;
 		for (int i = 0; i < 20; i++) {
 			t = new Trace2DBijective();
-			t.setTracePainter(
-					new info.monitorenter.gui.chart.traces.painters.TracePainterVerticalBar(5, energyDistChart));
+			t.setTracePainter(new TracePainterVerticalBar(5, energyDistChart));
 			if (i == 0) {
 				t.setName("Maxwell-Boltzmann Distribution");
 			} else {
@@ -255,22 +260,27 @@ public class GraphView extends JComponent implements Observer {
 		energyDistThread.start();
 	}
 
-	private void createBMFactChart() {
-		bmFactChart = new Chart2D();
-		bmFactTrace = new Trace2DSimple();
-		// speedDistChart.getAxisX().setFormatter(new
-		// LabelFormatterAutoUnits());
-		bmFactChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Temperature"));
-		bmFactChart.getAxisY().setAxisTitle(new IAxis.AxisTitle("Boltzmann Factor"));
-		// pvChart.getAxisX().setAxisTitle(new IAxis.AxisTitle(""));
-		// pvChart.getAxisY().setAxisTitle(new IAxis.AxisTitle(""));
-		// IRangePolicy bmFactRangePolicyX = new RangePolicyFixedViewport(new
-		// Range(0, pvXAxisMax));
-		// bmFactChart.getAxisX().setRangePolicy(bmFactRangePolicyX);
-		// IRangePolicy bmFactRangePolicyY = new RangePolicyFixedViewport(new
-		// Range(0, pvYAxisMax));
-		// bmFactChart.getAxisY().setRangePolicy(bmFactRangePolicyY);
-		bmFactChart.addTrace(bmFactTrace);
+	private void createBMFRsChart() {
+		bmfRsChart = new Chart2D();
+		bmfRsTrace = new Trace2DSimple();
+		bmfRsChart.addTrace(bmfRsTrace);
+		bmfRsTrace.setTracePainter(new TracePainterDisc());
+		bmfRsChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Reactions/iteration"));
+		bmfRsChart.getAxisY().setAxisTitle(new IAxis.AxisTitle("Boltzmann Factor"));
+		
+		Thread t = new Thread(new Runnable() {
+			public void run() {
+				while (true) {
+					updateBMFRsChart();
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		t.start();
 	}
 
 	@Override
@@ -301,6 +311,7 @@ public class GraphView extends JComponent implements Observer {
 			if (mode != Mode.HeatEngines) {
 				mode = Mode.HeatEngines;
 				remove(energyDistChart);
+				remove(bmfRsChart);
 				add(speedDistChart);
 				add(pvComponents);
 				add(etComponents);
@@ -315,7 +326,7 @@ public class GraphView extends JComponent implements Observer {
 				remove(pvComponents);
 				remove(etComponents);
 				add(energyDistChart);
-				// add(bmFactChart);
+				add(bmfRsChart);
 			}
 			break;
 		default:
@@ -354,12 +365,12 @@ public class GraphView extends JComponent implements Observer {
 			pvTrace.addPoint(volume * 1E18, pressure);
 		}
 	}
-	
+
 	private void updateETChart() {
 		if (mode == Mode.HeatEngines) {
 			double tChange = model.getAverageTChange();
 			double temperature = model.getAverageT();
-			
+
 			double entropy = tChange / temperature;
 
 			if (model.getIsInsulated()) {
@@ -370,7 +381,7 @@ public class GraphView extends JComponent implements Observer {
 			etTrace.addPoint(temperature, entropy);
 		}
 	}
-	
+
 	private void pvAddTrace() {
 		// pvTrace = new Trace2DBijective();
 		pvTrace = new Trace2DSimple();
@@ -381,14 +392,16 @@ public class GraphView extends JComponent implements Observer {
 		pvChart.addTrace(pvTrace);
 		pvTrace.setName("");
 	}
-	
+
 	private void etAddTrace() {
 		// etTrace = new Trace2DBijective();
 		etTrace = new Trace2DSimple();
-//		IRangePolicy etRangePolicyX = new RangePolicyFixedViewport(new Range(0, pvXAxisMax));
-//		etChart.getAxisX().setRangePolicy(etRangePolicyX);
-//		IRangePolicy etRangePolicyY = new RangePolicyFixedViewport(new Range(0, pvYAxisMax));
-//		etChart.getAxisY().setRangePolicy(etRangePolicyY);
+		// IRangePolicy etRangePolicyX = new RangePolicyFixedViewport(new
+		// Range(0, pvXAxisMax));
+		// etChart.getAxisX().setRangePolicy(etRangePolicyX);
+		// IRangePolicy etRangePolicyY = new RangePolicyFixedViewport(new
+		// Range(0, pvYAxisMax));
+		// etChart.getAxisY().setRangePolicy(etRangePolicyY);
 		etChart.addTrace(etTrace);
 		etTrace.setName("");
 	}
@@ -414,13 +427,15 @@ public class GraphView extends JComponent implements Observer {
 		}
 	}
 
-	private void updateBMFactChart() {
+	private void updateBMFRsChart() {
 		if (mode == Mode.ActivationEnergy) {
 			double temp = model.getAverageT();
 			double factor = -(model.getActualActivationEnergy() / (1.38E-23 * temp));
 			double bmf = Math.exp(factor);
-			bmFactTrace.setColor(Color.BLUE);
-			bmFactTrace.addPoint(temp, bmf);
+			
+			double noReactions = model.getAverageNoReactions();
+
+			bmfRsTrace.addPoint(noReactions, bmf);
 		}
 	}
 }

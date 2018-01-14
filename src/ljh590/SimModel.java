@@ -41,6 +41,10 @@ public class SimModel extends Observable {
 	public double getAverageTChange() {
 		return sim.getAverageTChange();
 	}
+	
+	public double getAverageNoReactions() {
+		return sim.getAverageNoReactions();
+	}
 
 	public void setBufferMaxSize(int i) {
 		sim.setBufferMaxSize(i);

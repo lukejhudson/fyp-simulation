@@ -34,6 +34,10 @@ public class Simulation extends Thread implements ActionListener {
 
 	private double activationEnergy = 10;
 	private boolean disappearOnActEnergy = false;
+	// The number of reactions in this iteration
+	private int noReactions;
+	// Stores the previously calculated reactions/iteration
+	private CopyOnWriteArrayList<Integer> previousNoReactions;
 
 	// Temperature of the walls in Kelvin
 	private int T;
@@ -105,6 +109,7 @@ public class Simulation extends Thread implements ActionListener {
 		previousTs = new CopyOnWriteArrayList<Double>();
 		previousPs = new CopyOnWriteArrayList<Double>();
 		previousTChanges = new CopyOnWriteArrayList<Double>();
+		previousNoReactions = new CopyOnWriteArrayList<Integer>();
 		if (benchmark) {
 			delay = 0;
 		}
@@ -189,9 +194,12 @@ public class Simulation extends Thread implements ActionListener {
 							collideParticle(p, particles.get(j));
 						}
 					}
-					if (disappearOnActEnergy && Math.pow(p.getVel().normalise(), 2) > activationEnergy) {
-						p.setActive(false);
-						numActiveParticles--;
+					if (Math.pow(p.getVel().normalise(), 2) > activationEnergy) {
+						noReactions++;
+						if (disappearOnActEnergy) {
+							p.setActive(false);
+							numActiveParticles--;
+						}
 					}
 				}
 			}
@@ -208,6 +216,12 @@ public class Simulation extends Thread implements ActionListener {
 		previousTChanges.add(tChange);
 		// System.out.println("tChange: " + tChange);
 		tChange = 0;
+		
+		if (previousNoReactions.size() > maxMeasurements) {
+			previousNoReactions.remove(0);
+		}
+		previousNoReactions.add(noReactions);
+		noReactions = 0;
 	}
 
 	private CopyOnWriteArrayList<Particle> createCopy() {
@@ -604,6 +618,15 @@ public class Simulation extends Thread implements ActionListener {
 		}
 		return tot / previousTChanges.size();
 	}
+	
+	public double getAverageNoReactions() {
+		Iterator<Integer> iter = previousNoReactions.iterator();
+		double tot = 0;
+		while (iter.hasNext()) {
+			tot += iter.next();
+		}
+		return tot / previousNoReactions.size();
+	}
 
 	public double calculateExpectedActualMSS(double temp) {
 		return (3 * k * temp) / particles.get(0).getMass();
@@ -677,7 +700,7 @@ public class Simulation extends Thread implements ActionListener {
 	}
 
 	public double getActualActivationEnergy() {
-		System.out.println(0.5 * particles.get(0).getMass() * (activationEnergy * speedRatio * speedRatio));
+//		System.out.println(0.5 * particles.get(0).getMass() * (activationEnergy * speedRatio * speedRatio));
 		return 0.5 * particles.get(0).getMass() * (activationEnergy * speedRatio * speedRatio);
 	}
 
