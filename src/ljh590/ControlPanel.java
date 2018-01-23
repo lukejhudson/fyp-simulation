@@ -330,6 +330,10 @@ public class ControlPanel extends JComponent {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				// Don't do anything if the sim is paused
+				if (pause) {
+					return;
+				}
 				if (isIn) {
 					moveWallSlow.setText("Move wall in (slowly)");
 					moveWallFast.setText("Move wall in (quickly)");

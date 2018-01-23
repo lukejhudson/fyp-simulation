@@ -338,11 +338,18 @@ public class Simulation extends Thread implements ActionListener {
 		double actualMSS = p.getVel().sqrNorm() * speedRatio * speedRatio;
 		// The energy of the particle before changing its speed
 		double prevEnergy = Math.pow(p.getVel().normalise(), 2);
+		
+		// Find how much the wall has moved since last iteration
+		double wallSpeed = (double) container.getWidthChange() / 3.0;
+		// Don't let the particles gain too much energy
+		if (wallSpeed < -5) {
+			wallSpeed = -5;
+		}
 
 		// When insulation is off and a particle collides with any wall, move
 		// its speed closer to the expected speed for this temperature (the only
 		// debatable part here is the 2.0 and 7.0)
-		if (!isInsulated) {
+		if (!isInsulated && (wallSpeed == 0 || w != Wall.E)) {
 			double difference = expectedMSS - actualMSS;
 			double ratioMSS;
 			if (difference > 0) { // Wants to speed up
@@ -355,17 +362,17 @@ public class Simulation extends Thread implements ActionListener {
 
 		// Calculate initial factor based on how far the right wall has been
 		// moved
-		double factor = 1 - ((double) container.getWidthChange() / 10d);
+//		double factor = 1 - ((double) container.getWidthChange() / 10d);
 		// Only the right wall can push particles
-		if (w != Wall.E && factor > 1) {
-			factor = 1;
-		}
+//		if (w != Wall.E && factor > 1) {
+//			factor = 1;
+//		}
 		// When insulation is off, only particles colliding with the right wall
 		// will lose energy when moving the wall outwards (stops the particles
 		// from losing too much energy)
-		if (w != Wall.E && !isInsulated) {// factor < 1) {
-			factor = 1;
-		}
+//		if (w != Wall.E && !isInsulated) {// factor < 1) {
+//			factor = 1;
+//		}
 
 		// tempScaleFactor is used to ensure the particles slow down at the
 		// correct rate when moving the wall outwards (to return to their
@@ -377,16 +384,16 @@ public class Simulation extends Thread implements ActionListener {
 		// 500k --> 0.89
 		// 300k --> 0.875
 		// 200k --> 0.8
-		double tempScaleFactor = 0.98 - (200 / (5.5 * (double) T));
+//		double tempScaleFactor = 0.98 - (200 / (5.5 * (double) T));
 		// double tempScaleFactor = 0.5; // Previous value
 		// System.out.println(tempScaleFactor);
-		if (factor < tempScaleFactor) {
-			factor = tempScaleFactor;
-		}
+//		if (factor < tempScaleFactor) {
+//			factor = tempScaleFactor;
+//		}
 		// Don't let particles get too fast
-		if ((actualMSS / expectedMSS) > 20) {
-			factor = 0.5;
-		}
+//		if ((actualMSS / expectedMSS) > 20) {
+//			factor = 0.5;
+//		}
 		// So particles won't slow down when moving the wall outward (not
 		// insulated only)
 		// if (factor < 1 && !isInsulated) {
@@ -400,27 +407,38 @@ public class Simulation extends Thread implements ActionListener {
 		// outwards, all particles' velocities are scaled by the factor (except
 		// for particles which collide with the right wall, which for some
 		// unknown reason only have their x-velocity scaled still).
-		assert (factor > 0);
 		double vx, vy;
 		switch (w) {
 		case N:
 			vy = p.getVelY();
 			p.setVelY(-vy);
-			p.getVel().scale(factor);
+//			p.getVel().scale(factor);
 			break;
 		case E:
 			vx = p.getVelX();
-			p.setVelX(-vx * factor);
+			// If adding the wall speed to the particle 
+			if (wallSpeed > 0 && Math.abs(vx) < wallSpeed) {
+				System.out.println("!!!!!!!!!");
+				p.setVelX(-vx / 2);
+			} else if (wallSpeed != 0 && (p.getVel().sqrNorm() < 3 * calculateExpectedMSS(T) || wallSpeed > 0)) {
+				// Math.abs(vx) < 5 * Math.abs(wallSpeed)
+				// If colliding with a wall moving inwards and the particle isn't moving too fast
+				p.setVelX(-Math.abs(vx) + wallSpeed);
+			} else {
+				p.setVelX(-vx);
+			}
+			System.out.println("\nvx = " + vx + "\nwallSpeed = " + wallSpeed + "\nnew vx = " + p.getVelX());
+//			p.setVelX(-vx * factor);
 			break;
 		case S:
 			vy = p.getVelY();
 			p.setVelY(-vy);
-			p.getVel().scale(factor);
+//			p.getVel().scale(factor);
 			break;
 		case W:
 			vx = p.getVelX();
 			p.setVelX(-vx);
-			p.getVel().scale(factor);
+//			p.getVel().scale(factor);
 			break;
 		}
 		double afterEnergy = Math.pow(p.getVel().normalise(), 2);
