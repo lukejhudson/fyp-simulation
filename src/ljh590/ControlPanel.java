@@ -37,10 +37,11 @@ public class ControlPanel extends JComponent {
 	private SimComponent comp;
 	private JLabel currT;
 	private JLabel currP;
-	
+
 	private JCheckBox colourParticlesAtActEnergy;
 	private JCheckBox particlesDisappearAtActEnergy;
-	
+	private JCheckBox particlesPushWall;
+
 	private boolean pause = false;
 
 	public ControlPanel(Simulation sim, JFrame frame) {
@@ -254,7 +255,7 @@ public class ControlPanel extends JComponent {
 			}
 		});
 		fpsSlider.setMajorTickSpacing(1);
-//		fpsSlider.setMinorTickSpacing(15);
+		// fpsSlider.setMinorTickSpacing(15);
 		fpsSlider.setPaintTicks(true);
 		fpsSlider.setPaintLabels(true);
 		fps.add(fpsSlider, BorderLayout.CENTER);
@@ -272,7 +273,7 @@ public class ControlPanel extends JComponent {
 	}
 
 	private JPanel buttonBar() {
-		JPanel playPauseRestart = new JPanel(new GridLayout(1,2));
+		JPanel playPauseRestart = new JPanel(new GridLayout(1, 2));
 		JPanel buttons = new JPanel(new GridLayout(0, 1));
 
 		JButton playPause = new JButton("Pause");
@@ -292,7 +293,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
-		
+
 		JButton restart = new JButton("Restart");
 		restart.addActionListener(new ActionListener() {
 			@Override
@@ -305,7 +306,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
-		
+
 		JButton insulated = new JButton("Insulation: Off");
 		insulated.addActionListener(new ActionListener() {
 			boolean isInsulated = false;
@@ -323,50 +324,33 @@ public class ControlPanel extends JComponent {
 			}
 		});
 
-		JButton moveWallSlow = new JButton("Move wall in (slowly)");
-		JButton moveWallFast = new JButton("Move wall in (quickly)");
-		moveWallSlow.addActionListener(new ActionListener() {
-			boolean isIn = false;
+		JPanel moveWall = new JPanel(new GridLayout(1, 1));
 
+		JButton moveWallIn = new JButton("Move wall in");
+		moveWallIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// Don't do anything if the sim is paused
-				if (pause) {
-					return;
-				}
-				if (isIn) {
-					moveWallSlow.setText("Move wall in (slowly)");
-					moveWallFast.setText("Move wall in (quickly)");
-					isIn = false;
-					comp.moveWallOutAuto(2);
-				} else {
-					moveWallSlow.setText("Move wall out (slowly)");
-					moveWallFast.setText("Move wall out (quickly)");
-					isIn = true;
-					comp.moveWallInAuto(2);
+				if (!pause) {
+					comp.moveWallInAuto(2, moveWallIn);
 				}
 			}
 		});
 
-		moveWallFast.addActionListener(new ActionListener() {
-			boolean isIn = false;
-
+		JButton moveWallOut = new JButton("Move wall out");
+		moveWallOut.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (isIn) {
-					moveWallSlow.setText("Move wall in (slowly)");
-					moveWallFast.setText("Move wall in (quickly)");
-					isIn = false;
-					comp.moveWallOutAuto(10);
-				} else {
-					moveWallSlow.setText("Move wall in (slowly)");
-					moveWallFast.setText("Move wall in (quickly)");
-					isIn = true;
-					comp.moveWallInAuto(10);
+				// Don't do anything if the sim is paused
+				if (!pause) {
+					comp.moveWallOutAuto(2, moveWallOut);
 				}
 			}
 		});
-		
+
+		moveWall.add(moveWallIn);
+		moveWall.add(moveWallOut);
+
 		colourParticlesAtActEnergy = new JCheckBox("Colour particles when reaching activation energy");
 		colourParticlesAtActEnergy.addItemListener(new ItemListener() {
 			@Override
@@ -378,7 +362,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
-		
+
 		particlesDisappearAtActEnergy = new JCheckBox("Make particles disappear upon reaching activation energy");
 		particlesDisappearAtActEnergy.addItemListener(new ItemListener() {
 			@Override
@@ -390,17 +374,28 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
-		
+
+		particlesPushWall = new JCheckBox("Allow particles to push the right wall");
+		particlesPushWall.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.DESELECTED) {
+					model.setParticlesPushWall(false);
+				} else {
+					model.setParticlesPushWall(true);
+				}
+			}
+		});
 
 		playPauseRestart.add(restart);
 		playPauseRestart.add(playPause);
-		
+
 		buttons.add(playPauseRestart);
 		buttons.add(insulated);
-		buttons.add(moveWallSlow);
-//		buttons.add(moveWallFast);
+		buttons.add(moveWall);
 		buttons.add(colourParticlesAtActEnergy);
 		buttons.add(particlesDisappearAtActEnergy);
+		buttons.add(particlesPushWall);
 		return buttons;
 	}
 }

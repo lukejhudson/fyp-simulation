@@ -9,6 +9,9 @@ public class Container {
 	private double actualHeight;
 	private double pixelSize;
 	
+	private int maxWidth = 1200;
+	private int minWidth = 300;
+	
 	public Container(int width, int height, double pixelSize) {
 		this.setWidth(width);
 		this.setHeight(height);
@@ -24,6 +27,17 @@ public class Container {
 		widthChange = newWidth - width;
 		if (widthChange > 10) {
 			widthChange = 10;
+		}
+		setWidth(newWidth);
+	}
+	
+	/**
+	 * @param dist The distance to move the wall in pixels
+	 */
+	public void pushWall(int dist) {
+		int newWidth = width + dist;
+		if (newWidth + dist > maxWidth) {
+			newWidth = maxWidth;
 		}
 		setWidth(newWidth);
 	}
@@ -79,5 +93,21 @@ public class Container {
 
 	public void setActualHeight(double actualHeight) {
 		this.actualHeight = actualHeight;
+	}
+	
+	public void setMaxWidth(int newWidth) {
+		this.maxWidth = newWidth;
+	}
+	
+	public int getMaxWidth() {
+		return this.maxWidth;
+	}
+	
+	public void setMinWidth(int newWidth) {
+		this.minWidth = newWidth;
+	}
+	
+	public int getMinWidth() {
+		return this.minWidth;
 	}
 }

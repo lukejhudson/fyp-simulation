@@ -83,7 +83,12 @@ public class Simulation extends Thread implements ActionListener {
 	private int iterations = 0;
 	private int iterLimit = 5000;
 
+	// If the walls are insulated then heat is not passively transferred between
+	// the walls and particles
 	private boolean isInsulated = false;
+
+	// Are the particles allowed to push the walls?
+	private boolean particlesPushWall = false;
 
 	private Timer timer;
 
@@ -216,7 +221,7 @@ public class Simulation extends Thread implements ActionListener {
 		previousTChanges.add(tChange);
 		// System.out.println("tChange: " + tChange);
 		tChange = 0;
-		
+
 		if (previousNoReactions.size() > maxMeasurements) {
 			previousNoReactions.remove(0);
 		}
@@ -338,7 +343,7 @@ public class Simulation extends Thread implements ActionListener {
 		double actualMSS = p.getVel().sqrNorm() * speedRatio * speedRatio;
 		// The energy of the particle before changing its speed
 		double prevEnergy = Math.pow(p.getVel().normalise(), 2);
-		
+
 		// Find how much the wall has moved since last iteration
 		double wallSpeed = (double) container.getWidthChange() / 3.0;
 		// Don't let the particles gain too much energy
@@ -362,17 +367,17 @@ public class Simulation extends Thread implements ActionListener {
 
 		// Calculate initial factor based on how far the right wall has been
 		// moved
-//		double factor = 1 - ((double) container.getWidthChange() / 10d);
+		// double factor = 1 - ((double) container.getWidthChange() / 10d);
 		// Only the right wall can push particles
-//		if (w != Wall.E && factor > 1) {
-//			factor = 1;
-//		}
+		// if (w != Wall.E && factor > 1) {
+		// factor = 1;
+		// }
 		// When insulation is off, only particles colliding with the right wall
 		// will lose energy when moving the wall outwards (stops the particles
 		// from losing too much energy)
-//		if (w != Wall.E && !isInsulated) {// factor < 1) {
-//			factor = 1;
-//		}
+		// if (w != Wall.E && !isInsulated) {// factor < 1) {
+		// factor = 1;
+		// }
 
 		// tempScaleFactor is used to ensure the particles slow down at the
 		// correct rate when moving the wall outwards (to return to their
@@ -384,22 +389,26 @@ public class Simulation extends Thread implements ActionListener {
 		// 500k --> 0.89
 		// 300k --> 0.875
 		// 200k --> 0.8
-//		double tempScaleFactor = 0.98 - (200 / (5.5 * (double) T));
+		// double tempScaleFactor = 0.98 - (200 / (5.5 * (double) T));
 		// double tempScaleFactor = 0.5; // Previous value
 		// System.out.println(tempScaleFactor);
-//		if (factor < tempScaleFactor) {
-//			factor = tempScaleFactor;
-//		}
+		// if (factor < tempScaleFactor) {
+		// factor = tempScaleFactor;
+		// }
 		// Don't let particles get too fast
-//		if ((actualMSS / expectedMSS) > 20) {
-//			factor = 0.5;
-//		}
+		// if ((actualMSS / expectedMSS) > 20) {
+		// factor = 0.5;
+		// }
 		// So particles won't slow down when moving the wall outward (not
 		// insulated only)
 		// if (factor < 1 && !isInsulated) {
 		// factor = 1;
 		// }
 		// if (!isInsulated) factor = 1;
+		
+		if (particlesPushWall && w == Wall.E) {
+			container.pushWall(1);
+		}
 
 		// Scale the particle's speed by the factor. When the right wall is
 		// moving in, only particles which are pushed by it are affected (and
@@ -412,40 +421,44 @@ public class Simulation extends Thread implements ActionListener {
 		case N:
 			vy = p.getVelY();
 			p.setVelY(-vy);
-//			p.getVel().scale(factor);
+			// p.getVel().scale(factor);
 			break;
 		case E:
 			vx = p.getVelX();
-			// If adding the wall speed to the particle 
+			// If adding the wall speed to the particle
 			if (wallSpeed > 0 && Math.abs(vx) < wallSpeed) {
-				System.out.println("!!!!!!!!!");
+				// System.out.println("!!!!!!!!!");
 				p.setVelX(-vx / 2);
 			} else if (wallSpeed != 0 && (p.getVel().sqrNorm() < 3 * calculateExpectedMSS(T) || wallSpeed > 0)) {
 				// Math.abs(vx) < 5 * Math.abs(wallSpeed)
-				// If colliding with a wall moving inwards and the particle isn't moving too fast
+				// If colliding with a wall moving inwards and the particle
+				// isn't moving too fast
 				p.setVelX(-Math.abs(vx) + wallSpeed);
 			} else {
 				p.setVelX(-vx);
 			}
-			System.out.println("\nvx = " + vx + "\nwallSpeed = " + wallSpeed + "\nnew vx = " + p.getVelX());
-//			p.setVelX(-vx * factor);
+			// System.out.println("\nvx = " + vx + "\nwallSpeed = " + wallSpeed
+			// + "\nnew vx = " + p.getVelX());
+			// p.setVelX(-vx * factor);
 			break;
 		case S:
 			vy = p.getVelY();
 			p.setVelY(-vy);
-//			p.getVel().scale(factor);
+			// p.getVel().scale(factor);
 			break;
 		case W:
 			vx = p.getVelX();
 			p.setVelX(-vx);
-//			p.getVel().scale(factor);
+			// p.getVel().scale(factor);
 			break;
 		}
 		double afterEnergy = Math.pow(p.getVel().normalise(), 2);
 		// System.out.println("afterEnergy: " + afterEnergy);
 		// Keep track of the change in energy to create the entropy vs
 		// temperature graph
-		tChange += (afterEnergy - prevEnergy);
+		if (w != Wall.E) {
+			tChange += (afterEnergy - prevEnergy);
+		}
 	}
 
 	private void calculateCurrT() {
@@ -636,7 +649,7 @@ public class Simulation extends Thread implements ActionListener {
 		}
 		return tot / previousTChanges.size();
 	}
-	
+
 	public double getAverageNoReactions() {
 		Iterator<Integer> iter = previousNoReactions.iterator();
 		double tot = 0;
@@ -718,7 +731,8 @@ public class Simulation extends Thread implements ActionListener {
 	}
 
 	public double getActualActivationEnergy() {
-//		System.out.println(0.5 * particles.get(0).getMass() * (activationEnergy * speedRatio * speedRatio));
+		// System.out.println(0.5 * particles.get(0).getMass() *
+		// (activationEnergy * speedRatio * speedRatio));
 		return 0.5 * particles.get(0).getMass() * (activationEnergy * speedRatio * speedRatio);
 	}
 
@@ -732,5 +746,9 @@ public class Simulation extends Thread implements ActionListener {
 
 	public void setDisappearOnActEnergy(boolean disappearOnActEnergy) {
 		this.disappearOnActEnergy = disappearOnActEnergy;
+	}
+
+	public void setParticlesPushWall(boolean particlesPushWall) {
+		this.particlesPushWall = particlesPushWall;
 	}
 }

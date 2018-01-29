@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -130,10 +131,12 @@ public class SimComponent extends JComponent {
 				// System.out.println("DRAGGED: " + e.getPoint());
 				int x = e.getX();
 				if (draggingWall) {
-					if (x > 1200) {
-						mouseX = 1200;
-					} else if (x < 300) {
-						mouseX = 300;
+					int max = cont.getMaxWidth();
+					int min = cont.getMinWidth();
+					if (x > max) {
+						mouseX = max;
+					} else if (x < min) {
+						mouseX = min;
 					} else {
 						mouseX = e.getX();
 					}
@@ -174,16 +177,23 @@ public class SimComponent extends JComponent {
 		return this.fps;
 	}
 
-	public void moveWallInAuto(int d) {
+	public void moveWallInAuto(int d, JButton button) {
+		int min = cont.getMinWidth();
 		Thread t = new Thread(new Runnable() {
 			public void run() {
 				if (autoMoveWallOut) {
 					autoMoveWallOut = false;
 				}
+				if (autoMoveWallIn) {
+					autoMoveWallIn = false;
+					return;
+				}
+				button.setText("Stop movement");
+				
 				autoMoveWallIn = true;
 				model.setBufferMaxSize(1);
 				model.rollbackBuffer();
-				while (model.getContainer().getWidth() > 300 && autoMoveWallIn) {
+				while (model.getContainer().getWidth() > min && autoMoveWallIn) {
 					model.moveWall(model.getContainer().getWidth() - d);
 					try {
 						Thread.sleep(20);
@@ -192,25 +202,33 @@ public class SimComponent extends JComponent {
 					}
 				}
 				if (autoMoveWallIn) {
-					model.moveWall(300);
+					model.moveWall(min);
 					model.setBufferMaxSize(10);
 					autoMoveWallIn = false;
 				}
+				button.setText("Move wall in");
 			}
 		});
 		t.start();
 	}
 
-	public void moveWallOutAuto(int d) {
+	public void moveWallOutAuto(int d, JButton button) {
+		int max = cont.getMaxWidth();
 		Thread t = new Thread(new Runnable() {
 			public void run() {
 				if (autoMoveWallIn) {
 					autoMoveWallIn = false;
 				}
+				if (autoMoveWallOut) {
+					autoMoveWallOut = false;
+					return;
+				}
+				button.setText("Stop movement");
+				
 				autoMoveWallOut = true;
 				model.setBufferMaxSize(1);
 				model.rollbackBuffer();
-				while (model.getContainer().getWidth() < 1200 && autoMoveWallOut) {
+				while (model.getContainer().getWidth() < max && autoMoveWallOut) {
 					model.moveWall(model.getContainer().getWidth() + d);
 					try {
 						Thread.sleep(20);
@@ -219,10 +237,11 @@ public class SimComponent extends JComponent {
 					}
 				}
 				if (autoMoveWallOut) {
-					model.moveWall(1200);
+					model.moveWall(max);
 					model.setBufferMaxSize(10);
 					autoMoveWallOut = false;
 				}
+				button.setText("Move wall out");
 			}
 		});
 		t.start();

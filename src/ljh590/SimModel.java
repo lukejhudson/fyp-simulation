@@ -151,4 +151,8 @@ public class SimModel extends Observable {
 	public boolean isDisappearOnActEnergy() {
 		return sim.isDisappearOnActEnergy();
 	}
+
+	public void setParticlesPushWall(boolean b) {
+		sim.setParticlesPushWall(b);
+	}
 }
