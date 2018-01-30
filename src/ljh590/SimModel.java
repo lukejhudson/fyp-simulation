@@ -2,7 +2,6 @@ package ljh590;
 
 import java.util.ArrayList;
 import java.util.Observable;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import ljh590.GraphView.Mode;
 
@@ -26,7 +25,7 @@ public class SimModel extends Observable {
 		return sim.bufferEmpty();
 	}
 
-	public CopyOnWriteArrayList<Particle> getBuffer() {
+	public SimBuffer getBuffer() {
 		return sim.getBuffer();
 	}
 

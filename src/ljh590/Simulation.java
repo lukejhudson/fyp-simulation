@@ -53,7 +53,7 @@ public class Simulation extends Thread implements ActionListener {
 	// Stores the previously calculated changes in temperature
 	private CopyOnWriteArrayList<Double> previousTChanges;
 	// Buffer of ticks
-	private CopyOnWriteArrayList<CopyOnWriteArrayList<Particle>> buffer;
+	private CopyOnWriteArrayList<SimBuffer> buffer;
 	// Maximum number of elements in the buffer
 	private int bufferMaxSize = 10;
 	// Whether we need to roll back the buffer
@@ -108,7 +108,7 @@ public class Simulation extends Thread implements ActionListener {
 	private void setup() {
 		numActiveParticles = numParticles;
 		particles = new CopyOnWriteArrayList<Particle>();
-		buffer = new CopyOnWriteArrayList<CopyOnWriteArrayList<Particle>>();
+		buffer = new CopyOnWriteArrayList<SimBuffer>();
 		pixelSize = particleDiam / (2 * radius);
 		container.setPixelSize(pixelSize);
 		previousTs = new CopyOnWriteArrayList<Double>();
@@ -181,7 +181,7 @@ public class Simulation extends Thread implements ActionListener {
 		}
 		if (rollback) {
 			if (!buffer.isEmpty()) {
-				particles = buffer.get(0);
+				particles = buffer.get(0).getParticles();
 			}
 			buffer.clear();
 			rollback = false;
@@ -209,7 +209,8 @@ public class Simulation extends Thread implements ActionListener {
 				}
 			}
 			iterations++;
-			buffer.add(createCopy());
+			SimBuffer b = new SimBuffer(createCopy(), container.getWidth());
+			buffer.add(b);
 			// System.out.println(particles);
 		}
 		calculateCurrT();
@@ -408,6 +409,7 @@ public class Simulation extends Thread implements ActionListener {
 		
 		if (particlesPushWall && w == Wall.E) {
 			container.pushWall(1);
+			p.getVel().scale(0.5);
 		}
 
 		// Scale the particle's speed by the factor. When the right wall is
@@ -585,7 +587,7 @@ public class Simulation extends Thread implements ActionListener {
 		bufferMaxSize = b;
 	}
 
-	public CopyOnWriteArrayList<Particle> getBuffer() {
+	public SimBuffer getBuffer() {
 		return buffer.remove(0);
 	}
 
@@ -689,7 +691,7 @@ public class Simulation extends Thread implements ActionListener {
 		timer.stop();
 		if (rollback) {
 			if (!buffer.isEmpty()) {
-				particles = buffer.get(0);
+				particles = buffer.get(0).getParticles();
 			}
 			buffer.clear();
 			rollback = false;

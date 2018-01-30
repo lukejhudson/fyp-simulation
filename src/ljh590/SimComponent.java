@@ -20,6 +20,8 @@ public class SimComponent extends JComponent {
 	private JFrame frame;
 	private int fps = 60;
 	private CopyOnWriteArrayList<Particle> particles;
+	// Width of container (from buffer)
+	private int contWidth;
 	private Container cont;
 	private int r;
 	private boolean refresh = true;
@@ -47,7 +49,9 @@ public class SimComponent extends JComponent {
 			public void run() {
 				while (true) {
 					if (!model.bufferEmpty()) {
-						particles = model.getBuffer();
+						SimBuffer b = model.getBuffer();
+						particles = b.getParticles();
+						contWidth = b.getContWidth();
 						r = particles.get(0).getRadius();
 						if (refresh) {
 							frame.repaint();
@@ -148,7 +152,7 @@ public class SimComponent extends JComponent {
 	@Override
 	public void paintComponent(Graphics g) {
 		g.setColor(Color.BLACK);
-		g.drawRect(0, 0, cont.getWidth(), cont.getHeight());
+		g.drawRect(0, 0, contWidth, cont.getHeight());
 
 		// System.out.println(particles);
 		// double tot = 0;

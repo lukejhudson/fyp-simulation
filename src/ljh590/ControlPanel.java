@@ -39,8 +39,6 @@ public class ControlPanel extends JComponent {
 	private JLabel currP;
 
 	private JCheckBox colourParticlesAtActEnergy;
-	private JCheckBox particlesDisappearAtActEnergy;
-	private JCheckBox particlesPushWall;
 
 	private boolean pause = false;
 
@@ -307,23 +305,6 @@ public class ControlPanel extends JComponent {
 			}
 		});
 
-		JButton insulated = new JButton("Insulation: Off");
-		insulated.addActionListener(new ActionListener() {
-			boolean isInsulated = false;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (isInsulated) {
-					insulated.setText("Insulation: Off");
-					isInsulated = false;
-				} else {
-					insulated.setText("Insulation: On");
-					isInsulated = true;
-				}
-				model.setIsInsulated(isInsulated);
-			}
-		});
-
 		JPanel moveWall = new JPanel(new GridLayout(1, 1));
 
 		JButton moveWallIn = new JButton("Move wall in");
@@ -350,6 +331,18 @@ public class ControlPanel extends JComponent {
 
 		moveWall.add(moveWallIn);
 		moveWall.add(moveWallOut);
+		
+		JCheckBox insulated = new JCheckBox("Insulate the walls");
+		insulated.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.DESELECTED) {
+					model.setIsInsulated(false);
+				} else {
+					model.setIsInsulated(true);
+				}
+			}
+		});
 
 		colourParticlesAtActEnergy = new JCheckBox("Colour particles when reaching activation energy");
 		colourParticlesAtActEnergy.addItemListener(new ItemListener() {
@@ -363,7 +356,7 @@ public class ControlPanel extends JComponent {
 			}
 		});
 
-		particlesDisappearAtActEnergy = new JCheckBox("Make particles disappear upon reaching activation energy");
+		JCheckBox particlesDisappearAtActEnergy = new JCheckBox("Make particles disappear upon reaching activation energy");
 		particlesDisappearAtActEnergy.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -375,7 +368,7 @@ public class ControlPanel extends JComponent {
 			}
 		});
 
-		particlesPushWall = new JCheckBox("Allow particles to push the right wall");
+		JCheckBox particlesPushWall = new JCheckBox("Allow particles to push the right wall");
 		particlesPushWall.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -391,8 +384,8 @@ public class ControlPanel extends JComponent {
 		playPauseRestart.add(playPause);
 
 		buttons.add(playPauseRestart);
-		buttons.add(insulated);
 		buttons.add(moveWall);
+		buttons.add(insulated);
 		buttons.add(colourParticlesAtActEnergy);
 		buttons.add(particlesDisappearAtActEnergy);
 		buttons.add(particlesPushWall);
