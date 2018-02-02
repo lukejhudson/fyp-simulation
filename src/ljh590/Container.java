@@ -2,70 +2,71 @@ package ljh590;
 
 public class Container {
 
-	private int widthChange;
-	private int width;
+	private double widthChange;
+	private double width;
 	private double actualWidth;
 	private int height;
 	private double actualHeight;
 	private double pixelSize;
-	
+
 	private int maxWidth = 1200;
 	private int minWidth = 300;
-	
+
 	public Container(int width, int height, double pixelSize) {
 		this.setWidth(width);
 		this.setHeight(height);
 	}
-	
+
 	public void setPixelSize(double pixelSize) {
 		this.pixelSize = pixelSize;
 		setActualWidth(width * pixelSize);
 		setActualHeight(height * pixelSize);
 	}
-	
-	public void moveWall(int newWidth) {
+
+	public void moveWall(double newWidth) {
 		widthChange = newWidth - width;
-		if (widthChange > 10) {
-			widthChange = 10;
-		}
 		setWidth(newWidth);
 	}
-	
+
 	/**
-	 * @param dist The distance to move the wall in pixels
+	 * @param dist
+	 *            The distance to move the wall in pixels
 	 */
-	public void pushWall(int dist) {
-		int newWidth = width + dist;
+	public void pushWall(double dist) {
+		double newWidth = width + dist;
 		if (newWidth + dist > maxWidth) {
 			newWidth = maxWidth;
 		}
+		widthChange = dist;
 		setWidth(newWidth);
 	}
-	
-	/** Positive when moving to the right
+
+	/**
+	 * Positive when moving to the right
+	 * 
 	 * @return
 	 */
-	public int getWidthChange() {
+	public double getWidthChange() {
 		return widthChange;
 	}
-	
-	public void setWidthChange(int w) {
+
+	public void setWidthChange(double w) {
 		widthChange = w;
 	}
-	
+
 	public int getVolume() {
-		return width * height;
+		return (int) width * height;
 	}
-	
+
 	public double getActualVolume() {
 		return actualWidth * actualHeight;
 	}
 
-	public int getWidth() {
+	public double getWidth() {
 		return width;
 	}
 
-	public void setWidth(int width) {
+	public void setWidth(double width) {
 		this.width = width;
 		this.actualWidth = width * pixelSize;
 	}
@@ -94,19 +95,19 @@ public class Container {
 	public void setActualHeight(double actualHeight) {
 		this.actualHeight = actualHeight;
 	}
-	
+
 	public void setMaxWidth(int newWidth) {
 		this.maxWidth = newWidth;
 	}
-	
+
 	public int getMaxWidth() {
 		return this.maxWidth;
 	}
-	
+
 	public void setMinWidth(int newWidth) {
 		this.minWidth = newWidth;
 	}
-	
+
 	public int getMinWidth() {
 		return this.minWidth;
 	}

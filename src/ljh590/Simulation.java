@@ -35,7 +35,7 @@ public class Simulation extends Thread implements ActionListener {
 	private double activationEnergy = 10;
 	private boolean disappearOnActEnergy = false;
 	// The number of reactions in this iteration
-	private int noReactions;
+	private int numReactions;
 	// Stores the previously calculated reactions/iteration
 	private CopyOnWriteArrayList<Integer> previousNoReactions;
 
@@ -200,7 +200,7 @@ public class Simulation extends Thread implements ActionListener {
 						}
 					}
 					if (Math.pow(p.getVel().normalise(), 2) > activationEnergy) {
-						noReactions++;
+						numReactions++;
 						if (disappearOnActEnergy) {
 							p.setActive(false);
 							numActiveParticles--;
@@ -226,8 +226,8 @@ public class Simulation extends Thread implements ActionListener {
 		if (previousNoReactions.size() > maxMeasurements) {
 			previousNoReactions.remove(0);
 		}
-		previousNoReactions.add(noReactions);
-		noReactions = 0;
+		previousNoReactions.add(numReactions);
+		numReactions = 0;
 	}
 
 	private CopyOnWriteArrayList<Particle> createCopy() {
@@ -314,7 +314,7 @@ public class Simulation extends Thread implements ActionListener {
 	}
 
 	public void collideWall(Particle p) {
-		int wallX = container.getWidth();
+		int wallX = (int) container.getWidth();
 		int wallY = container.getHeight();
 		int r = p.getRadius();
 		if (p.getX() < r) { // Left wall
@@ -348,8 +348,8 @@ public class Simulation extends Thread implements ActionListener {
 		// Find how much the wall has moved since last iteration
 		double wallSpeed = (double) container.getWidthChange() / 3.0;
 		// Don't let the particles gain too much energy
-		if (wallSpeed < -5) {
-			wallSpeed = -5;
+		if (wallSpeed < -20) {
+			wallSpeed = -20;
 		}
 
 		// When insulation is off and a particle collides with any wall, move
@@ -358,10 +358,12 @@ public class Simulation extends Thread implements ActionListener {
 		if (!isInsulated && (wallSpeed == 0 || w != Wall.E)) {
 			double difference = expectedMSS - actualMSS;
 			double ratioMSS;
+			double scaleSpeedUp = 1.5; // default 2
+			double scaleSlowDown = 6.125; // default 7
 			if (difference > 0) { // Wants to speed up
-				ratioMSS = (actualMSS + (difference / 2.0)) / actualMSS;
+				ratioMSS = (actualMSS + (difference / scaleSpeedUp)) / actualMSS;
 			} else { // Wants to slow down
-				ratioMSS = (actualMSS + (difference / 7.0)) / actualMSS;
+				ratioMSS = (actualMSS + (difference / scaleSlowDown)) / actualMSS;
 			}
 			p.getVel().scale(Math.sqrt(Math.abs(ratioMSS)));
 		}
@@ -406,10 +408,21 @@ public class Simulation extends Thread implements ActionListener {
 		// factor = 1;
 		// }
 		// if (!isInsulated) factor = 1;
-		
-		if (particlesPushWall && w == Wall.E) {
-			container.pushWall(1);
-			p.getVel().scale(0.5);
+
+		if (particlesPushWall && w == Wall.E && container.getWidth() != container.getMaxWidth() && wallSpeed >= 0) {
+			// Mass of wall relative to particle
+			int m = 10;
+
+			double vx = p.getVelX();
+			double newVX = (vx * (1 - m)) / (1 + m);
+			double wallVX = (2 * vx) / (1 + m);
+
+			p.setVelX(Math.abs(newVX));
+			container.pushWall(Math.abs(wallVX));
+
+			System.out.println("ux = " + vx + ", vx = " + newVX);
+			System.out.println();
+			System.out.println("wallVX = " + wallVX + ", width = " + container.getWidth());
 		}
 
 		// Scale the particle's speed by the factor. When the right wall is
@@ -427,7 +440,8 @@ public class Simulation extends Thread implements ActionListener {
 			break;
 		case E:
 			vx = p.getVelX();
-			// If adding the wall speed to the particle
+			// If adding the wall speed to the particle (Special and very rare
+			// case)
 			if (wallSpeed > 0 && Math.abs(vx) < wallSpeed) {
 				// System.out.println("!!!!!!!!!");
 				p.setVelX(-vx / 2);
@@ -517,7 +531,7 @@ public class Simulation extends Thread implements ActionListener {
 	private void spawn() {
 		System.out.println("SPAWNING");
 
-		int wallX = container.getWidth();
+		int wallX = (int) container.getWidth();
 		int wallY = container.getHeight();
 
 		Random rand = new Random();

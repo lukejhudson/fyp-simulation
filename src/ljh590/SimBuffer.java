@@ -5,9 +5,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class SimBuffer {
 
 	private CopyOnWriteArrayList<Particle> particles;
-	private int contWidth;
+	private double contWidth;
 	
-	public SimBuffer(CopyOnWriteArrayList<Particle> particles, int contWidth) {
+	public SimBuffer(CopyOnWriteArrayList<Particle> particles, double contWidth) {
 		this.particles = particles;
 		this.contWidth = contWidth;
 	}
@@ -16,7 +16,7 @@ public class SimBuffer {
 		return particles;
 	}
 
-	public int getContWidth() {
+	public double getContWidth() {
 		return contWidth;
 	}
 }

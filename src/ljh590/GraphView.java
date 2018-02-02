@@ -53,6 +53,12 @@ public class GraphView extends JComponent implements Observer {
 	private Chart2D etChart;
 	private ITrace2D etTrace;
 	private JPanel etComponents;
+	// Button to create Carnot cycle
+	private JButton autoCarnot;
+	// Panel containing the graphs
+	private JPanel heatEngineGraphs;
+	// Panel containing the heat engine components
+	private JPanel heatEnginePanel;
 
 	// ACTIVATION ENERGY
 	// Energy distribution chart
@@ -61,6 +67,8 @@ public class GraphView extends JComponent implements Observer {
 	private double lowestEnergy;
 	private double highestEnergy;
 	private double energyDistBarWidth;
+	// Panel containing the activation energy components
+	private JPanel activationEnergyPanel;
 
 	// Boltzmann factor vs reactions/sec
 	private Chart2D bmfRsChart;
@@ -74,22 +82,67 @@ public class GraphView extends JComponent implements Observer {
 
 	/**
 	 * @param model
+	 * @param autoCarnot 
 	 */
-	public GraphView(SimModel model) {
+	public GraphView(SimModel model, JButton autoCarnot) {
 		super();
-		setLayout(new GridLayout(3, 0));
+		setLayout(new BorderLayout());
 		this.model = model;
 		this.cont = model.getContainer();
+		this.autoCarnot = autoCarnot;
 
+		createHeatEngineComponents();
+		createActivationEnergyComponents();
+
+		addHeatEnginePanel();
+	}
+
+	private void addHeatEnginePanel() {
+		createHeatEnginePanel();
+		add(heatEnginePanel);
+	}
+
+	private void removeHeatEnginePanel() {
+		remove(heatEnginePanel);
+	}
+
+	private void addActivationEnergyPanel() {
+		createActivationEnergyPanel();
+		add(activationEnergyPanel);
+	}
+
+	private void removeActivationEnergyPanel() {
+		remove(activationEnergyPanel);
+	}
+
+	private void createHeatEngineComponents() {
 		createSpeedDistChart();
-		createPVChart();
 		createETChart();
+		createPVChart();
+	}
+
+	private void createHeatEnginePanel() {
+		heatEnginePanel = new JPanel(new BorderLayout());
+
+		heatEngineGraphs = new JPanel(new GridLayout(3, 0));
+		heatEngineGraphs.add(speedDistChart);
+		heatEngineGraphs.add(pvComponents);
+		heatEngineGraphs.add(etComponents);
+
+		heatEnginePanel.add(heatEngineGraphs, BorderLayout.CENTER);
+		heatEnginePanel.add(autoCarnot, BorderLayout.SOUTH);
+	}
+
+	private void createActivationEnergyComponents() {
 		createEnergyDistChart();
 		createBMFRsChart();
+	}
 
-		add(speedDistChart);
-		add(pvComponents);
-		add(etComponents);
+	private void createActivationEnergyPanel() {
+		activationEnergyPanel = new JPanel(new GridLayout(3, 0));
+		activationEnergyPanel.add(speedDistChart);
+		activationEnergyPanel.add(energyDistChart);
+		activationEnergyPanel.add(bmfRsChart);
 	}
 
 	private void createSpeedDistChart() {
@@ -162,13 +215,31 @@ public class GraphView extends JComponent implements Observer {
 		pvRemoveTraces.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				pvChart.removeAllTraces();
-				pvAddTrace();
+				pvResetTraces();
 			}
 		});
 		pvButtons.add(pvRemoveTraces);
 		pvComponents.add(pvChart, BorderLayout.CENTER);
 		pvComponents.add(pvButtons, BorderLayout.SOUTH);
+
+		Thread pvThread = new Thread(new Runnable() {
+			public void run() {
+				while (true) {
+					if (mode == Mode.HeatEngines) {// &&
+													// model.getContainer().getWidthChange()
+													// != 0) {
+						updatePVChart();
+						updateETChart();
+					}
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		pvThread.start();
 	}
 
 	private void createETChart() {
@@ -200,8 +271,7 @@ public class GraphView extends JComponent implements Observer {
 		etRemoveTraces.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				etChart.removeAllTraces();
-				etAddTrace();
+				etResetTraces();
 			}
 		});
 		etButtons.add(etRemoveTraces);
@@ -267,7 +337,7 @@ public class GraphView extends JComponent implements Observer {
 		bmfRsTrace.setTracePainter(new TracePainterDisc());
 		bmfRsChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Reactions/iteration"));
 		bmfRsChart.getAxisY().setAxisTitle(new IAxis.AxisTitle("Boltzmann Factor"));
-		
+
 		Thread t = new Thread(new Runnable() {
 			public void run() {
 				while (true) {
@@ -310,11 +380,8 @@ public class GraphView extends JComponent implements Observer {
 		case HeatEngines:
 			if (mode != Mode.HeatEngines) {
 				mode = Mode.HeatEngines;
-				remove(energyDistChart);
-				remove(bmfRsChart);
-				add(speedDistChart);
-				add(pvComponents);
-				add(etComponents);
+				removeActivationEnergyPanel();
+				addHeatEnginePanel();
 				pvChart.removeAllTraces();
 				pvAddTrace();
 			}
@@ -322,11 +389,8 @@ public class GraphView extends JComponent implements Observer {
 		case ActivationEnergy:
 			if (mode != Mode.ActivationEnergy) {
 				mode = Mode.ActivationEnergy;
-				// remove(speedDistChart);
-				remove(pvComponents);
-				remove(etComponents);
-				add(energyDistChart);
-				add(bmfRsChart);
+				removeHeatEnginePanel();
+				addActivationEnergyPanel();
 			}
 			break;
 		default:
@@ -382,7 +446,7 @@ public class GraphView extends JComponent implements Observer {
 		}
 	}
 
-	private void pvAddTrace() {
+	public void pvAddTrace() {
 		// pvTrace = new Trace2DBijective();
 		pvTrace = new Trace2DSimple();
 		IRangePolicy pvRangePolicyX = new RangePolicyFixedViewport(new Range(0, pvXAxisMax));
@@ -392,8 +456,13 @@ public class GraphView extends JComponent implements Observer {
 		pvChart.addTrace(pvTrace);
 		pvTrace.setName("");
 	}
+	
+	public void pvResetTraces() {
+		pvChart.removeAllTraces();
+		pvAddTrace();
+	}
 
-	private void etAddTrace() {
+	public void etAddTrace() {
 		// etTrace = new Trace2DBijective();
 		etTrace = new Trace2DSimple();
 		// IRangePolicy etRangePolicyX = new RangePolicyFixedViewport(new
@@ -404,6 +473,11 @@ public class GraphView extends JComponent implements Observer {
 		// etChart.getAxisY().setRangePolicy(etRangePolicyY);
 		etChart.addTrace(etTrace);
 		etTrace.setName("");
+	}
+	
+	public void etResetTraces() {
+		etChart.removeAllTraces();
+		etAddTrace();
 	}
 
 	private void updateEnergyDistChart() {
@@ -432,7 +506,7 @@ public class GraphView extends JComponent implements Observer {
 			double temp = model.getAverageT();
 			double factor = -(model.getActualActivationEnergy() / (1.38E-23 * temp));
 			double bmf = Math.exp(factor);
-			
+
 			double noReactions = model.getAverageNoReactions();
 
 			bmfRsTrace.addPoint(noReactions, bmf);

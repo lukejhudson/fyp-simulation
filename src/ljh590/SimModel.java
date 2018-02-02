@@ -101,7 +101,7 @@ public class SimModel extends Observable {
 		return sim.calculateExpectedMSS(temp);
 	}
 
-	public void moveWall(int x) {
+	public void moveWall(double x) {
 		sim.getContainer().moveWall(x);
 		if (sim.getContainer().getWidthChange() != 0) {
 			setChanged();

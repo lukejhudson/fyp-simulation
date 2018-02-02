@@ -21,7 +21,7 @@ public class SimComponent extends JComponent {
 	private int fps = 60;
 	private CopyOnWriteArrayList<Particle> particles;
 	// Width of container (from buffer)
-	private int contWidth;
+	private double contWidth;
 	private Container cont;
 	private int r;
 	private boolean refresh = true;
@@ -103,7 +103,7 @@ public class SimComponent extends JComponent {
 			public void mousePressed(MouseEvent e) {
 				System.out.println("PRESSED: " + e.getPoint());
 				mouseX = e.getX();
-				int width = cont.getWidth();
+				double width = cont.getWidth();
 				if (Math.abs(width - e.getX()) < 10) {
 					draggingWall = true;
 					model.setBufferMaxSize(1);
@@ -122,7 +122,7 @@ public class SimComponent extends JComponent {
 			// Whenever the mouse is moved
 			public void mouseMoved(MouseEvent e) {
 				// System.out.println("MOVED: " + e.getPoint());
-				int width = cont.getWidth();
+				double width = cont.getWidth();
 				if (Math.abs(width - e.getX()) < 10) {
 					setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
 				} else if (!draggingWall) {
@@ -152,7 +152,7 @@ public class SimComponent extends JComponent {
 	@Override
 	public void paintComponent(Graphics g) {
 		g.setColor(Color.BLACK);
-		g.drawRect(0, 0, contWidth, cont.getHeight());
+		g.drawRect(0, 0, (int) contWidth, cont.getHeight());
 
 		// System.out.println(particles);
 		// double tot = 0;

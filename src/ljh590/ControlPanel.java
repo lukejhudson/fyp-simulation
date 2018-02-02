@@ -38,7 +38,18 @@ public class ControlPanel extends JComponent {
 	private JLabel currT;
 	private JLabel currP;
 
+	// COMPONENTS NEEDED FOR AUTOCARNOT
+	private JSlider tempSlider;
+
+	private JButton restart;
+	private JButton playPause;	
+	private JButton moveWallIn;
+
 	private JCheckBox colourParticlesAtActEnergy;
+	private JCheckBox insulated;
+	private JCheckBox particlesPushWall;
+	// The button to automatically create a Carnot cycle graph
+	private JButton autoCarnot;
 
 	private boolean pause = false;
 
@@ -48,7 +59,8 @@ public class ControlPanel extends JComponent {
 		this.frame = frame;
 
 		this.model = new SimModel(sim);
-		this.view = new GraphView(model);
+		createAutoCarnot();
+		this.view = new GraphView(model, autoCarnot);
 		model.addObserver(view);
 
 		frame.setLayout(new GridBagLayout());
@@ -114,9 +126,9 @@ public class ControlPanel extends JComponent {
 		frame.add(graphView, c); // Graphs
 
 		comp.setMinimumSize(
-				new Dimension(model.getContainer().getWidth() + 300, model.getContainer().getHeight() + 10));
+				new Dimension((int) model.getContainer().getWidth() + 300, model.getContainer().getHeight() + 10));
 		comp.setPreferredSize(
-				new Dimension(model.getContainer().getWidth() + 300, model.getContainer().getHeight() + 10));
+				new Dimension((int) model.getContainer().getWidth() + 300, model.getContainer().getHeight() + 10));
 		// c.fill = GridBagConstraints.BOTH;
 		// c.ipadx = 0;
 		// c.ipady = 0;
@@ -213,7 +225,7 @@ public class ControlPanel extends JComponent {
 		actEnergy.add(actEnergyValue, BorderLayout.EAST);
 		// actEnergySlider.setMaximum(maximum);
 
-		JSlider tempSlider = new JSlider(SwingConstants.HORIZONTAL, 200, 4000, 300);
+		tempSlider = new JSlider(SwingConstants.HORIZONTAL, 200, 4000, 300);
 		JLabel tempValue = new JLabel("300");
 		tempSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
@@ -274,7 +286,7 @@ public class ControlPanel extends JComponent {
 		JPanel playPauseRestart = new JPanel(new GridLayout(1, 2));
 		JPanel buttons = new JPanel(new GridLayout(0, 1));
 
-		JButton playPause = new JButton("Pause");
+		playPause = new JButton("Pause");
 		playPause.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -292,7 +304,7 @@ public class ControlPanel extends JComponent {
 			}
 		});
 
-		JButton restart = new JButton("Restart");
+		restart = new JButton("Restart");
 		restart.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -307,7 +319,7 @@ public class ControlPanel extends JComponent {
 
 		JPanel moveWall = new JPanel(new GridLayout(1, 1));
 
-		JButton moveWallIn = new JButton("Move wall in");
+		moveWallIn = new JButton("Move wall in");
 		moveWallIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -331,8 +343,8 @@ public class ControlPanel extends JComponent {
 
 		moveWall.add(moveWallIn);
 		moveWall.add(moveWallOut);
-		
-		JCheckBox insulated = new JCheckBox("Insulate the walls");
+
+		insulated = new JCheckBox("Insulate the walls");
 		insulated.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -356,7 +368,8 @@ public class ControlPanel extends JComponent {
 			}
 		});
 
-		JCheckBox particlesDisappearAtActEnergy = new JCheckBox("Make particles disappear upon reaching activation energy");
+		JCheckBox particlesDisappearAtActEnergy = new JCheckBox(
+				"Make particles disappear upon reaching activation energy");
 		particlesDisappearAtActEnergy.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -368,7 +381,7 @@ public class ControlPanel extends JComponent {
 			}
 		});
 
-		JCheckBox particlesPushWall = new JCheckBox("Allow particles to push the right wall");
+		particlesPushWall = new JCheckBox("Allow particles to push the right wall");
 		particlesPushWall.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -390,5 +403,95 @@ public class ControlPanel extends JComponent {
 		buttons.add(particlesDisappearAtActEnergy);
 		buttons.add(particlesPushWall);
 		return buttons;
+	}
+
+	private void createAutoCarnot() {
+		autoCarnot = new JButton("Create Carnot Cycle");
+		autoCarnot.addActionListener(new ActionListener() {
+			private boolean running = false;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("carnot");
+				if (running) {
+					System.out.println("Already running");
+				} else {
+					Container cont = model.getContainer();
+					Thread t = new Thread(new Runnable() {
+						public void run() {
+							// Insulation off, allow gas to move wall out, wall
+							// starts in until halfway, high wall temp --> high
+							// wall temp
+							playPause.doClick(100);
+							insulated.setSelected(false);
+							particlesPushWall.setSelected(true);
+							cont.setWidth(cont.getMinWidth());
+							tempSlider.setValue(3000);
+							restart.doClick(100);
+							view.pvResetTraces();
+							view.etResetTraces();
+
+							double contHalfway = (cont.getMinWidth() + cont.getMaxWidth()) / 2;
+							while (cont.getWidth() < contHalfway) {
+								try {
+									Thread.sleep(50);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							}
+
+							// Insulation on, allow gas to move wall out, wall
+							// starts halfway until out, high wall temp --> low
+							// wall temp
+							view.pvAddTrace();
+							view.etAddTrace();
+							insulated.setSelected(true);
+
+							while (cont.getWidth() < cont.getMaxWidth()) {
+								try {
+									Thread.sleep(50);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							}
+
+							// Insulation off, compress gas, wall starts out
+							// until halfway, low wall temp --> low wall temp
+							view.pvAddTrace();
+							view.etAddTrace();
+							insulated.setSelected(false);
+							particlesPushWall.setSelected(false);
+							cont.setWidth(cont.getMaxWidth());
+							tempSlider.setValue(500);
+							moveWallIn.doClick(100);
+
+							while (cont.getWidth() > contHalfway) {
+								try {
+									Thread.sleep(50);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							}
+
+							// Insulation on, compress gas, wall starts halfway
+							// until in, low wall temp --> high wall temp
+							view.pvAddTrace();
+							view.etAddTrace();
+							insulated.setSelected(true);
+
+							while (cont.getWidth() > cont.getMinWidth()) {
+								try {
+									Thread.sleep(50);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							}
+							model.pauseSim();
+						}
+					});
+					t.start();
+				}
+			}
+		});
 	}
 }
