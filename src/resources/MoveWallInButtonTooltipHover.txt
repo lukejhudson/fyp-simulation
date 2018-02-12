@@ -1,0 +1,7 @@
+<html>
+Moves the right wall inwards/stops moving the right wall inwards.
+<br><br>
+The right wall will automatically move inwards at a slow, steady rate until you press
+<br>
+this button again or it reaches the smallest the container can be.
+</html>

@@ -1,0 +1,2 @@
+When checked, particles will disappear from the simulation upon reaching the activation
+energy.

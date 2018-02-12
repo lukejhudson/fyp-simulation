@@ -1,0 +1,7 @@
+<html>
+Restarts the simulation.
+<br><br>
+The number of particles will be set to the value of the "Number of Particles" slider,
+<br>
+and the average temperature of the particles will be equal to the wall temperature.
+</html>

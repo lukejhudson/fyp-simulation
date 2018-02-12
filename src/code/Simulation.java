@@ -1,4 +1,4 @@
-package ljh590;
+package code;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -52,6 +52,9 @@ public class Simulation extends Thread implements ActionListener {
 	private double tChange;
 	// Stores the previously calculated changes in temperature
 	private CopyOnWriteArrayList<Double> previousTChanges;
+	// Stores the previously calculated entropy values
+	private CopyOnWriteArrayList<Double> previousEntropies;
+	
 	// Buffer of ticks
 	private CopyOnWriteArrayList<SimBuffer> buffer;
 	// Maximum number of elements in the buffer
@@ -114,6 +117,7 @@ public class Simulation extends Thread implements ActionListener {
 		previousTs = new CopyOnWriteArrayList<Double>();
 		previousPs = new CopyOnWriteArrayList<Double>();
 		previousTChanges = new CopyOnWriteArrayList<Double>();
+		previousEntropies = new CopyOnWriteArrayList<Double>();
 		previousNoReactions = new CopyOnWriteArrayList<Integer>();
 		if (benchmark) {
 			delay = 0;
@@ -221,8 +225,16 @@ public class Simulation extends Thread implements ActionListener {
 		}
 		previousTChanges.add(tChange);
 		// System.out.println("tChange: " + tChange);
+		
+		if (!isInsulated) {
+			if (previousEntropies.size() > maxMeasurements) {
+				previousEntropies.remove(0);
+			}
+			double entropy = tChange / previousTs.get(previousTs.size() - 1);
+			previousEntropies.add(entropy);
+		}
 		tChange = 0;
-
+		
 		if (previousNoReactions.size() > maxMeasurements) {
 			previousNoReactions.remove(0);
 		}
@@ -358,8 +370,8 @@ public class Simulation extends Thread implements ActionListener {
 		if (!isInsulated && (wallSpeed == 0 || w != Wall.E)) {
 			double difference = expectedMSS - actualMSS;
 			double ratioMSS;
-			double scaleSpeedUp = 1.5; // default 2
-			double scaleSlowDown = 6.125; // default 7
+			double scaleSpeedUp = 1; //    default 2, 1.5,   1
+			double scaleSlowDown = 4.1; // default 7, 6.125, 4.1
 			if (difference > 0) { // Wants to speed up
 				ratioMSS = (actualMSS + (difference / scaleSpeedUp)) / actualMSS;
 			} else { // Wants to slow down
@@ -409,20 +421,25 @@ public class Simulation extends Thread implements ActionListener {
 		// }
 		// if (!isInsulated) factor = 1;
 
+		// When particles are allowed to push the right wall
 		if (particlesPushWall && w == Wall.E && container.getWidth() != container.getMaxWidth() && wallSpeed >= 0) {
 			// Mass of wall relative to particle
-			int m = 10;
-
+			int wallM = 10;
+			int fact = 10;
+			
 			double vx = p.getVelX();
-			double newVX = (vx * (1 - m)) / (1 + m);
-			double wallVX = (2 * vx) / (1 + m);
+			double newVX = (vx * (1 - (wallM / fact))) / (1 + (wallM / fact));
+			// double newVX = (vx * (1 - wallM)) / (1 + wallM);
+			double wallVX = 2 * ((2 * vx) / (1 + wallM));
 
-			p.setVelX(Math.abs(newVX));
+			if (isInsulated) {
+				p.setVelX(Math.abs(newVX));
+			}
 			container.pushWall(Math.abs(wallVX));
 
-			System.out.println("ux = " + vx + ", vx = " + newVX);
-			System.out.println();
-			System.out.println("wallVX = " + wallVX + ", width = " + container.getWidth());
+//			System.out.println("ux = " + vx + ", vx = " + newVX);
+//			System.out.println();
+//			System.out.println("wallVX = " + wallVX + ", width = " + container.getWidth());
 		}
 
 		// Scale the particle's speed by the factor. When the right wall is
@@ -664,6 +681,15 @@ public class Simulation extends Thread implements ActionListener {
 			tot += iter.next();
 		}
 		return tot / previousTChanges.size();
+	}
+	
+	public double getAverageEntropy() {
+		Iterator<Double> iter = previousEntropies.iterator();
+		double tot = 0;
+		while (iter.hasNext()) {
+			tot += iter.next();
+		}
+		return tot / previousEntropies.size();
 	}
 
 	public double getAverageNoReactions() {

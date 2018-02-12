@@ -1,9 +1,9 @@
-package ljh590;
+package code;
 
 import java.util.ArrayList;
 import java.util.Observable;
 
-import ljh590.GraphView.Mode;
+import code.GraphView.Mode;
 
 public class SimModel extends Observable {
 
@@ -39,6 +39,10 @@ public class SimModel extends Observable {
 	
 	public double getAverageTChange() {
 		return sim.getAverageTChange();
+	}
+	
+	public double getAverageEntropy() {
+		return sim.getAverageEntropy();
 	}
 	
 	public double getAverageNoReactions() {

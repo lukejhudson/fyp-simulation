@@ -1,4 +1,4 @@
-package ljh590;
+package code;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -9,6 +9,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
@@ -25,7 +28,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import ljh590.GraphView.Mode;
+import code.GraphView.Mode;
 
 @SuppressWarnings("serial")
 public class ControlPanel extends JComponent {
@@ -183,7 +186,11 @@ public class ControlPanel extends JComponent {
 		numParticles.add(numParticlesLabel, BorderLayout.NORTH);
 		numParticles.add(numParticlesSlider, BorderLayout.CENTER);
 		numParticles.add(numParticlesValue, BorderLayout.EAST);
+		numParticles.setToolTipText(readFile("NumParticlesSliderTooltipHover.txt"));
+		numParticlesSlider.setToolTipText(readFile("NumParticlesSliderTooltipHover.txt"));
 
+		numParticles.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+		
 		// JLabel sizeParticlesLabel = new JLabel("Particle size",
 		// SwingConstants.CENTER);
 		// JSlider sizeParticlesSlider = new JSlider(SwingConstants.HORIZONTAL,
@@ -224,6 +231,11 @@ public class ControlPanel extends JComponent {
 		actEnergy.add(actEnergySlider, BorderLayout.CENTER);
 		actEnergy.add(actEnergyValue, BorderLayout.EAST);
 		// actEnergySlider.setMaximum(maximum);
+		actEnergy.setToolTipText(readFile("ActEnergySliderTooltipHover.txt"));
+		actEnergySlider.setToolTipText(readFile("ActEnergySliderTooltipHover.txt"));
+
+		actEnergy.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+		
 
 		tempSlider = new JSlider(SwingConstants.HORIZONTAL, 200, 4000, 300);
 		JLabel tempValue = new JLabel("300");
@@ -241,6 +253,11 @@ public class ControlPanel extends JComponent {
 		tempComp.add(tempLabel, BorderLayout.NORTH);
 		tempComp.add(tempSlider, BorderLayout.CENTER);
 		tempComp.add(tempValue, BorderLayout.EAST);
+		
+		tempComp.setToolTipText(readFile("WallTempSliderTooltipHover.txt"));
+		tempSlider.setToolTipText(readFile("WallTempSliderTooltipHover.txt"));
+
+		tempComp.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
 		currT = new JLabel("<html>Average temperature<br>of particles: </html>");
 		currP = new JLabel("<html>Average pressure<br>on container: </html>");
@@ -271,6 +288,11 @@ public class ControlPanel extends JComponent {
 		fps.add(fpsSlider, BorderLayout.CENTER);
 		fps.add(fpsLabel, BorderLayout.NORTH);
 		fps.add(fpsValue, BorderLayout.EAST);
+		
+		fps.setToolTipText(readFile("SimSpeedSliderTooltipHover.txt"));
+		fpsSlider.setToolTipText(readFile("SimSpeedSliderTooltipHover.txt"));
+
+		fps.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
 		sliderBar.add(stats);
 		sliderBar.add(tempComp);
@@ -303,6 +325,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
+		playPause.setToolTipText(readFile("PauseResumeButtonTooltipHover.txt"));
 
 		restart = new JButton("Restart");
 		restart.addActionListener(new ActionListener() {
@@ -316,6 +339,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
+		restart.setToolTipText(readFile("RestartButtonTooltipHover.txt"));
 
 		JPanel moveWall = new JPanel(new GridLayout(1, 1));
 
@@ -329,6 +353,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
+		moveWallIn.setToolTipText(readFile("MoveWallInButtonTooltipHover.txt"));
 
 		JButton moveWallOut = new JButton("Move wall out");
 		moveWallOut.addActionListener(new ActionListener() {
@@ -340,6 +365,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
+		moveWallOut.setToolTipText(readFile("MoveWallOutButtonTooltipHover.txt"));
 
 		moveWall.add(moveWallIn);
 		moveWall.add(moveWallOut);
@@ -355,6 +381,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
+		insulated.setToolTipText(readFile("InsulateWallsCheckboxTooltipHover.txt"));
 
 		colourParticlesAtActEnergy = new JCheckBox("Colour particles when reaching activation energy");
 		colourParticlesAtActEnergy.addItemListener(new ItemListener() {
@@ -367,6 +394,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
+		colourParticlesAtActEnergy.setToolTipText(readFile("ColourParticlesCheckboxTooltipHover.txt"));
 
 		JCheckBox particlesDisappearAtActEnergy = new JCheckBox(
 				"Make particles disappear upon reaching activation energy");
@@ -380,6 +408,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
+		particlesDisappearAtActEnergy.setToolTipText(readFile("ParticlesDisappearCheckboxTooltipHover.txt"));
 
 		particlesPushWall = new JCheckBox("Allow particles to push the right wall");
 		particlesPushWall.addItemListener(new ItemListener() {
@@ -392,6 +421,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
+		particlesPushWall.setToolTipText(readFile("ParticlesPushCheckboxTooltipHover.txt"));
 
 		playPauseRestart.add(restart);
 		playPauseRestart.add(playPause);
@@ -493,5 +523,15 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
+	}
+	
+	private String readFile(String name) {
+		String s = "";
+		try {
+			s = new String(Files.readAllBytes(Paths.get("./src/resources/" + name).toAbsolutePath()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return s;
 	}
 }

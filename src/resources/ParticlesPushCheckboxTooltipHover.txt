@@ -1,0 +1,1 @@
+When checked, the right wall will be able to be pushed by the particles.

@@ -1,0 +1,9 @@
+<html>
+Adjusts the temperature of the walls in Kelvin.
+<br><br>
+If the walls are not insulated, particles will gain or lose a small amount of energy to
+<br>
+move closer to the wall temperature.
+<br><br>
+This also changes the default temperature of the particles.
+</html>

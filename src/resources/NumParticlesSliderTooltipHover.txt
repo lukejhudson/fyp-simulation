@@ -1,0 +1,5 @@
+<html>
+Adjusts the number of particles in the simulation.
+<br>
+The effects of the slider will only take place when pressing the restart button.
+</html>

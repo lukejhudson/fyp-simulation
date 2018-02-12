@@ -1,0 +1,1 @@
+Pauses/resumes the simulation.

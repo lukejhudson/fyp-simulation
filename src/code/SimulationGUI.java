@@ -1,4 +1,4 @@
-package ljh590;
+package code;
 
 import javax.swing.JFrame;
 

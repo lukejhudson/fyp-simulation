@@ -1,0 +1,7 @@
+<html>
+Adjusts the speed of the simulation.
+<br><br>
+A multiplier of 0.25 means the simulation will happen at a quarter of the default rate.
+<br>
+A multiplier of 4.00 means the simulation will happen at four times the default rate.
+</html>

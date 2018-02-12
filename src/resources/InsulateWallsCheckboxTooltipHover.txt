@@ -1,0 +1,10 @@
+<html>
+When checked, all collisions between the particles and walls are elastic except<br>
+when the right wall is moving.
+<br><br>
+Otherwise, whenever a particle collides with a wall it will gain/lose some energy to
+<br>
+equalise its energy to the wall temperature. This keeps the average temperature of the
+<br>
+particles approximately equal to the wall tempearture.
+</html>

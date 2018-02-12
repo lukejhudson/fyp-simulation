@@ -1,4 +1,4 @@
-package ljh590;
+package code;
 
 import java.awt.Color;
 import java.awt.Cursor;

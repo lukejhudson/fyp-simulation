@@ -1,4 +1,4 @@
-package ljh590;
+package code;
 
 public class Container {
 
@@ -36,8 +36,10 @@ public class Container {
 		double newWidth = width + dist;
 		if (newWidth + dist > maxWidth) {
 			newWidth = maxWidth;
+			widthChange = 0;
+		} else {
+			widthChange = dist;
 		}
-		widthChange = dist;
 		setWidth(newWidth);
 	}
 

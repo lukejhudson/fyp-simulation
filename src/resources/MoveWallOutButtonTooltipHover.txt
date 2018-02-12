@@ -1,0 +1,7 @@
+<html>
+Moves the right wall outwards/stops moving the right wall outwards.
+<br><br>
+The right wall will automatically move outwards at a slow, steady rate until you press
+<br>
+this button again or it reaches the largest the container can be.
+</html>

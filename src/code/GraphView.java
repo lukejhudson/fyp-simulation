@@ -1,4 +1,4 @@
-package ljh590;
+package code;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -82,7 +82,7 @@ public class GraphView extends JComponent implements Observer {
 
 	/**
 	 * @param model
-	 * @param autoCarnot 
+	 * @param autoCarnot
 	 */
 	public GraphView(SimModel model, JButton autoCarnot) {
 		super();
@@ -200,7 +200,7 @@ public class GraphView extends JComponent implements Observer {
 		pvChart.getAxisX().setRangePolicy(pvRangePolicyX);
 		IRangePolicy pvRangePolicyY = new RangePolicyFixedViewport(new Range(0, pvYAxisMax));
 		pvChart.getAxisY().setRangePolicy(pvRangePolicyY);
-
+		// pvChart.setUseAntialiasing(true);
 		pvComponents = new JPanel(new BorderLayout());
 		JPanel pvButtons = new JPanel(new GridLayout(1, 0));
 		JButton pvAddTrace = new JButton("Add trace");
@@ -246,8 +246,9 @@ public class GraphView extends JComponent implements Observer {
 		// pvChart = new Chart2D();
 		etChart = new Chart2D();
 		etAddTrace();
-		etChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Temperature (K)"));
-		etChart.getAxisY().setAxisTitle(new IAxis.AxisTitle("Entropy (Heat transfer / temperature)"));
+		etChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Entropy (Heat transfer / temperature)"));
+		etChart.getAxisY().setAxisTitle(new IAxis.AxisTitle("Temperature (K)"));
+		// etChart.getAxisX().setPaintScale(false);
 		// etChart.getAxisX().setAxisTitle(new IAxis.AxisTitle(""));
 		// etChart.getAxisY().setAxisTitle(new IAxis.AxisTitle(""));
 		// IRangePolicy etRangePolicyX = new RangePolicyFixedViewport(new
@@ -432,17 +433,15 @@ public class GraphView extends JComponent implements Observer {
 
 	private void updateETChart() {
 		if (mode == Mode.HeatEngines) {
-			double tChange = model.getAverageTChange();
 			double temperature = model.getAverageT();
-
-			double entropy = tChange / temperature;
+			double entropy = model.getAverageEntropy();
 
 			if (model.getIsInsulated()) {
 				etTrace.setColor(Color.RED);
 			} else {
 				etTrace.setColor(Color.BLUE);
 			}
-			etTrace.addPoint(temperature, entropy);
+			etTrace.addPoint(entropy, temperature);
 		}
 	}
 
@@ -456,7 +455,7 @@ public class GraphView extends JComponent implements Observer {
 		pvChart.addTrace(pvTrace);
 		pvTrace.setName("");
 	}
-	
+
 	public void pvResetTraces() {
 		pvChart.removeAllTraces();
 		pvAddTrace();
@@ -474,7 +473,7 @@ public class GraphView extends JComponent implements Observer {
 		etChart.addTrace(etTrace);
 		etTrace.setName("");
 	}
-	
+
 	public void etResetTraces() {
 		etChart.removeAllTraces();
 		etAddTrace();

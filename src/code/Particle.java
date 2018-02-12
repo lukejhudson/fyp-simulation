@@ -1,4 +1,4 @@
-package ljh590;
+package code;
 
 /**
  * @author Luke Holds particle information and helper functions.
