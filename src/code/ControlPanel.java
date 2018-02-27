@@ -2,6 +2,7 @@ package code;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -15,6 +16,7 @@ import java.nio.file.Paths;
 import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -45,7 +47,7 @@ public class ControlPanel extends JComponent {
 	private JSlider tempSlider;
 
 	private JButton restart;
-	private JButton playPause;	
+	private JButton playPause;
 	private JButton moveWallIn;
 
 	private JCheckBox colourParticlesAtActEnergy;
@@ -69,6 +71,8 @@ public class ControlPanel extends JComponent {
 		frame.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 
+		JPanel menuBar = new JPanel(new BorderLayout());
+
 		String[] modes = { "Heat Engines", "Activation Energy" };
 		JComboBox<String> menu = new JComboBox<String>(modes);
 		menu.addActionListener(new ActionListener() {
@@ -85,7 +89,55 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
-		menu.setMinimumSize(new Dimension(200, 40));
+		menu.setMinimumSize(new Dimension(160, 40));
+
+		JButton menuHelp = new JButton("?");
+		menuHelp.setFont(new Font("Monospaced", Font.BOLD, 20));
+		menuHelp.setContentAreaFilled(false);
+		menuHelp.setToolTipText("Detailed information for the current mode");
+		menuHelp.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFrame frame = new JFrame("Test");
+				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+				JLabel container = new JLabel();
+				container.setLayout(new GridLayout(0, 1));
+				container.setVerticalTextPosition(SwingConstants.TOP);
+
+				String m = (String) menu.getSelectedItem();
+				if (m.equals("Heat Engines")) {
+					ImageIcon CCPistons = createImageIcon("CarnotCyclePistons.png",
+							"An ideal gas-piston model of the Carnot cycle");
+					ImageIcon CCPV = createImageIcon("CarnotCyclePV.png", "A P-V diagram of the Carnot cycle");
+					ImageIcon CCTS = createImageIcon("CarnotCycleTS.png", "A T-S diagram of the Carnot cycle");
+
+					JLabel label1 = new JLabel(readFile("todo/HeatEnginesTooltip1.txt"), CCPistons, JLabel.LEADING);
+					label1.setVerticalTextPosition(JLabel.TOP);
+					label1.setHorizontalTextPosition(JLabel.CENTER);
+					JLabel label2 = new JLabel(readFile("todo/HeatEnginesTooltip2.txt"), CCPV, JLabel.LEADING);
+					label2.setVerticalTextPosition(JLabel.TOP);
+					label2.setHorizontalTextPosition(JLabel.CENTER);
+					JLabel label3 = new JLabel(readFile("todo/HeatEnginesTooltip3.txt"), CCTS, JLabel.LEADING);
+					label3.setVerticalTextPosition(JLabel.TOP);
+					label3.setHorizontalTextPosition(JLabel.CENTER);
+
+					container.add(label1);
+					container.add(label2);
+					container.add(label3);
+				} else if (m.equals("Activation Energy")) {
+					JLabel label1 = new JLabel(readFile("todo/ActEnergyTooltip.txt"));
+					container.add(label1);
+				}
+
+				frame.add(container);
+				frame.setSize(new Dimension(400, 800));
+				frame.setVisible(true);
+			}
+		});
+
+		menuBar.add(menu, BorderLayout.CENTER);
+		menuBar.add(menuHelp, BorderLayout.EAST);
 
 		JPanel UI = new JPanel(new BorderLayout());
 
@@ -115,7 +167,7 @@ public class ControlPanel extends JComponent {
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 0;
-		graphView.add(menu, c);
+		graphView.add(menuBar, c);
 
 		c.fill = GridBagConstraints.BOTH;
 		c.gridy = 1;
@@ -190,7 +242,7 @@ public class ControlPanel extends JComponent {
 		numParticlesSlider.setToolTipText(readFile("NumParticlesSliderTooltipHover.txt"));
 
 		numParticles.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-		
+
 		// JLabel sizeParticlesLabel = new JLabel("Particle size",
 		// SwingConstants.CENTER);
 		// JSlider sizeParticlesSlider = new JSlider(SwingConstants.HORIZONTAL,
@@ -235,7 +287,6 @@ public class ControlPanel extends JComponent {
 		actEnergySlider.setToolTipText(readFile("ActEnergySliderTooltipHover.txt"));
 
 		actEnergy.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-		
 
 		tempSlider = new JSlider(SwingConstants.HORIZONTAL, 200, 4000, 300);
 		JLabel tempValue = new JLabel("300");
@@ -253,14 +304,16 @@ public class ControlPanel extends JComponent {
 		tempComp.add(tempLabel, BorderLayout.NORTH);
 		tempComp.add(tempSlider, BorderLayout.CENTER);
 		tempComp.add(tempValue, BorderLayout.EAST);
-		
+
 		tempComp.setToolTipText(readFile("WallTempSliderTooltipHover.txt"));
 		tempSlider.setToolTipText(readFile("WallTempSliderTooltipHover.txt"));
 
 		tempComp.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
 		currT = new JLabel("<html>Average temperature<br>of particles: </html>");
+		currT.setToolTipText(readFile("AvgTempLabelTooltipHover.txt"));
 		currP = new JLabel("<html>Average pressure<br>on container: </html>");
+		currP.setToolTipText(readFile("AvgPressureLabelTooltipHover.txt"));
 		stats.add(currT, BorderLayout.NORTH);
 		stats.add(currP, BorderLayout.SOUTH);
 
@@ -288,7 +341,7 @@ public class ControlPanel extends JComponent {
 		fps.add(fpsSlider, BorderLayout.CENTER);
 		fps.add(fpsLabel, BorderLayout.NORTH);
 		fps.add(fpsValue, BorderLayout.EAST);
-		
+
 		fps.setToolTipText(readFile("SimSpeedSliderTooltipHover.txt"));
 		fpsSlider.setToolTipText(readFile("SimSpeedSliderTooltipHover.txt"));
 
@@ -416,6 +469,7 @@ public class ControlPanel extends JComponent {
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.DESELECTED) {
 					model.setParticlesPushWall(false);
+					model.getContainer().setWidthChange(0);
 				} else {
 					model.setParticlesPushWall(true);
 				}
@@ -437,6 +491,7 @@ public class ControlPanel extends JComponent {
 
 	private void createAutoCarnot() {
 		autoCarnot = new JButton("Create Carnot Cycle");
+		autoCarnot.setToolTipText(readFile("/todo/AutoCarnotButtonTooltipHover.txt"));
 		autoCarnot.addActionListener(new ActionListener() {
 			private boolean running = false;
 
@@ -524,8 +579,8 @@ public class ControlPanel extends JComponent {
 			}
 		});
 	}
-	
-	private String readFile(String name) {
+
+	public static String readFile(String name) {
 		String s = "";
 		try {
 			s = new String(Files.readAllBytes(Paths.get("./src/resources/" + name).toAbsolutePath()));
@@ -533,5 +588,16 @@ public class ControlPanel extends JComponent {
 			e.printStackTrace();
 		}
 		return s;
+	}
+
+	/** Returns an ImageIcon, or null if the path was invalid. */
+	protected ImageIcon createImageIcon(String path, String description) {
+		java.net.URL imgURL = getClass().getResource("../resources/images/" + path);
+		if (imgURL != null) {
+			return new ImageIcon(imgURL, description);
+		} else {
+			System.err.println("Couldn't find file: ../resources/images/" + path);
+			return null;
+		}
 	}
 }

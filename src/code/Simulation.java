@@ -54,7 +54,7 @@ public class Simulation extends Thread implements ActionListener {
 	private CopyOnWriteArrayList<Double> previousTChanges;
 	// Stores the previously calculated entropy values
 	private CopyOnWriteArrayList<Double> previousEntropies;
-	
+
 	// Buffer of ticks
 	private CopyOnWriteArrayList<SimBuffer> buffer;
 	// Maximum number of elements in the buffer
@@ -225,7 +225,7 @@ public class Simulation extends Thread implements ActionListener {
 		}
 		previousTChanges.add(tChange);
 		// System.out.println("tChange: " + tChange);
-		
+
 		if (!isInsulated) {
 			if (previousEntropies.size() > maxMeasurements) {
 				previousEntropies.remove(0);
@@ -234,7 +234,7 @@ public class Simulation extends Thread implements ActionListener {
 			previousEntropies.add(entropy);
 		}
 		tChange = 0;
-		
+
 		if (previousNoReactions.size() > maxMeasurements) {
 			previousNoReactions.remove(0);
 		}
@@ -363,14 +363,35 @@ public class Simulation extends Thread implements ActionListener {
 		if (wallSpeed < -20) {
 			wallSpeed = -20;
 		}
+		
+		// When particles are allowed to push the right wall
+		if (particlesPushWall && w == Wall.E && container.getWidth() != container.getMaxWidth() && wallSpeed >= 0) {
+			// Mass of wall relative to particle
+			int wallM = 10;
+			int fact = 10;
 
+			double vx = p.getVelX();
+			double newVX = (vx * (1 - (wallM / fact))) / (1 + (wallM / fact));
+			// double newVX = (vx * (1 - wallM)) / (1 + wallM);
+			double wallVX = 2 * ((2 * vx) / (1 + wallM));
+
+			if (isInsulated) {
+				p.setVelX(Math.abs(newVX));
+			}
+			container.pushWall(Math.abs(wallVX));
+
+			// System.out.println("ux = " + vx + ", vx = " + newVX);
+			// System.out.println();
+			// System.out.println("wallVX = " + wallVX + ", width = " +
+			// container.getWidth());
+		}
 		// When insulation is off and a particle collides with any wall, move
 		// its speed closer to the expected speed for this temperature (the only
 		// debatable part here is the 2.0 and 7.0)
 		if (!isInsulated && (wallSpeed == 0 || w != Wall.E)) {
 			double difference = expectedMSS - actualMSS;
 			double ratioMSS;
-			double scaleSpeedUp = 1; //    default 2, 1.5,   1
+			double scaleSpeedUp = 1; // default 2, 1.5, 1
 			double scaleSlowDown = 4.1; // default 7, 6.125, 4.1
 			if (difference > 0) { // Wants to speed up
 				ratioMSS = (actualMSS + (difference / scaleSpeedUp)) / actualMSS;
@@ -420,27 +441,6 @@ public class Simulation extends Thread implements ActionListener {
 		// factor = 1;
 		// }
 		// if (!isInsulated) factor = 1;
-
-		// When particles are allowed to push the right wall
-		if (particlesPushWall && w == Wall.E && container.getWidth() != container.getMaxWidth() && wallSpeed >= 0) {
-			// Mass of wall relative to particle
-			int wallM = 10;
-			int fact = 10;
-			
-			double vx = p.getVelX();
-			double newVX = (vx * (1 - (wallM / fact))) / (1 + (wallM / fact));
-			// double newVX = (vx * (1 - wallM)) / (1 + wallM);
-			double wallVX = 2 * ((2 * vx) / (1 + wallM));
-
-			if (isInsulated) {
-				p.setVelX(Math.abs(newVX));
-			}
-			container.pushWall(Math.abs(wallVX));
-
-//			System.out.println("ux = " + vx + ", vx = " + newVX);
-//			System.out.println();
-//			System.out.println("wallVX = " + wallVX + ", width = " + container.getWidth());
-		}
 
 		// Scale the particle's speed by the factor. When the right wall is
 		// moving in, only particles which are pushed by it are affected (and
@@ -682,7 +682,7 @@ public class Simulation extends Thread implements ActionListener {
 		}
 		return tot / previousTChanges.size();
 	}
-	
+
 	public double getAverageEntropy() {
 		Iterator<Double> iter = previousEntropies.iterator();
 		double tot = 0;

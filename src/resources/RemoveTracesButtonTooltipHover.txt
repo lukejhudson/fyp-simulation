@@ -1,0 +1,1 @@
+Removes all traces from the above graph, then adds a fresh trace.

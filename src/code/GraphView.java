@@ -147,6 +147,7 @@ public class GraphView extends JComponent implements Observer {
 
 	private void createSpeedDistChart() {
 		speedDistChart = new Chart2D();
+		speedDistChart.setToolTipText(ControlPanel.readFile("/todo/SpeedDistTooltipHover.txt"));
 		speedDistTrace = new Trace2DBijective();
 		speedDistTrace.setTracePainter(new TracePainterVerticalBar(5, speedDistChart));
 		speedDistTrace.setName("Speed distribution");
@@ -191,6 +192,7 @@ public class GraphView extends JComponent implements Observer {
 	private void createPVChart() {
 		// pvChart = new Chart2D();
 		pvChart = new ZoomableChart();
+		pvChart.setToolTipText(ControlPanel.readFile("/todo/PVChartTooltipHover.txt"));
 		pvAddTrace();
 		pvChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Volume (m^2 x10^-18)"));
 		pvChart.getAxisY().setAxisTitle(new IAxis.AxisTitle("Pressure (Pa)"));
@@ -204,6 +206,7 @@ public class GraphView extends JComponent implements Observer {
 		pvComponents = new JPanel(new BorderLayout());
 		JPanel pvButtons = new JPanel(new GridLayout(1, 0));
 		JButton pvAddTrace = new JButton("Add trace");
+		pvAddTrace.setToolTipText(ControlPanel.readFile("AddTraceButtonTooltipHover.txt"));
 		pvAddTrace.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -212,6 +215,7 @@ public class GraphView extends JComponent implements Observer {
 		});
 		pvButtons.add(pvAddTrace);
 		JButton pvRemoveTraces = new JButton("Remove traces");
+		pvRemoveTraces.setToolTipText(ControlPanel.readFile("RemoveTracesButtonTooltipHover.txt"));
 		pvRemoveTraces.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -245,6 +249,7 @@ public class GraphView extends JComponent implements Observer {
 	private void createETChart() {
 		// pvChart = new Chart2D();
 		etChart = new Chart2D();
+		etChart.setToolTipText(ControlPanel.readFile("/todo/ETChartTooltipHover.txt"));
 		etAddTrace();
 		etChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Entropy (Heat transfer / temperature)"));
 		etChart.getAxisY().setAxisTitle(new IAxis.AxisTitle("Temperature (K)"));
@@ -261,6 +266,7 @@ public class GraphView extends JComponent implements Observer {
 		etComponents = new JPanel(new BorderLayout());
 		JPanel etButtons = new JPanel(new GridLayout(1, 0));
 		JButton etAddTrace = new JButton("Add trace");
+		etAddTrace.setToolTipText(ControlPanel.readFile("AddTraceButtonTooltipHover.txt"));
 		etAddTrace.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -269,6 +275,7 @@ public class GraphView extends JComponent implements Observer {
 		});
 		etButtons.add(etAddTrace);
 		JButton etRemoveTraces = new JButton("Remove traces");
+		etRemoveTraces.setToolTipText(ControlPanel.readFile("RemoveTracesButtonTooltipHover.txt"));
 		etRemoveTraces.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -282,6 +289,7 @@ public class GraphView extends JComponent implements Observer {
 
 	private void createEnergyDistChart() {
 		energyDistChart = new Chart2D();
+		energyDistChart.setToolTipText(ControlPanel.readFile("/todo/EnergyDistTooltipHover.txt"));
 
 		energyDistTraces = new ArrayList<Trace2DBijective>();
 		Trace2DBijective t;
@@ -333,6 +341,7 @@ public class GraphView extends JComponent implements Observer {
 
 	private void createBMFRsChart() {
 		bmfRsChart = new Chart2D();
+		bmfRsChart.setToolTipText(ControlPanel.readFile("/todo/BMFRsChartTooltipHover.txt"));
 		bmfRsTrace = new Trace2DSimple();
 		bmfRsChart.addTrace(bmfRsTrace);
 		bmfRsTrace.setTracePainter(new TracePainterDisc());

@@ -1,0 +1,1 @@
+Shows the average temperature of the particles in the simulation.

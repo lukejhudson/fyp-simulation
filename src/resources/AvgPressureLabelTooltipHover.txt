@@ -1,0 +1,5 @@
+<html>
+Shows the average pressure of the particles in the simulation.
+<br><br>
+This value is calculated based on the average temperature.
+</html>

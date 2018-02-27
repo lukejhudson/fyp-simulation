@@ -1,0 +1,1 @@
+Adds a new trace to the above graph without affecting any current traces.
