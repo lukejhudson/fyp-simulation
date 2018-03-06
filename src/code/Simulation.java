@@ -53,7 +53,7 @@ public class Simulation extends Thread implements ActionListener {
 	// Stores the previously calculated changes in temperature
 	private CopyOnWriteArrayList<Double> previousTChanges;
 	// Stores the previously calculated entropy values
-	private CopyOnWriteArrayList<Double> previousEntropies;
+	private double entropy;
 
 	// Buffer of ticks
 	private CopyOnWriteArrayList<SimBuffer> buffer;
@@ -94,6 +94,8 @@ public class Simulation extends Thread implements ActionListener {
 	private boolean particlesPushWall = false;
 
 	private Timer timer;
+	// When true, the simulation will remove the 0th element of the buffer
+	private boolean removeBuffer0 = false;
 
 	public Simulation() {
 		this(defaultT, defaultNumParticles, defaultDelay);
@@ -109,6 +111,7 @@ public class Simulation extends Thread implements ActionListener {
 	}
 
 	private void setup() {
+		iterations = 0;
 		numActiveParticles = numParticles;
 		particles = new CopyOnWriteArrayList<Particle>();
 		buffer = new CopyOnWriteArrayList<SimBuffer>();
@@ -117,7 +120,7 @@ public class Simulation extends Thread implements ActionListener {
 		previousTs = new CopyOnWriteArrayList<Double>();
 		previousPs = new CopyOnWriteArrayList<Double>();
 		previousTChanges = new CopyOnWriteArrayList<Double>();
-		previousEntropies = new CopyOnWriteArrayList<Double>();
+		entropy = 0;
 		previousNoReactions = new CopyOnWriteArrayList<Integer>();
 		if (benchmark) {
 			delay = 0;
@@ -183,8 +186,13 @@ public class Simulation extends Thread implements ActionListener {
 			radius = newSize;
 			changeSize = false;
 		}
+		if (removeBuffer0 && !buffer.isEmpty()) {
+			buffer.remove(0);
+			removeBuffer0 = false;
+		}
 		if (rollback) {
 			if (!buffer.isEmpty()) {
+				System.out.println("ROLLBACK");
 				particles = buffer.get(0).getParticles();
 			}
 			buffer.clear();
@@ -227,11 +235,7 @@ public class Simulation extends Thread implements ActionListener {
 		// System.out.println("tChange: " + tChange);
 
 		if (!isInsulated) {
-			if (previousEntropies.size() > maxMeasurements) {
-				previousEntropies.remove(0);
-			}
-			double entropy = tChange / previousTs.get(previousTs.size() - 1);
-			previousEntropies.add(entropy);
+			entropy += tChange / previousTs.get(previousTs.size() - 1);
 		}
 		tChange = 0;
 
@@ -358,25 +362,41 @@ public class Simulation extends Thread implements ActionListener {
 		double prevEnergy = Math.pow(p.getVel().normalise(), 2);
 
 		// Find how much the wall has moved since last iteration
-		double wallSpeed = (double) container.getWidthChange() / 3.0;
+		double wallSpeed = (double) container.getWidthChange();// / 3.0;
 		// Don't let the particles gain too much energy
 		if (wallSpeed < -20) {
 			wallSpeed = -20;
 		}
-		
+
 		// When particles are allowed to push the right wall
 		if (particlesPushWall && w == Wall.E && container.getWidth() != container.getMaxWidth() && wallSpeed >= 0) {
-			// Mass of wall relative to particle
-			int wallM = 10;
-			int fact = 10;
+			int wallM;
+			int partM = 1;
+			int fact;
+			if (isInsulated) {
+				// Mass of wall relative to particle
+				wallM = 10;
+				// Scaling factor for wallM when calculating the particle's
+				// velocity
+				fact = 5;
+			} else {
+				wallM = 12;
+				partM = 25;
+				fact = 6;
+			}
 
 			double vx = p.getVelX();
-			double newVX = (vx * (1 - (wallM / fact))) / (1 + (wallM / fact));
+			double newVX = (vx * (partM - (wallM / fact))) / (partM + (wallM / fact));
 			// double newVX = (vx * (1 - wallM)) / (1 + wallM);
 			double wallVX = 2 * ((2 * vx) / (1 + wallM));
 
 			if (isInsulated) {
 				p.setVelX(Math.abs(newVX));
+				p.setVelY(p.getVelY() * 0.5);
+			} else {
+				p.setVelX(Math.abs(newVX));
+				// p.getVel().scale(1.05);
+//				p.setVelX(p.getVelX() * 1.075);
 			}
 			container.pushWall(Math.abs(wallVX));
 
@@ -391,8 +411,18 @@ public class Simulation extends Thread implements ActionListener {
 		if (!isInsulated && (wallSpeed == 0 || w != Wall.E)) {
 			double difference = expectedMSS - actualMSS;
 			double ratioMSS;
-			double scaleSpeedUp = 1; // default 2, 1.5, 1
-			double scaleSlowDown = 4.1; // default 7, 6.125, 4.1
+			double scaleSpeedUp;
+			double scaleSlowDown;
+			if (wallSpeed > 0) {
+				scaleSpeedUp = 1;
+				scaleSlowDown = 15;
+			} else if (wallSpeed < 0) {
+				scaleSpeedUp = 2;
+				scaleSlowDown = 1.5;
+			} else {
+				scaleSpeedUp = 1; // default 2, 1.5, 1
+				scaleSlowDown = 4.1; // default 7, 6.125, 4.1
+			}
 			if (difference > 0) { // Wants to speed up
 				ratioMSS = (actualMSS + (difference / scaleSpeedUp)) / actualMSS;
 			} else { // Wants to slow down
@@ -400,47 +430,6 @@ public class Simulation extends Thread implements ActionListener {
 			}
 			p.getVel().scale(Math.sqrt(Math.abs(ratioMSS)));
 		}
-
-		// Calculate initial factor based on how far the right wall has been
-		// moved
-		// double factor = 1 - ((double) container.getWidthChange() / 10d);
-		// Only the right wall can push particles
-		// if (w != Wall.E && factor > 1) {
-		// factor = 1;
-		// }
-		// When insulation is off, only particles colliding with the right wall
-		// will lose energy when moving the wall outwards (stops the particles
-		// from losing too much energy)
-		// if (w != Wall.E && !isInsulated) {// factor < 1) {
-		// factor = 1;
-		// }
-
-		// tempScaleFactor is used to ensure the particles slow down at the
-		// correct rate when moving the wall outwards (to return to their
-		// original temperature)
-
-		// Approximate values that tempScaleFactor should produce:
-		// 4000k --> 0.97
-		// 1000k --> 0.95
-		// 500k --> 0.89
-		// 300k --> 0.875
-		// 200k --> 0.8
-		// double tempScaleFactor = 0.98 - (200 / (5.5 * (double) T));
-		// double tempScaleFactor = 0.5; // Previous value
-		// System.out.println(tempScaleFactor);
-		// if (factor < tempScaleFactor) {
-		// factor = tempScaleFactor;
-		// }
-		// Don't let particles get too fast
-		// if ((actualMSS / expectedMSS) > 20) {
-		// factor = 0.5;
-		// }
-		// So particles won't slow down when moving the wall outward (not
-		// insulated only)
-		// if (factor < 1 && !isInsulated) {
-		// factor = 1;
-		// }
-		// if (!isInsulated) factor = 1;
 
 		// Scale the particle's speed by the factor. When the right wall is
 		// moving in, only particles which are pushed by it are affected (and
@@ -457,16 +446,42 @@ public class Simulation extends Thread implements ActionListener {
 			break;
 		case E:
 			vx = p.getVelX();
-			// If adding the wall speed to the particle (Special and very rare
-			// case)
-			if (wallSpeed > 0 && Math.abs(vx) < wallSpeed) {
-				// System.out.println("!!!!!!!!!");
+			// If adding the wall speed to the particle produces a negative
+			// result (Special and very rare case)
+			if (!particlesPushWall && wallSpeed > 0 && Math.abs(vx) < (wallSpeed / 3.0)) {
+				System.out.println("!!!!!!!!!");
 				p.setVelX(-vx / 2);
-			} else if (wallSpeed != 0 && (p.getVel().sqrNorm() < 3 * calculateExpectedMSS(T) || wallSpeed > 0)) {
+			} else if (!particlesPushWall && wallSpeed != 0
+					&& (wallSpeed > 0 || p.getVel().sqrNorm() < 3 * calculateExpectedMSS(T))) {
 				// Math.abs(vx) < 5 * Math.abs(wallSpeed)
-				// If colliding with a wall moving inwards and the particle
+				// If colliding with a wall moving inwards OR
+				// If colliding with a wall moving outwards AND the particle
 				// isn't moving too fast
-				p.setVelX(-Math.abs(vx) + wallSpeed);
+				// p.setVelX(-Math.abs(vx) + wallSpeed);
+				int wallM;
+				int partM = 1;
+				int fact;
+				if (isInsulated) {
+					// Mass of wall relative to particle
+					wallM = 4;
+					// Scaling factor for wallM when calculating the particle's
+					// velocity
+					fact = 1;
+				} else {
+					wallM = 1;
+					partM = 5;
+					fact = 1;
+				}
+				// System.out.println(wallSpeed);
+				double newVX = ((vx * (partM - (wallM / fact))) + (3 * (wallM / fact) * wallSpeed)) / (partM + (wallM / fact));
+
+				if (isInsulated) {
+					p.setVelX(newVX);
+				} else {
+					p.setVelX(newVX);
+//					p.setVelX(-vx);
+//					p.getVel().scale(0.9);
+				}
 			} else {
 				p.setVelX(-vx);
 			}
@@ -619,7 +634,12 @@ public class Simulation extends Thread implements ActionListener {
 	}
 
 	public SimBuffer getBuffer() {
-		return buffer.remove(0);
+		if (!buffer.isEmpty()) {
+			removeBuffer0 = true;
+			return buffer.get(0);
+			// return buffer.remove(0);
+		}
+		return null;
 	}
 
 	public void rollbackBuffer() {
@@ -683,13 +703,8 @@ public class Simulation extends Thread implements ActionListener {
 		return tot / previousTChanges.size();
 	}
 
-	public double getAverageEntropy() {
-		Iterator<Double> iter = previousEntropies.iterator();
-		double tot = 0;
-		while (iter.hasNext()) {
-			tot += iter.next();
-		}
-		return tot / previousEntropies.size();
+	public double getEntropy() {
+		return entropy;
 	}
 
 	public double getAverageNoReactions() {
@@ -729,13 +744,13 @@ public class Simulation extends Thread implements ActionListener {
 
 	public void pauseSim() {
 		timer.stop();
-		if (rollback) {
-			if (!buffer.isEmpty()) {
-				particles = buffer.get(0).getParticles();
-			}
-			buffer.clear();
-			rollback = false;
-		}
+		// if (rollback) {
+		// if (!buffer.isEmpty()) {
+		// particles = buffer.get(0).getParticles();
+		// }
+		// buffer.clear();
+		// rollback = false;
+		// }
 	}
 
 	public ArrayList<Double> getSpeeds() {

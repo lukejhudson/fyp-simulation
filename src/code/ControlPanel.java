@@ -72,6 +72,8 @@ public class ControlPanel extends JComponent {
 		GridBagConstraints c = new GridBagConstraints();
 
 		JPanel menuBar = new JPanel(new BorderLayout());
+		JPanel UI = new JPanel(new BorderLayout());
+		JPanel graphView = new JPanel(new GridBagLayout());
 
 		String[] modes = { "Heat Engines", "Activation Energy" };
 		JComboBox<String> menu = new JComboBox<String>(modes);
@@ -139,8 +141,6 @@ public class ControlPanel extends JComponent {
 		menuBar.add(menu, BorderLayout.CENTER);
 		menuBar.add(menuHelp, BorderLayout.EAST);
 
-		JPanel UI = new JPanel(new BorderLayout());
-
 		JPanel sliders = sliderBar();
 		JPanel buttons = buttonBar();
 		comp = new SimComponent(model, frame, currT, currP);
@@ -160,7 +160,6 @@ public class ControlPanel extends JComponent {
 		// c.gridy = 0;
 		// c.gridheight = 2;
 
-		JPanel graphView = new JPanel(new GridBagLayout());
 		graphView.setMinimumSize(new Dimension(200, frame.getHeight()));
 		graphView.setPreferredSize(new Dimension(200, frame.getHeight()));
 
@@ -319,12 +318,12 @@ public class ControlPanel extends JComponent {
 
 		JSlider fpsSlider = new JSlider(SwingConstants.HORIZONTAL, 1, 16, 4);
 		Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
-		labelTable.put(new Integer(2), new JLabel("0.5"));
-		labelTable.put(new Integer(4), new JLabel("1"));
-		labelTable.put(new Integer(6), new JLabel("1.5"));
-		labelTable.put(new Integer(8), new JLabel("2"));
-		labelTable.put(new Integer(12), new JLabel("3"));
-		labelTable.put(new Integer(16), new JLabel("4"));
+		labelTable.put(Integer.valueOf(2), new JLabel("0.5"));
+		labelTable.put(Integer.valueOf(4), new JLabel("1"));
+		labelTable.put(Integer.valueOf(6), new JLabel("1.5"));
+		labelTable.put(Integer.valueOf(8), new JLabel("2"));
+		labelTable.put(Integer.valueOf(12), new JLabel("3"));
+		labelTable.put(Integer.valueOf(16), new JLabel("4"));
 		fpsSlider.setLabelTable(labelTable);
 		JLabel fpsLabel = new JLabel("Simulation speed multipler", SwingConstants.CENTER);
 		JLabel fpsValue = new JLabel("1.00");
@@ -497,83 +496,106 @@ public class ControlPanel extends JComponent {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("carnot");
-				if (running) {
-					System.out.println("Already running");
-				} else {
-					Container cont = model.getContainer();
-					Thread t = new Thread(new Runnable() {
-						public void run() {
-							// Insulation off, allow gas to move wall out, wall
-							// starts in until halfway, high wall temp --> high
-							// wall temp
-							playPause.doClick(100);
-							insulated.setSelected(false);
-							particlesPushWall.setSelected(true);
-							cont.setWidth(cont.getMinWidth());
-							tempSlider.setValue(3000);
-							restart.doClick(100);
-							view.pvResetTraces();
-							view.etResetTraces();
-
-							double contHalfway = (cont.getMinWidth() + cont.getMaxWidth()) / 2;
-							while (cont.getWidth() < contHalfway) {
-								try {
-									Thread.sleep(50);
-								} catch (InterruptedException e) {
-									e.printStackTrace();
-								}
+				Container cont = model.getContainer();
+				Thread t = new Thread(new Runnable() {
+					public void run() {
+						model.setAutoCarnot(true);
+						running = true;
+						autoCarnot.setText("Stop Carnot Cycle");
+						// Insulation off, allow gas to move wall out, wall
+						// starts in until halfway, high wall temp --> high
+						// wall temp
+						playPause.doClick(100);
+						insulated.setSelected(false);
+						particlesPushWall.setSelected(true);
+						cont.setWidth(cont.getMinWidth());
+						tempSlider.setValue(3000);
+						restart.doClick(100);
+						view.pvResetTraces();
+						view.etResetTraces();
+						
+						double contTwoThirds = cont.getMinWidth() + 2 * (cont.getMaxWidth() - cont.getMinWidth()) / 3;
+						while (cont.getWidth() < contTwoThirds && running) {
+							try {
+								Thread.sleep(50);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
 							}
-
-							// Insulation on, allow gas to move wall out, wall
-							// starts halfway until out, high wall temp --> low
-							// wall temp
-							view.pvAddTrace();
-							view.etAddTrace();
-							insulated.setSelected(true);
-
-							while (cont.getWidth() < cont.getMaxWidth()) {
-								try {
-									Thread.sleep(50);
-								} catch (InterruptedException e) {
-									e.printStackTrace();
-								}
-							}
-
-							// Insulation off, compress gas, wall starts out
-							// until halfway, low wall temp --> low wall temp
-							view.pvAddTrace();
-							view.etAddTrace();
-							insulated.setSelected(false);
-							particlesPushWall.setSelected(false);
-							cont.setWidth(cont.getMaxWidth());
-							tempSlider.setValue(500);
-							moveWallIn.doClick(100);
-
-							while (cont.getWidth() > contHalfway) {
-								try {
-									Thread.sleep(50);
-								} catch (InterruptedException e) {
-									e.printStackTrace();
-								}
-							}
-
-							// Insulation on, compress gas, wall starts halfway
-							// until in, low wall temp --> high wall temp
-							view.pvAddTrace();
-							view.etAddTrace();
-							insulated.setSelected(true);
-
-							while (cont.getWidth() > cont.getMinWidth()) {
-								try {
-									Thread.sleep(50);
-								} catch (InterruptedException e) {
-									e.printStackTrace();
-								}
-							}
-							model.pauseSim();
 						}
-					});
+						if (!running) {
+							return;
+						}
+						
+						// Insulation on, allow gas to move wall out, wall
+						// starts halfway until out, high wall temp --> low
+						// wall temp
+						view.pvAddTrace();
+						view.etAddTrace();
+						insulated.setSelected(true);
+
+						while (cont.getWidth() < cont.getMaxWidth() && running) {
+							try {
+								Thread.sleep(50);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+						if (!running) {
+							return;
+						}
+
+						// Insulation off, compress gas, wall starts out
+						// until halfway, low wall temp --> low wall temp
+						view.pvAddTrace();
+						view.etAddTrace();
+						insulated.setSelected(false);
+						particlesPushWall.setSelected(false);
+						cont.setWidth(cont.getMaxWidth());
+						tempSlider.setValue(1000);
+						moveWallIn.doClick(100);
+						model.setAutoCarnotCompress(true);
+
+						double contOneThird = cont.getMinWidth() + (cont.getMaxWidth() - cont.getMinWidth()) / 3;
+						while (cont.getWidth() > contOneThird && running) {
+							try {
+								Thread.sleep(50);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+						if (!running) {
+							return;
+						}
+
+						// Insulation on, compress gas, wall starts halfway
+						// until in, low wall temp --> high wall temp
+						view.pvAddTrace();
+						view.etAddTrace();
+						insulated.setSelected(true);
+
+						while (cont.getWidth() > cont.getMinWidth() && running) {
+							try {
+								Thread.sleep(50);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+						if (!running) {
+							return;
+						}
+						model.pauseSim();
+						running = false;
+						model.setAutoCarnot(false);
+						model.setAutoCarnotCompress(false);
+						autoCarnot.setText("Create Carnot Cycle");
+					}
+				});
+				if (running) {
+					running = false;
+					model.setAutoCarnot(false);
+					model.setAutoCarnotCompress(false);
+					autoCarnot.setText("Create Carnot Cycle");
+				} else {
 					t.start();
 				}
 			}

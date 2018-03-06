@@ -24,8 +24,6 @@ public class SimComponent extends JComponent {
 	private double contWidth;
 	private Container cont;
 	private int r;
-	private boolean refresh = true;
-	private boolean clear = false;
 
 	private boolean draggingWall = false;
 	private int mouseX = 0;
@@ -53,10 +51,6 @@ public class SimComponent extends JComponent {
 						particles = b.getParticles();
 						contWidth = b.getContWidth();
 						r = particles.get(0).getRadius();
-						if (refresh) {
-							frame.repaint();
-							refresh = false;
-						}
 						if (draggingWall) {
 							model.moveWall(mouseX);
 						}
@@ -84,9 +78,7 @@ public class SimComponent extends JComponent {
 		Thread timer = new Thread(new Runnable() {
 			public void run() {
 				while (true) {
-					if (!refresh) {
-						refresh = true;
-					}
+					frame.repaint();
 					try {
 						Thread.sleep(1000 / 60);
 					} catch (InterruptedException e) {

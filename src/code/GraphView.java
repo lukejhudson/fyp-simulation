@@ -53,6 +53,8 @@ public class GraphView extends JComponent implements Observer {
 	private Chart2D etChart;
 	private ITrace2D etTrace;
 	private JPanel etComponents;
+	private double maxEntropy = 0;
+	private double minEntropy = 0;
 	// Button to create Carnot cycle
 	private JButton autoCarnot;
 	// Panel containing the graphs
@@ -77,6 +79,10 @@ public class GraphView extends JComponent implements Observer {
 	private Chart2D bmFactChart;
 	private ITrace2D bmFactTrace;
 
+	// Used to delay the drawing of the PV and ET charts before they have good
+	// data
+	private int updateIterations = 0;
+
 	// Which mode we are in and thus which information we need to show
 	private Mode mode = Mode.HeatEngines;
 
@@ -100,6 +106,7 @@ public class GraphView extends JComponent implements Observer {
 	private void addHeatEnginePanel() {
 		createHeatEnginePanel();
 		add(heatEnginePanel);
+		heatEnginePanel.updateUI();
 	}
 
 	private void removeHeatEnginePanel() {
@@ -109,6 +116,7 @@ public class GraphView extends JComponent implements Observer {
 	private void addActivationEnergyPanel() {
 		createActivationEnergyPanel();
 		add(activationEnergyPanel);
+		activationEnergyPanel.updateUI();
 	}
 
 	private void removeActivationEnergyPanel() {
@@ -232,10 +240,13 @@ public class GraphView extends JComponent implements Observer {
 					if (mode == Mode.HeatEngines) {// &&
 													// model.getContainer().getWidthChange()
 													// != 0) {
-						updatePVChart();
-						updateETChart();
+//						if (updateIterations > -2) {
+							updatePVChart();
+							updateETChart();
+//						}
 					}
 					try {
+						updateIterations++;
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -254,14 +265,13 @@ public class GraphView extends JComponent implements Observer {
 		etChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Entropy (Heat transfer / temperature)"));
 		etChart.getAxisY().setAxisTitle(new IAxis.AxisTitle("Temperature (K)"));
 		// etChart.getAxisX().setPaintScale(false);
+		// etChart.getAxisY().setPaintScale(false);
 		// etChart.getAxisX().setAxisTitle(new IAxis.AxisTitle(""));
 		// etChart.getAxisY().setAxisTitle(new IAxis.AxisTitle(""));
-		// IRangePolicy etRangePolicyX = new RangePolicyFixedViewport(new
-		// Range(0, pvXAxisMax));
-		// etChart.getAxisX().setRangePolicy(etRangePolicyX);
-		// IRangePolicy etRangePolicyY = new RangePolicyFixedViewport(new
-		// Range(0, pvYAxisMax));
-		// etChart.getAxisY().setRangePolicy(etRangePolicyY);
+//		IRangePolicy etRangePolicyX = new RangePolicyFixedViewport(new Range(-0.001, 0.001));
+//		etChart.getAxisX().setRangePolicy(etRangePolicyX);
+		IRangePolicy etRangePolicyY = new RangePolicyFixedViewport(new Range(0, 5000));
+		etChart.getAxisY().setRangePolicy(etRangePolicyY);
 
 		etComponents = new JPanel(new BorderLayout());
 		JPanel etButtons = new JPanel(new GridLayout(1, 0));
@@ -379,6 +389,7 @@ public class GraphView extends JComponent implements Observer {
 			pvChart.getAxisY().setRangePolicy(pvRangePolicyY);
 			// pvChart.removeAllTraces();
 			// pvAddTrace();
+			updateIterations = 0;
 			break;
 		case T:
 			// updateBMFactChart();
@@ -410,6 +421,9 @@ public class GraphView extends JComponent implements Observer {
 	}
 
 	private void updateSpeedDistChart() {
+		if (speedDistChart.getTraces() == null) {
+			return;
+		}
 		ArrayList<Double> speeds = model.getSpeeds();
 		speeds.sort((a, b) -> (a > b) ? 1 : (a < b) ? -1 : 0);
 		int barTot = 0;
@@ -421,12 +435,19 @@ public class GraphView extends JComponent implements Observer {
 					barTot++;
 				}
 			}
-			speedDistTrace.addPoint(new TracePoint2D((i + 1) * 10, ((double) barTot / speeds.size()) * 100));
+			try {
+				speedDistTrace.addPoint(new TracePoint2D((i + 1) * 10, ((double) barTot / speeds.size()) * 100));
+			} catch (Exception e) {
+				System.err.println("Unable to plot speed distriubtion bar");
+			}
 			barTot = 0;
 		}
 	}
 
 	private void updatePVChart() {
+		if (pvChart.getTraces() == null) {
+			return;
+		}
 		if (mode == Mode.HeatEngines) {
 			double pressure = model.getAverageP();
 			double volume = cont.getActualVolume();
@@ -436,21 +457,51 @@ public class GraphView extends JComponent implements Observer {
 			} else {
 				pvTrace.setColor(Color.BLUE);
 			}
-			pvTrace.addPoint(volume * 1E18, pressure);
+			try {
+				pvTrace.addPoint(volume * 1E18, pressure);
+			} catch (Exception e) {
+				System.err.println("Unable to plot PV point");
+			}
 		}
 	}
 
 	private void updateETChart() {
+		if (etChart.getTraces() == null) {
+			return;
+		}
 		if (mode == Mode.HeatEngines) {
 			double temperature = model.getAverageT();
-			double entropy = model.getAverageEntropy();
+			double entropy = model.getEntropy();
+			
+			if (entropy > maxEntropy) {
+				maxEntropy = entropy;
+			} else if (entropy < minEntropy) {
+				minEntropy = entropy;
+			}
 
 			if (model.getIsInsulated()) {
+//				if (model.isAutoCarnot()) {
+//					if (model.isAutoCarnotCompress()) {
+//						entropy = minEntropy;
+//					} else {
+//						entropy = maxEntropy;
+//					}
+//				}
 				etTrace.setColor(Color.RED);
 			} else {
 				etTrace.setColor(Color.BLUE);
 			}
-			etTrace.addPoint(entropy, temperature);
+//			System.out.println(model.isAutoCarnot() + ", " + model.isAutoCarnotCompress() + ", " + entropy);
+//			if (entropy > 0.0008) {
+//				entropy = 0.0008;
+//			} else if (entropy < -0.0008) {
+//				entropy = -0.0008;
+//			}
+			try {
+				etTrace.addPoint(entropy, temperature);
+			} catch (Exception e) {
+				System.err.println("Unable to plot ST point");
+			}
 		}
 	}
 
@@ -484,11 +535,16 @@ public class GraphView extends JComponent implements Observer {
 	}
 
 	public void etResetTraces() {
+		maxEntropy = 0;
+		minEntropy = 0;
 		etChart.removeAllTraces();
 		etAddTrace();
 	}
 
 	private void updateEnergyDistChart() {
+		if (energyDistChart.getTraces() == null) {
+			return;
+		}
 		ArrayList<Double> energies = model.getEnergies();
 		energies.sort((a, b) -> (a > b) ? 1 : (a < b) ? -1 : 0);
 		int barTot = 0;
@@ -504,12 +560,20 @@ public class GraphView extends JComponent implements Observer {
 			} else {
 				energyDistTraces.get(i).setColor(Color.BLACK);
 			}
-			energyDistTraces.get(i).addPoint(new TracePoint2D((i + 1) * 10, ((double) barTot / energies.size()) * 100));
+			try {
+				energyDistTraces.get(i)
+						.addPoint(new TracePoint2D((i + 1) * 10, ((double) barTot / energies.size()) * 100));
+			} catch (Exception e) {
+				System.err.println("Unable to plot energy distribution bar");
+			}
 			barTot = 0;
 		}
 	}
 
 	private void updateBMFRsChart() {
+		if (bmfRsChart.getTraces() == null) {
+			return;
+		}
 		if (mode == Mode.ActivationEnergy) {
 			double temp = model.getAverageT();
 			double factor = -(model.getActualActivationEnergy() / (1.38E-23 * temp));
@@ -517,7 +581,11 @@ public class GraphView extends JComponent implements Observer {
 
 			double noReactions = model.getAverageNoReactions();
 
-			bmfRsTrace.addPoint(noReactions, bmf);
+			try {
+				bmfRsTrace.addPoint(noReactions, bmf);
+			} catch (Exception e) {
+				System.err.println("Unable to plot Boltzmann-Reactions/sec point");
+			}
 		}
 	}
 }

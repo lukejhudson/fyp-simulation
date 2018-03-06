@@ -7,6 +7,11 @@ import code.GraphView.Mode;
 
 public class SimModel extends Observable {
 
+	// Is the simulation running an auto Carnot cycle?
+	private boolean isAutoCarnot = false;
+	// If isAutoCarnot is true, is the container shrinking or expanding?
+	private boolean isAutoCarnotCompress = false;
+
 	public enum Changed {
 		NumParticles, ParticleSize, T, Restart, WallMoved, HeatEngines, ActivationEnergy
 	};
@@ -36,15 +41,15 @@ public class SimModel extends Observable {
 	public double getAverageP() {
 		return sim.getAverageP();
 	}
-	
+
 	public double getAverageTChange() {
 		return sim.getAverageTChange();
 	}
-	
-	public double getAverageEntropy() {
-		return sim.getAverageEntropy();
+
+	public double getEntropy() {
+		return sim.getEntropy();
 	}
-	
+
 	public double getAverageNoReactions() {
 		return sim.getAverageNoReactions();
 	}
@@ -88,15 +93,15 @@ public class SimModel extends Observable {
 	public void resumeSim() {
 		sim.resumeSim();
 	}
-	
+
 	public ArrayList<Double> getSpeeds() {
 		return sim.getSpeeds();
 	}
-	
+
 	public ArrayList<Double> getEnergies() {
 		return sim.getEnergies();
 	}
-	
+
 	public double calculateExpectedActualMSS(double temp) {
 		return sim.calculateExpectedActualMSS(temp);
 	}
@@ -112,15 +117,15 @@ public class SimModel extends Observable {
 			notifyObservers(Changed.WallMoved);
 		}
 	}
-	
+
 	public void setIsInsulated(boolean b) {
 		sim.setIsInsulated(b);
 	}
-	
+
 	public boolean getIsInsulated() {
 		return sim.getIsInsulated();
 	}
-	
+
 	public void changeMode(Mode mode) {
 		setChanged();
 		switch (mode) {
@@ -138,24 +143,40 @@ public class SimModel extends Observable {
 	public void setActivationEnergy(double e) {
 		sim.setActivationEnergy(e);
 	}
-	
+
 	public double getActivationEnergy() {
 		return sim.getActivationEnergy();
 	}
-	
+
 	public double getActualActivationEnergy() {
 		return sim.getActualActivationEnergy();
 	}
-	
+
 	public void setDisappearOnActEnergy(boolean b) {
 		sim.setDisappearOnActEnergy(b);
 	}
-	
+
 	public boolean isDisappearOnActEnergy() {
 		return sim.isDisappearOnActEnergy();
 	}
 
 	public void setParticlesPushWall(boolean b) {
 		sim.setParticlesPushWall(b);
+	}
+
+	public boolean isAutoCarnot() {
+		return isAutoCarnot;
+	}
+
+	public void setAutoCarnot(boolean isAutoCarnot) {
+		this.isAutoCarnot = isAutoCarnot;
+	}
+	
+	public boolean isAutoCarnotCompress() {
+		return isAutoCarnotCompress;
+	}
+
+	public void setAutoCarnotCompress(boolean isAutoCarnotCompress) {
+		this.isAutoCarnotCompress = isAutoCarnotCompress;
 	}
 }
