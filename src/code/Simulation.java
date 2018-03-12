@@ -30,7 +30,7 @@ public class Simulation extends Thread implements ActionListener {
 	private double speedRatio;
 	// Maximum number of pressure and temperature measurements to consider when
 	// calculating the average values
-	private final int maxMeasurements = 100;
+	private final int maxMeasurements = 50;
 
 	private double activationEnergy = 10;
 	private boolean disappearOnActEnergy = false;
@@ -122,6 +122,7 @@ public class Simulation extends Thread implements ActionListener {
 		previousTChanges = new CopyOnWriteArrayList<Double>();
 		entropy = 0;
 		previousNoReactions = new CopyOnWriteArrayList<Integer>();
+		numReactions = 0;
 		if (benchmark) {
 			delay = 0;
 		}
@@ -211,39 +212,41 @@ public class Simulation extends Thread implements ActionListener {
 							collideParticle(p, particles.get(j));
 						}
 					}
-					if (Math.pow(p.getVel().normalise(), 2) > activationEnergy) {
-						numReactions++;
-						if (disappearOnActEnergy) {
-							p.setActive(false);
-							numActiveParticles--;
-						}
+				}
+			}
+			for (int i = 0; i < numParticles; i++) {
+				Particle p = particles.get(i);
+				if (Math.pow(p.getVel().normalise(), 2) > activationEnergy) {
+					numReactions++;
+					if (disappearOnActEnergy) {
+						p.setActive(false);
+						numActiveParticles--;
 					}
 				}
 			}
 			iterations++;
 			SimBuffer b = new SimBuffer(createCopy(), container.getWidth());
 			buffer.add(b);
-			// System.out.println(particles);
-		}
-		calculateCurrT();
-		calculateCurrP();
 
-		if (previousTChanges.size() > maxMeasurements) {
-			previousTChanges.remove(0);
-		}
-		previousTChanges.add(tChange);
-		// System.out.println("tChange: " + tChange);
+			calculateCurrT();
+			calculateCurrP();
 
-		if (!isInsulated) {
-			entropy += tChange / previousTs.get(previousTs.size() - 1);
-		}
-		tChange = 0;
+			if (previousTChanges.size() > maxMeasurements) {
+				previousTChanges.remove(0);
+			}
+			previousTChanges.add(tChange);
 
-		if (previousNoReactions.size() > maxMeasurements) {
-			previousNoReactions.remove(0);
+			if (!isInsulated) {
+				entropy += tChange / previousTs.get(previousTs.size() - 1);
+			}
+			tChange = 0;
+
+			if (previousNoReactions.size() > maxMeasurements) {
+				previousNoReactions.remove(0);
+			}
+			previousNoReactions.add(numReactions);
+			numReactions = 0;
 		}
-		previousNoReactions.add(numReactions);
-		numReactions = 0;
 	}
 
 	private CopyOnWriteArrayList<Particle> createCopy() {
@@ -396,7 +399,7 @@ public class Simulation extends Thread implements ActionListener {
 			} else {
 				p.setVelX(Math.abs(newVX));
 				// p.getVel().scale(1.05);
-//				p.setVelX(p.getVelX() * 1.075);
+				// p.setVelX(p.getVelX() * 1.075);
 			}
 			container.pushWall(Math.abs(wallVX));
 
@@ -417,8 +420,8 @@ public class Simulation extends Thread implements ActionListener {
 				scaleSpeedUp = 1;
 				scaleSlowDown = 15;
 			} else if (wallSpeed < 0) {
-				scaleSpeedUp = 2;
-				scaleSlowDown = 1.5;
+				scaleSpeedUp = 1.75;
+				scaleSlowDown = 1.75;
 			} else {
 				scaleSpeedUp = 1; // default 2, 1.5, 1
 				scaleSlowDown = 4.1; // default 7, 6.125, 4.1
@@ -458,12 +461,12 @@ public class Simulation extends Thread implements ActionListener {
 				// If colliding with a wall moving outwards AND the particle
 				// isn't moving too fast
 				// p.setVelX(-Math.abs(vx) + wallSpeed);
-				int wallM;
-				int partM = 1;
-				int fact;
+				double wallM;
+				double partM = 1;
+				double fact;
 				if (isInsulated) {
 					// Mass of wall relative to particle
-					wallM = 4;
+					wallM = 2.75;
 					// Scaling factor for wallM when calculating the particle's
 					// velocity
 					fact = 1;
@@ -473,14 +476,15 @@ public class Simulation extends Thread implements ActionListener {
 					fact = 1;
 				}
 				// System.out.println(wallSpeed);
-				double newVX = ((vx * (partM - (wallM / fact))) + (3 * (wallM / fact) * wallSpeed)) / (partM + (wallM / fact));
+				double newVX = ((vx * (partM - (wallM / fact))) + (3 * (wallM / fact) * wallSpeed))
+						/ (partM + (wallM / fact));
 
 				if (isInsulated) {
 					p.setVelX(newVX);
 				} else {
 					p.setVelX(newVX);
-//					p.setVelX(-vx);
-//					p.getVel().scale(0.9);
+					// p.setVelX(-vx);
+					// p.getVel().scale(0.9);
 				}
 			} else {
 				p.setVelX(-vx);

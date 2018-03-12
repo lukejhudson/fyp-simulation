@@ -1,5 +1,5 @@
 <html>
-<br>
-A T-S diagram of the Carnot cycle.
-<br>
+<p style=\"padding:10;">
+
+</p>
 </html>

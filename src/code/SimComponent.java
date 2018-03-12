@@ -17,6 +17,7 @@ import javax.swing.JLabel;
 public class SimComponent extends JComponent {
 
 	private SimModel model;
+	private ControlPanel controlPanel;
 	private JFrame frame;
 	private int fps = 60;
 	private CopyOnWriteArrayList<Particle> particles;
@@ -35,7 +36,7 @@ public class SimComponent extends JComponent {
 	
 	private boolean colourParticlesAtActEnergy;
 
-	public SimComponent(SimModel m, JFrame frame, JLabel currT, JLabel currP) {
+	public SimComponent(SimModel m, JFrame frame, JLabel currT, JLabel currP, ControlPanel controlPanel) {
 		super();
 		this.model = m;
 		this.frame = frame;
@@ -96,7 +97,7 @@ public class SimComponent extends JComponent {
 				System.out.println("PRESSED: " + e.getPoint());
 				mouseX = e.getX();
 				double width = cont.getWidth();
-				if (Math.abs(width - e.getX()) < 10) {
+				if (!controlPanel.isPaused() && Math.abs(width - e.getX()) < 10) {
 					draggingWall = true;
 					model.setBufferMaxSize(1);
 					model.rollbackBuffer();

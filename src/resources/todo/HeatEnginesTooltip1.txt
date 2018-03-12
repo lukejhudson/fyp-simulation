@@ -1,29 +1,16 @@
 <html>
-<br>
-Step 1: Reversible isothermal expansion of the gas at the "hot" temperature, T1 (isothermal heat addition or absorption). <br>
-During this step (1 to 2 on Figure 1, A to B in Figure 2) the gas is allowed to expand and it does work on the surroundings.<br> 
-The temperature of the gas does not change during the process, and thus the expansion is isothermal. The gas expansion is <br>
-propelled by absorption of heat energy Q1 from the high temperature reservoir and results in an increase of entropy of the <br>
-gas in the amount {\displaystyle \Delta S_{1}=Q_{1}/T_{1}} {\displaystyle \Delta S_{1}=Q_{1}/T_{1}}.<br>
-<br>
-Step 2: Isentropic (reversible adiabatic) expansion of the gas (isentropic work output). For this step (2 to 3 on Figure 1, <br>
-B to C in Figure 2) the mechanisms of the engine are assumed to be thermally insulated, thus they neither gain nor lose <br>
-heat (an adiabatic process). The gas continues to expand, doing work on the surroundings, and losing an amount of internal <br>
-energy equal to the work that leaves the system. The gas expansion causes it to cool to the "cold" temperature, T2. The <br>
-entropy remains unchanged.<br>
-<br>
-Step 3: Reversible isothermal compression of the gas at the "cold" temperature, T2. (isothermal heat rejection) (3 to 4 on <br>
-Figure 1, C to D on Figure 2) Now the surroundings do work on the gas, causing an amount of heat energy Q2 to leave the <br>
-system to the low temperature reservoir and the entropy of the system decreases in the amount <br>
-{\displaystyle \Delta S_{2}=Q_{2}/T_{2}} {\displaystyle \Delta S_{2}=Q_{2}/T_{2}}. (This is the same amount of entropy <br> 
-absorbed in step 1, as can be seen from the Clausius inequality.)<br>
-<br>
-Step 4: Isentropic compression of the gas (isentropic work input). (4 to 1 on Figure 1, D to A on Figure 2) Once again the <br>
-mechanisms of the engine are assumed to be thermally insulated, and frictionless, hence reversible. During this step, the <br>
-surroundings do work on the gas, increasing its internal energy and compressing it, causing the temperature to rise to T1 <br>
-due solely to the work added to the system, but the entropy remains unchanged. At this point the gas is in the same state <br>
-as at the start of step 1.<br>
+<h2 style=padding:10>
+Heat Engines and the Carnot Cycle
+</h2>
+<p style=\"padding:10;">
+The Carnot cycle is a <b>reversible</b> process which provides an upper limit on the efficiency that any classical thermodynamic engine can achieve during the conversion of heat into work, 
+or conversely, the efficiency of a refrigeration system in creating a temperature difference by the application of work to the system. The Carnot cycle assumes that no energy is lost to wasteful 
+processes such as friction.
 <br><br>
-An ideal gas-piston model of the Carnot cycle.
-<br>
+There are two "heat reservoirs" forming part of the heat engine at temperatures <i>T<sub>H</sub></i> and <i>T<sub>C</sub></i> (hot and cold respectively). 
+They have such large thermal capacity that their temperatures are practically unaffected by a single cycle. During the cycle, an arbitrary 
+amount of <b>entropy</b> <i>&Delta;S</i> is extracted from the hot reservoir and deposited in the cold reservoir. Entropy, <i>&Delta;S</i>, is the amount of heat energy transferred into the system, <i>Q</i>, divided by the 
+temperature of that system, <i>T</i>. An amount of energy <i>T<sub>H</sub>&Delta;S</i> is extracted from the hot reservoir and a smaller amount of energy <i>T<sub>C</sub>&Delta;S</i> is deposited in the cold reservoir. 
+The difference in the two energies <i>(T<sub>H</sub>-T<sub>C</sub>)&Delta;S</i> is equal to the work done by the engine.
+</p>
 </html>

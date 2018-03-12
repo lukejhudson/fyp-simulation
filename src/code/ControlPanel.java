@@ -55,7 +55,13 @@ public class ControlPanel extends JComponent {
 	private JCheckBox particlesPushWall;
 	// The button to automatically create a Carnot cycle graph
 	private JButton autoCarnot;
-
+	// Continuous Carnot cycles
+	private JButton autoCarnotCont;
+	// Are we running an auto Carnot cycle?
+	private boolean running = false;
+	// Is the autoCarnot function requesting the restart?
+	private boolean carnotRestart = false;
+	// Is the simulation paused?
 	private boolean pause = false;
 
 	public ControlPanel(Simulation sim, JFrame frame) {
@@ -65,7 +71,7 @@ public class ControlPanel extends JComponent {
 
 		this.model = new SimModel(sim);
 		createAutoCarnot();
-		this.view = new GraphView(model, autoCarnot);
+		this.view = new GraphView(model, autoCarnot, autoCarnotCont);
 		model.addObserver(view);
 
 		frame.setLayout(new GridBagLayout());
@@ -93,57 +99,14 @@ public class ControlPanel extends JComponent {
 		});
 		menu.setMinimumSize(new Dimension(160, 40));
 
-		JButton menuHelp = new JButton("?");
-		menuHelp.setFont(new Font("Monospaced", Font.BOLD, 20));
-		menuHelp.setContentAreaFilled(false);
-		menuHelp.setToolTipText("Detailed information for the current mode");
-		menuHelp.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				JFrame frame = new JFrame("Test");
-				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-				JLabel container = new JLabel();
-				container.setLayout(new GridLayout(0, 1));
-				container.setVerticalTextPosition(SwingConstants.TOP);
-
-				String m = (String) menu.getSelectedItem();
-				if (m.equals("Heat Engines")) {
-					ImageIcon CCPistons = createImageIcon("CarnotCyclePistons.png",
-							"An ideal gas-piston model of the Carnot cycle");
-					ImageIcon CCPV = createImageIcon("CarnotCyclePV.png", "A P-V diagram of the Carnot cycle");
-					ImageIcon CCTS = createImageIcon("CarnotCycleTS.png", "A T-S diagram of the Carnot cycle");
-
-					JLabel label1 = new JLabel(readFile("todo/HeatEnginesTooltip1.txt"), CCPistons, JLabel.LEADING);
-					label1.setVerticalTextPosition(JLabel.TOP);
-					label1.setHorizontalTextPosition(JLabel.CENTER);
-					JLabel label2 = new JLabel(readFile("todo/HeatEnginesTooltip2.txt"), CCPV, JLabel.LEADING);
-					label2.setVerticalTextPosition(JLabel.TOP);
-					label2.setHorizontalTextPosition(JLabel.CENTER);
-					JLabel label3 = new JLabel(readFile("todo/HeatEnginesTooltip3.txt"), CCTS, JLabel.LEADING);
-					label3.setVerticalTextPosition(JLabel.TOP);
-					label3.setHorizontalTextPosition(JLabel.CENTER);
-
-					container.add(label1);
-					container.add(label2);
-					container.add(label3);
-				} else if (m.equals("Activation Energy")) {
-					JLabel label1 = new JLabel(readFile("todo/ActEnergyTooltip.txt"));
-					container.add(label1);
-				}
-
-				frame.add(container);
-				frame.setSize(new Dimension(400, 800));
-				frame.setVisible(true);
-			}
-		});
+		JButton menuHelp = createMenuHelp(menu);
 
 		menuBar.add(menu, BorderLayout.CENTER);
 		menuBar.add(menuHelp, BorderLayout.EAST);
 
 		JPanel sliders = sliderBar();
 		JPanel buttons = buttonBar();
-		comp = new SimComponent(model, frame, currT, currP);
+		comp = new SimComponent(model, frame, currT, currP, this);
 
 		UI.add(sliders, BorderLayout.CENTER);
 		UI.add(buttons, BorderLayout.EAST);
@@ -201,8 +164,79 @@ public class ControlPanel extends JComponent {
 		c.gridy = 1;
 		UI.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		frame.add(UI, c); // Bottom bar
+	}
 
-		// System.out.println("SIZE: " + );
+	private JButton createMenuHelp(JComboBox<String> menu) {
+		JButton menuHelp = new JButton("?");
+		menuHelp.setFont(new Font("Monospaced", Font.BOLD, 20));
+		menuHelp.setContentAreaFilled(false);
+		menuHelp.setToolTipText("Detailed information for the current mode");
+		menuHelp.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFrame frame = new JFrame();
+				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+				JLabel container = new JLabel();
+				container.setLayout(new BorderLayout());
+				container.setVerticalTextPosition(SwingConstants.TOP);
+
+				String m = (String) menu.getSelectedItem();
+				if (m.equals("Heat Engines")) {
+					frame.setTitle("Heat Engines Help");
+					ImageIcon ccPistons = createImageIcon("CarnotCyclePistons.png",
+							"An ideal gas-piston model of the Carnot cycle");
+					ImageIcon ccPV = createImageIcon("CarnotCyclePV.png", "A P-V diagram of the Carnot cycle");
+					ImageIcon ccTS = createImageIcon("CarnotCycleTS.png", "A T-S diagram of the Carnot cycle");
+
+					JLabel pistonImg = new JLabel("Figure 1: An ideal gas-piston model of the Carnot cycle", ccPistons,
+							JLabel.CENTER);
+					pistonImg.setVerticalTextPosition(JLabel.BOTTOM);
+					pistonImg.setHorizontalTextPosition(JLabel.CENTER);
+					JLabel pvImg = new JLabel("Figure 2: A P-V diagram of the Carnot cycle", ccPV, JLabel.CENTER);
+					pvImg.setVerticalTextPosition(JLabel.BOTTOM);
+					pvImg.setHorizontalTextPosition(JLabel.CENTER);
+					JLabel tsImg = new JLabel("Figure 3: A T-S diagram of the Carnot cycle", ccTS, JLabel.CENTER);
+					tsImg.setVerticalTextPosition(JLabel.BOTTOM);
+					tsImg.setHorizontalTextPosition(JLabel.CENTER);
+					JPanel charts = new JPanel(new GridLayout(1, 0));
+					charts.add(pvImg);
+					charts.add(tsImg);
+
+					JLabel text1 = new JLabel(readFile("todo/HeatEnginesTooltip1.txt"));
+					text1.setFont(new Font("Calibri", Font.PLAIN, 14));
+					JLabel text2 = new JLabel(readFile("todo/HeatEnginesTooltip2.txt"));
+					text2.setFont(new Font("Calibri", Font.PLAIN, 14));
+					JLabel text3 = new JLabel(readFile("todo/HeatEnginesTooltip3.txt"));
+					text3.setFont(new Font("Calibri", Font.PLAIN, 14));
+					
+					JPanel top = new JPanel(new BorderLayout());
+					top.add(text1, BorderLayout.CENTER);
+					top.add(pistonImg, BorderLayout.EAST);
+					top.add(text2, BorderLayout.SOUTH);
+
+					JPanel bottom = new JPanel(new BorderLayout());
+					bottom.add(charts, BorderLayout.CENTER);
+					bottom.add(text3, BorderLayout.SOUTH);
+
+					container.add(top, BorderLayout.CENTER);
+					container.add(bottom, BorderLayout.SOUTH);
+					
+					frame.setSize(new Dimension(1300, 850));
+				} else if (m.equals("Activation Energy")) {
+					frame.setTitle("Activation Energy Help");
+					JLabel label1 = new JLabel(readFile("todo/ActEnergyTooltip.txt"));
+					container.add(label1);
+					
+					frame.setSize(new Dimension(200, 200));
+				}
+
+				frame.add(container);
+				frame.setLocation(20, 20);
+				frame.setVisible(true);
+			}
+		});
+		return menuHelp;
 	}
 
 	private JPanel sliderBar() {
@@ -389,6 +423,10 @@ public class ControlPanel extends JComponent {
 					pause = false;
 					playPause.setText("Pause");
 				}
+				if (!carnotRestart && running) {
+					autoCarnot.doClick();
+				}
+				carnotRestart = false;
 			}
 		});
 		restart.setToolTipText(readFile("RestartButtonTooltipHover.txt"));
@@ -489,117 +527,149 @@ public class ControlPanel extends JComponent {
 	}
 
 	private void createAutoCarnot() {
-		autoCarnot = new JButton("Create Carnot Cycle");
-		autoCarnot.setToolTipText(readFile("/todo/AutoCarnotButtonTooltipHover.txt"));
+		autoCarnot = new JButton("Single Carnot");
+		autoCarnot.setToolTipText(readFile("AutoCarnotButtonTooltipHover.txt"));
 		autoCarnot.addActionListener(new ActionListener() {
-			private boolean running = false;
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Container cont = model.getContainer();
-				Thread t = new Thread(new Runnable() {
-					public void run() {
-						model.setAutoCarnot(true);
-						running = true;
-						autoCarnot.setText("Stop Carnot Cycle");
-						// Insulation off, allow gas to move wall out, wall
-						// starts in until halfway, high wall temp --> high
-						// wall temp
+				autoCarnot(false);
+			}
+		});
+
+		autoCarnotCont = new JButton("Const. Carnot");
+		autoCarnotCont.setToolTipText(readFile("AutoCarnotButtonTooltipHover.txt"));
+		autoCarnotCont.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				autoCarnot(true);
+			}
+		});
+	}
+
+	private void autoCarnot(boolean continuous) {
+		Container cont = model.getContainer();
+		Thread t = new Thread(new Runnable() {
+			public void run() {
+				model.setAutoCarnot(true);
+				running = true;
+				autoCarnot.setText("Stop Carnot");
+				autoCarnotCont.setText("Stop Carnot");
+				// Number of times we've been through the loop
+				int i = 0;
+				while (running && ((i == 0 && !continuous) || continuous)) {
+					// Insulation off, allow gas to move wall out, wall
+					// starts in until halfway, high wall temp --> high
+					// wall temp
+					if (i == 0) {
 						playPause.doClick(100);
-						insulated.setSelected(false);
-						particlesPushWall.setSelected(true);
-						cont.setWidth(cont.getMinWidth());
-						tempSlider.setValue(3000);
+					}
+					cont.setWidth(cont.getMinWidth());
+					tempSlider.setValue(3000);
+					if (i == 0) {
+						carnotRestart = true;
 						restart.doClick(100);
 						view.pvResetTraces();
 						view.etResetTraces();
-						
-						double contTwoThirds = cont.getMinWidth() + 2 * (cont.getMaxWidth() - cont.getMinWidth()) / 3;
-						while (cont.getWidth() < contTwoThirds && running) {
-							try {
-								Thread.sleep(50);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
-						if (!running) {
-							return;
-						}
-						
-						// Insulation on, allow gas to move wall out, wall
-						// starts halfway until out, high wall temp --> low
-						// wall temp
+					} else {
 						view.pvAddTrace();
 						view.etAddTrace();
-						insulated.setSelected(true);
-
-						while (cont.getWidth() < cont.getMaxWidth() && running) {
-							try {
-								Thread.sleep(50);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
-						if (!running) {
-							return;
-						}
-
-						// Insulation off, compress gas, wall starts out
-						// until halfway, low wall temp --> low wall temp
-						view.pvAddTrace();
-						view.etAddTrace();
-						insulated.setSelected(false);
-						particlesPushWall.setSelected(false);
-						cont.setWidth(cont.getMaxWidth());
-						tempSlider.setValue(1000);
-						moveWallIn.doClick(100);
-						model.setAutoCarnotCompress(true);
-
-						double contOneThird = cont.getMinWidth() + (cont.getMaxWidth() - cont.getMinWidth()) / 3;
-						while (cont.getWidth() > contOneThird && running) {
-							try {
-								Thread.sleep(50);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
-						if (!running) {
-							return;
-						}
-
-						// Insulation on, compress gas, wall starts halfway
-						// until in, low wall temp --> high wall temp
-						view.pvAddTrace();
-						view.etAddTrace();
-						insulated.setSelected(true);
-
-						while (cont.getWidth() > cont.getMinWidth() && running) {
-							try {
-								Thread.sleep(50);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
-						if (!running) {
-							return;
-						}
-						model.pauseSim();
-						running = false;
-						model.setAutoCarnot(false);
-						model.setAutoCarnotCompress(false);
-						autoCarnot.setText("Create Carnot Cycle");
 					}
-				});
-				if (running) {
-					running = false;
-					model.setAutoCarnot(false);
-					model.setAutoCarnotCompress(false);
-					autoCarnot.setText("Create Carnot Cycle");
-				} else {
-					t.start();
+					insulated.setSelected(false);
+					particlesPushWall.setSelected(true);
+
+					double contTwoThirds = cont.getMinWidth() + 2 * (cont.getMaxWidth() - cont.getMinWidth()) / 3;
+					while (cont.getWidth() < contTwoThirds && running) {
+						try {
+							Thread.sleep(50);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					if (!running) {
+						return;
+					}
+
+					// Insulation on, allow gas to move wall out, wall
+					// starts halfway until out, high wall temp --> low
+					// wall temp
+					view.pvAddTrace();
+					view.etAddTrace();
+					insulated.setSelected(true);
+
+					while (cont.getWidth() < cont.getMaxWidth() && running) {
+						try {
+							Thread.sleep(50);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					if (!running) {
+						return;
+					}
+
+					// Insulation off, compress gas, wall starts out
+					// until halfway, low wall temp --> low wall temp
+					view.pvAddTrace();
+					view.etAddTrace();
+					insulated.setSelected(false);
+					particlesPushWall.setSelected(false);
+					cont.setWidth(cont.getMaxWidth());
+					tempSlider.setValue(1000);
+					moveWallIn.doClick(100);
+					model.setAutoCarnotCompress(true);
+
+					double contOneThird = cont.getMinWidth() + (cont.getMaxWidth() - cont.getMinWidth()) / 3;
+					while (cont.getWidth() > contOneThird && running) {
+						try {
+							Thread.sleep(50);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					if (!running) {
+						return;
+					}
+
+					// Insulation on, compress gas, wall starts halfway
+					// until in, low wall temp --> high wall temp
+					view.pvAddTrace();
+					view.etAddTrace();
+					insulated.setSelected(true);
+
+					while (cont.getWidth() > cont.getMinWidth() && running) {
+						try {
+							Thread.sleep(50);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					if (!running) {
+						return;
+					}
+					i++;
 				}
+				playPause.doClick(100);
+				running = false;
+				model.setAutoCarnot(false);
+				model.setAutoCarnotCompress(false);
+				autoCarnot.setText("Single Carnot");
+				autoCarnotCont.setText("Const. Carnot");
 			}
 		});
+		if (running) {
+			running = false;
+			model.setAutoCarnot(false);
+			model.setAutoCarnotCompress(false);
+			particlesPushWall.setSelected(false);
+			autoCarnot.setText("Single Carnot");
+			autoCarnotCont.setText("Const. Carnot");
+		} else {
+			t.start();
+		}
+	}
+	
+	public boolean isPaused() {
+		return pause;
 	}
 
 	public static String readFile(String name) {

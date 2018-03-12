@@ -1,0 +1,11 @@
+<html>
+Energy distribution graph (Maxwell-Boltzmann Distribution).
+<br>
+Percentange of particles against energy (arbitrary units).
+<br><br>
+Note how the shape of the distribution changes as the temperature
+<br>
+of the particles changes. Compare this to the speed distribution
+<br>
+above.
+</html>

@@ -55,8 +55,12 @@ public class GraphView extends JComponent implements Observer {
 	private JPanel etComponents;
 	private double maxEntropy = 0;
 	private double minEntropy = 0;
+	// Panel containing the auto Carnot buttons
+	private JPanel autoCarnotPanel;
 	// Button to create Carnot cycle
 	private JButton autoCarnot;
+	// Button to create continuous Carnot cycles
+	private JButton autoCarnotCont;
 	// Panel containing the graphs
 	private JPanel heatEngineGraphs;
 	// Panel containing the heat engine components
@@ -75,6 +79,8 @@ public class GraphView extends JComponent implements Observer {
 	// Boltzmann factor vs reactions/sec
 	private Chart2D bmfRsChart;
 	private ITrace2D bmfRsTrace;
+	private double prevTemp = 0;
+	private JPanel bmfrsComponents;
 
 	private Chart2D bmFactChart;
 	private ITrace2D bmFactTrace;
@@ -90,12 +96,13 @@ public class GraphView extends JComponent implements Observer {
 	 * @param model
 	 * @param autoCarnot
 	 */
-	public GraphView(SimModel model, JButton autoCarnot) {
+	public GraphView(SimModel model, JButton autoCarnot, JButton autoCarnotCont) {
 		super();
 		setLayout(new BorderLayout());
 		this.model = model;
 		this.cont = model.getContainer();
 		this.autoCarnot = autoCarnot;
+		this.autoCarnotCont = autoCarnotCont;
 
 		createHeatEngineComponents();
 		createActivationEnergyComponents();
@@ -137,8 +144,12 @@ public class GraphView extends JComponent implements Observer {
 		heatEngineGraphs.add(pvComponents);
 		heatEngineGraphs.add(etComponents);
 
+		autoCarnotPanel = new JPanel(new GridLayout(0, 2));
+		autoCarnotPanel.add(autoCarnot);
+		autoCarnotPanel.add(autoCarnotCont);
+
 		heatEnginePanel.add(heatEngineGraphs, BorderLayout.CENTER);
-		heatEnginePanel.add(autoCarnot, BorderLayout.SOUTH);
+		heatEnginePanel.add(autoCarnotPanel, BorderLayout.SOUTH);
 	}
 
 	private void createActivationEnergyComponents() {
@@ -150,12 +161,12 @@ public class GraphView extends JComponent implements Observer {
 		activationEnergyPanel = new JPanel(new GridLayout(3, 0));
 		activationEnergyPanel.add(speedDistChart);
 		activationEnergyPanel.add(energyDistChart);
-		activationEnergyPanel.add(bmfRsChart);
+		activationEnergyPanel.add(bmfrsComponents);
 	}
 
 	private void createSpeedDistChart() {
 		speedDistChart = new Chart2D();
-		speedDistChart.setToolTipText(ControlPanel.readFile("/todo/SpeedDistTooltipHover.txt"));
+		speedDistChart.setToolTipText(ControlPanel.readFile("SpeedDistTooltipHover.txt"));
 		speedDistTrace = new Trace2DBijective();
 		speedDistTrace.setTracePainter(new TracePainterVerticalBar(5, speedDistChart));
 		speedDistTrace.setName("Speed distribution");
@@ -200,7 +211,7 @@ public class GraphView extends JComponent implements Observer {
 	private void createPVChart() {
 		// pvChart = new Chart2D();
 		pvChart = new ZoomableChart();
-		pvChart.setToolTipText(ControlPanel.readFile("/todo/PVChartTooltipHover.txt"));
+		pvChart.setToolTipText(ControlPanel.readFile("PVChartTooltipHover.txt"));
 		pvAddTrace();
 		pvChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Volume (m^2 x10^-18)"));
 		pvChart.getAxisY().setAxisTitle(new IAxis.AxisTitle("Pressure (Pa)"));
@@ -240,10 +251,10 @@ public class GraphView extends JComponent implements Observer {
 					if (mode == Mode.HeatEngines) {// &&
 													// model.getContainer().getWidthChange()
 													// != 0) {
-//						if (updateIterations > -2) {
-							updatePVChart();
-							updateETChart();
-//						}
+						// if (updateIterations > -2) {
+						updatePVChart();
+						updateETChart();
+						// }
 					}
 					try {
 						updateIterations++;
@@ -260,7 +271,7 @@ public class GraphView extends JComponent implements Observer {
 	private void createETChart() {
 		// pvChart = new Chart2D();
 		etChart = new Chart2D();
-		etChart.setToolTipText(ControlPanel.readFile("/todo/ETChartTooltipHover.txt"));
+		etChart.setToolTipText(ControlPanel.readFile("ETChartTooltipHover.txt"));
 		etAddTrace();
 		etChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Entropy (Heat transfer / temperature)"));
 		etChart.getAxisY().setAxisTitle(new IAxis.AxisTitle("Temperature (K)"));
@@ -268,8 +279,9 @@ public class GraphView extends JComponent implements Observer {
 		// etChart.getAxisY().setPaintScale(false);
 		// etChart.getAxisX().setAxisTitle(new IAxis.AxisTitle(""));
 		// etChart.getAxisY().setAxisTitle(new IAxis.AxisTitle(""));
-//		IRangePolicy etRangePolicyX = new RangePolicyFixedViewport(new Range(-0.001, 0.001));
-//		etChart.getAxisX().setRangePolicy(etRangePolicyX);
+		// IRangePolicy etRangePolicyX = new RangePolicyFixedViewport(new
+		// Range(-0.001, 0.001));
+		// etChart.getAxisX().setRangePolicy(etRangePolicyX);
 		IRangePolicy etRangePolicyY = new RangePolicyFixedViewport(new Range(0, 5000));
 		etChart.getAxisY().setRangePolicy(etRangePolicyY);
 
@@ -299,7 +311,7 @@ public class GraphView extends JComponent implements Observer {
 
 	private void createEnergyDistChart() {
 		energyDistChart = new Chart2D();
-		energyDistChart.setToolTipText(ControlPanel.readFile("/todo/EnergyDistTooltipHover.txt"));
+		energyDistChart.setToolTipText(ControlPanel.readFile("EnergyDistTooltipHover.txt"));
 
 		energyDistTraces = new ArrayList<Trace2DBijective>();
 		Trace2DBijective t;
@@ -351,7 +363,7 @@ public class GraphView extends JComponent implements Observer {
 
 	private void createBMFRsChart() {
 		bmfRsChart = new Chart2D();
-		bmfRsChart.setToolTipText(ControlPanel.readFile("/todo/BMFRsChartTooltipHover.txt"));
+		bmfRsChart.setToolTipText(ControlPanel.readFile("BMFRsChartTooltipHover.txt"));
 		bmfRsTrace = new Trace2DSimple();
 		bmfRsChart.addTrace(bmfRsTrace);
 		bmfRsTrace.setTracePainter(new TracePainterDisc());
@@ -371,6 +383,14 @@ public class GraphView extends JComponent implements Observer {
 			}
 		});
 		t.start();
+
+		JButton bmfrsClear = new JButton("Clear Graph");
+		bmfrsClear.addActionListener(e -> bmfrsClearChart());
+		bmfrsClear.setToolTipText(ControlPanel.readFile("BMFRsClearChartTooltipHover.txt"));
+
+		bmfrsComponents = new JPanel(new BorderLayout());
+		bmfrsComponents.add(bmfRsChart, BorderLayout.CENTER);
+		bmfrsComponents.add(bmfrsClear, BorderLayout.SOUTH);
 	}
 
 	@Override
@@ -472,7 +492,7 @@ public class GraphView extends JComponent implements Observer {
 		if (mode == Mode.HeatEngines) {
 			double temperature = model.getAverageT();
 			double entropy = model.getEntropy();
-			
+
 			if (entropy > maxEntropy) {
 				maxEntropy = entropy;
 			} else if (entropy < minEntropy) {
@@ -480,23 +500,24 @@ public class GraphView extends JComponent implements Observer {
 			}
 
 			if (model.getIsInsulated()) {
-//				if (model.isAutoCarnot()) {
-//					if (model.isAutoCarnotCompress()) {
-//						entropy = minEntropy;
-//					} else {
-//						entropy = maxEntropy;
-//					}
-//				}
+				// if (model.isAutoCarnot()) {
+				// if (model.isAutoCarnotCompress()) {
+				// entropy = minEntropy;
+				// } else {
+				// entropy = maxEntropy;
+				// }
+				// }
 				etTrace.setColor(Color.RED);
 			} else {
 				etTrace.setColor(Color.BLUE);
 			}
-//			System.out.println(model.isAutoCarnot() + ", " + model.isAutoCarnotCompress() + ", " + entropy);
-//			if (entropy > 0.0008) {
-//				entropy = 0.0008;
-//			} else if (entropy < -0.0008) {
-//				entropy = -0.0008;
-//			}
+			// System.out.println(model.isAutoCarnot() + ", " +
+			// model.isAutoCarnotCompress() + ", " + entropy);
+			// if (entropy > 0.0008) {
+			// entropy = 0.0008;
+			// } else if (entropy < -0.0008) {
+			// entropy = -0.0008;
+			// }
 			try {
 				etTrace.addPoint(entropy, temperature);
 			} catch (Exception e) {
@@ -582,10 +603,20 @@ public class GraphView extends JComponent implements Observer {
 			double noReactions = model.getAverageNoReactions();
 
 			try {
-				bmfRsTrace.addPoint(noReactions, bmf);
+				if (temp != prevTemp) {
+					bmfRsTrace.addPoint(noReactions, bmf);
+				} 
+				prevTemp = temp;
 			} catch (Exception e) {
-				System.err.println("Unable to plot Boltzmann-Reactions/sec point");
+				System.err.println("Unable to plot Boltzmann-Reactions/Iteration point");
 			}
 		}
+	}
+
+	public void bmfrsClearChart() {
+		bmfRsChart.removeAllTraces();
+		bmfRsTrace = new Trace2DSimple();
+		bmfRsChart.addTrace(bmfRsTrace);
+		bmfRsTrace.setTracePainter(new TracePainterDisc());
 	}
 }

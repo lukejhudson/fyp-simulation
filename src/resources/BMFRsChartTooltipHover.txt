@@ -1,0 +1,7 @@
+<html>
+Boltzmann Factor against Reactions per Iteration.
+<br><br>
+Note how the shape of the plots changes with different temperatures 
+<br>
+and activation energy values.
+</html>

@@ -1,0 +1,7 @@
+<html>
+Temperature (K) against Entropy (JK<sup>-1</sup>).
+<br><br>
+Compare the shape of this graph with that of the PV graph above, particularly 
+<br>
+when simulating a Carnot cycle.
+</html>

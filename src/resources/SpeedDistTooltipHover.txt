@@ -1,0 +1,9 @@
+<html>
+Speed distribution graph.
+<br>
+Percentange of particles against speed (arbitrary units).
+<br><br>
+Note how the shape of the distribution changes as the temperature
+<br>
+of the particles changes.
+</html>
