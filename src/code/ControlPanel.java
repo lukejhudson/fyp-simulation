@@ -45,14 +45,15 @@ public class ControlPanel extends JComponent {
 
 	// COMPONENTS NEEDED FOR AUTOCARNOT
 	private JSlider tempSlider;
-
 	private JButton restart;
 	private JButton playPause;
 	private JButton moveWallIn;
-
 	private JCheckBox colourParticlesAtActEnergy;
 	private JCheckBox insulated;
 	private JCheckBox particlesPushWall;
+	
+	private JCheckBox particlesDisappearAtActEnergy;
+	private JSlider actEnergySlider;
 	// The button to automatically create a Carnot cycle graph
 	private JButton autoCarnot;
 	// Continuous Carnot cycles
@@ -91,9 +92,16 @@ public class ControlPanel extends JComponent {
 				if (m.equals("Heat Engines")) {
 					model.changeMode(Mode.HeatEngines);
 					colourParticlesAtActEnergy.setSelected(false);
+					colourParticlesAtActEnergy.setEnabled(false);
+					particlesDisappearAtActEnergy.setEnabled(false);
+					particlesDisappearAtActEnergy.setSelected(false);
+					actEnergySlider.setEnabled(false);
 				} else if (m.equals("Activation Energy")) {
 					model.changeMode(Mode.ActivationEnergy);
 					colourParticlesAtActEnergy.setSelected(true);
+					colourParticlesAtActEnergy.setEnabled(true);
+					particlesDisappearAtActEnergy.setEnabled(true);
+					actEnergySlider.setEnabled(true);
 				}
 			}
 		});
@@ -300,7 +308,7 @@ public class ControlPanel extends JComponent {
 		// (int)model.calculateExpectedMSS(300) / 10,
 		// (int)model.calculateExpectedMSS(4000) * 2,
 		// (int)model.calculateExpectedMSS(300));
-		JSlider actEnergySlider = new JSlider(SwingConstants.HORIZONTAL, 0, 100, 10);
+		actEnergySlider = new JSlider(SwingConstants.HORIZONTAL, 0, 100, 10);
 		actEnergySlider.setMajorTickSpacing(20);
 		actEnergySlider.setMinorTickSpacing(10);
 		actEnergySlider.setPaintTicks(true);
@@ -312,6 +320,7 @@ public class ControlPanel extends JComponent {
 				actEnergyValue.setText(Integer.toString(actEnergySlider.getValue()));
 			}
 		});
+		actEnergySlider.setEnabled(false);
 		actEnergy.add(actEnergyLabel, BorderLayout.NORTH);
 		actEnergy.add(actEnergySlider, BorderLayout.CENTER);
 		actEnergy.add(actEnergyValue, BorderLayout.EAST);
@@ -485,8 +494,9 @@ public class ControlPanel extends JComponent {
 			}
 		});
 		colourParticlesAtActEnergy.setToolTipText(readFile("ColourParticlesCheckboxTooltipHover.txt"));
+		colourParticlesAtActEnergy.setEnabled(false);
 
-		JCheckBox particlesDisappearAtActEnergy = new JCheckBox(
+		particlesDisappearAtActEnergy = new JCheckBox(
 				"Make particles disappear upon reaching activation energy");
 		particlesDisappearAtActEnergy.addItemListener(new ItemListener() {
 			@Override
@@ -499,6 +509,7 @@ public class ControlPanel extends JComponent {
 			}
 		});
 		particlesDisappearAtActEnergy.setToolTipText(readFile("ParticlesDisappearCheckboxTooltipHover.txt"));
+		particlesDisappearAtActEnergy.setEnabled(false);
 
 		particlesPushWall = new JCheckBox("Allow particles to push the right wall");
 		particlesPushWall.addItemListener(new ItemListener() {
@@ -563,6 +574,7 @@ public class ControlPanel extends JComponent {
 					if (i == 0) {
 						playPause.doClick(100);
 					}
+					comp.stopWalls();
 					cont.setWidth(cont.getMinWidth());
 					tempSlider.setValue(3000);
 					if (i == 0) {
@@ -609,6 +621,7 @@ public class ControlPanel extends JComponent {
 
 					// Insulation off, compress gas, wall starts out
 					// until halfway, low wall temp --> low wall temp
+					comp.stopWalls();
 					view.pvAddTrace();
 					view.etAddTrace();
 					insulated.setSelected(false);

@@ -1,2 +1,7 @@
-When checked, particles will disappear from the simulation upon reaching the activation
-energy.
+<html>
+When checked, particles will disappear from the simulation upon 
+<br>
+reaching the activation energy.
+<br><br>
+Only available in the Activation Energy mode.
+</html>

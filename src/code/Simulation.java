@@ -372,7 +372,11 @@ public class Simulation extends Thread implements ActionListener {
 		}
 
 		// When particles are allowed to push the right wall
-		if (particlesPushWall && w == Wall.E && container.getWidth() != container.getMaxWidth() && wallSpeed >= 0) {
+		if (particlesPushWall && w == Wall.E && container.getWidth() != container.getMaxWidth()) {// &&
+																									// wallSpeed
+																									// >=
+																									// 0)
+																									// {
 			int wallM;
 			int partM = 1;
 			int fact;
@@ -389,7 +393,12 @@ public class Simulation extends Thread implements ActionListener {
 			}
 
 			double vx = p.getVelX();
-			double newVX = (vx * (partM - (wallM / fact))) / (partM + (wallM / fact));
+			double newVX;
+			if (wallSpeed < 0) {
+				newVX = ((vx * (partM - (wallM / fact))) + (2 * wallM * wallSpeed)) / (partM + (wallM / fact));
+			} else {
+				newVX = (vx * (partM - (wallM / fact))) / (partM + (wallM / fact));
+			}
 			// double newVX = (vx * (1 - wallM)) / (1 + wallM);
 			double wallVX = 2 * ((2 * vx) / (1 + wallM));
 
@@ -409,8 +418,7 @@ public class Simulation extends Thread implements ActionListener {
 			// container.getWidth());
 		}
 		// When insulation is off and a particle collides with any wall, move
-		// its speed closer to the expected speed for this temperature (the only
-		// debatable part here is the 2.0 and 7.0)
+		// its speed closer to the expected speed for this temperature
 		if (!isInsulated && (wallSpeed == 0 || w != Wall.E)) {
 			double difference = expectedMSS - actualMSS;
 			double ratioMSS;
@@ -449,18 +457,15 @@ public class Simulation extends Thread implements ActionListener {
 			break;
 		case E:
 			vx = p.getVelX();
-			// If adding the wall speed to the particle produces a negative
-			// result (Special and very rare case)
-			if (!particlesPushWall && wallSpeed > 0 && Math.abs(vx) < (wallSpeed / 3.0)) {
-				System.out.println("!!!!!!!!!");
+			// If the wall is moving right and the particle is moving slower
+			// than the wall but still collides with the wall
+			if (!particlesPushWall && wallSpeed > 0 && Math.abs(vx) < wallSpeed) {
 				p.setVelX(-vx / 2);
 			} else if (!particlesPushWall && wallSpeed != 0
 					&& (wallSpeed > 0 || p.getVel().sqrNorm() < 3 * calculateExpectedMSS(T))) {
-				// Math.abs(vx) < 5 * Math.abs(wallSpeed)
 				// If colliding with a wall moving inwards OR
 				// If colliding with a wall moving outwards AND the particle
 				// isn't moving too fast
-				// p.setVelX(-Math.abs(vx) + wallSpeed);
 				double wallM;
 				double partM = 1;
 				double fact;
@@ -475,9 +480,13 @@ public class Simulation extends Thread implements ActionListener {
 					partM = 5;
 					fact = 1;
 				}
-				// System.out.println(wallSpeed);
-				double newVX = ((vx * (partM - (wallM / fact))) + (3 * (wallM / fact) * wallSpeed))
-						/ (partM + (wallM / fact));
+				double newVX;
+				if (wallSpeed > 0) {
+					newVX = ((vx * (1 - 5)) + (2 * 5 * wallSpeed)) / (1 + 5);
+				} else {
+					newVX = ((vx * (partM - (wallM / fact))) + (3 * (wallM / fact) * wallSpeed))
+							/ (partM + (wallM / fact));
+				}
 
 				if (isInsulated) {
 					p.setVelX(newVX);
@@ -487,6 +496,7 @@ public class Simulation extends Thread implements ActionListener {
 					// p.getVel().scale(0.9);
 				}
 			} else {
+				// Wall is stationary
 				p.setVelX(-vx);
 			}
 			// System.out.println("\nvx = " + vx + "\nwallSpeed = " + wallSpeed

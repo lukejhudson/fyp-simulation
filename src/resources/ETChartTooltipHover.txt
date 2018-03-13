@@ -4,4 +4,8 @@ Temperature (K) against Entropy (JK<sup>-1</sup>).
 Compare the shape of this graph with that of the PV graph above, particularly 
 <br>
 when simulating a Carnot cycle.
+<br><br>
+Red lines signify an insulated container.
+<br>
+Blue lines signify a non-insulated container.
 </html>

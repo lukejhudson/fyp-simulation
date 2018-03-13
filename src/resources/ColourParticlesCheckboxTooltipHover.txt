@@ -1,1 +1,5 @@
+<html>
 When checked, the particles will be coloured red upon reaching the set activation energy.
+<br><br>
+Only available in the Activation Energy mode.
+</html>

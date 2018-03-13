@@ -9,7 +9,7 @@ processes such as friction.
 <br><br>
 There are two "heat reservoirs" forming part of the heat engine at temperatures <i>T<sub>H</sub></i> and <i>T<sub>C</sub></i> (hot and cold respectively). 
 They have such large thermal capacity that their temperatures are practically unaffected by a single cycle. During the cycle, an arbitrary 
-amount of <b>entropy</b> <i>&Delta;S</i> is extracted from the hot reservoir and deposited in the cold reservoir. Entropy, <i>&Delta;S</i>, is the amount of heat energy transferred into the system, <i>Q</i>, divided by the 
+amount of <b>entropy</b> <i>&Delta;S</i> is extracted from the hot reservoir and deposited in the cold reservoir. Entropy, <i>&Delta;S</i>, is the amount of heat energy transferred into the system, <i>&Delta;Q</i>, divided by the 
 temperature of that system, <i>T</i>. An amount of energy <i>T<sub>H</sub>&Delta;S</i> is extracted from the hot reservoir and a smaller amount of energy <i>T<sub>C</sub>&Delta;S</i> is deposited in the cold reservoir. 
 The difference in the two energies <i>(T<sub>H</sub>-T<sub>C</sub>)&Delta;S</i> is equal to the work done by the engine.
 </p>

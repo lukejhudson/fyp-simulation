@@ -49,11 +49,13 @@ public class SimComponent extends JComponent {
 				while (true) {
 					if (!model.bufferEmpty()) {
 						SimBuffer b = model.getBuffer();
-						particles = b.getParticles();
-						contWidth = b.getContWidth();
-						r = particles.get(0).getRadius();
-						if (draggingWall) {
-							model.moveWall(mouseX);
+						if (b != null) {
+							particles = b.getParticles();
+							contWidth = b.getContWidth();
+							r = particles.get(0).getRadius();
+							if (draggingWall) {
+								model.moveWall(mouseX);
+							}
 						}
 					}
 					try {
@@ -183,6 +185,7 @@ public class SimComponent extends JComponent {
 				}
 				if (autoMoveWallIn) {
 					autoMoveWallIn = false;
+					model.getContainer().setWidthChange(0);
 					return;
 				}
 				button.setText("Stop movement");
@@ -218,6 +221,7 @@ public class SimComponent extends JComponent {
 				}
 				if (autoMoveWallOut) {
 					autoMoveWallOut = false;
+					model.getContainer().setWidthChange(0);
 					return;
 				}
 				button.setText("Stop movement");
