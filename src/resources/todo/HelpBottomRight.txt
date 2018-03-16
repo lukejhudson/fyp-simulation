@@ -1,0 +1,60 @@
+<html>
+<h3 style=\"padding:10;">
+Bottom Right Components
+</h3>
+<p style=\"padding:10;">
+<b>Restart</b>: This button restarts the simulation. 
+The number of particles after this button has been pressed will be equal to that of the "Number of Particles" slider. 
+The average temperature of the particles will be equal to the wall temperature. 
+<br><br>
+<b>Pause / Resume</b>: This button pauses / resumes the simulation. 
+When pausing, the particles will stop moving and the graphs will stop updating. You cannot interact with the right wall of the container while the simulation is paused.
+Upon resuming the simulation, the simulation will continue where it left off.
+<br><br>
+<b>Move Wall In</b>: This button moves the right wall in at a slow, steady rate until this button is pressed again or the container reaches the smallest volume that it can be. 
+This is helpful when trying to produce smooth graphs as it is very difficult to manually move the wall in at a constant rate. 
+<br><br>
+<b>Move Wall Out</b>: This button moves the right wall out at a slow, steady rate until this button is pressed again or the container reaches the largest volume that it can be.
+This is helpful when trying to produce smooth graphs as it is very difficult to manually move the wall out at a constant rate. 
+<br><br>
+<b>Insulate the walls</b>: When checked, all collisions between the particles and walls are elastic except when the right wall is moving. 
+Otherwise, whenever a particle collides with a wall it will gain / lose some energy to equalise its energy to the wall temperature. 
+This keeps the average temperature of the particles approximately equal to the wall temperature. 
+This is most notable used when creating a Carnot cycle.
+<br><br>
+<b>Colour particles when reaching activation energy</b>: When checked, the particles will be coloured red upon reaching the activation energy specified by the "Activation Energy" slider.
+Note: This checkbox can only be used in the "Activation Energy" mode, which can be selected using the drop-down menu in the top left of the program.
+<br><br>
+<b>Make particles disappear upon reaching activation energy</b>: When checked, particles will disappear from the simulation upon reaching the activation energy. 
+As the high energy particles are disappearing, the overall average temperature of the particles will fall. 
+Note: This checkbox can only be used in the "Activation Energy" mode, which can be selected using the drop-down menu in the top left of the program. 
+<br><br>
+<b>Allow particles to push the right wall</b>: When checked, the right wall will be able to be pushed by the particles. 
+Particles that push the wall will lose some of their energy in doing so. 
+</p>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

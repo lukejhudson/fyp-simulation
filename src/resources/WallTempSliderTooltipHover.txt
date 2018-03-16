@@ -1,5 +1,5 @@
 <html>
-Adjusts the temperature of the walls in Kelvin.
+Adjusts the temperature of the walls in kelvin.
 <br><br>
 If the walls are not insulated, particles will gain or lose a small amount of energy to
 <br>

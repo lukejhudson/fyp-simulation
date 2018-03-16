@@ -33,7 +33,7 @@ public class SimComponent extends JComponent {
 	private boolean autoMoveWallIn = false;
 	// Are we automatically moving the wall outwards?
 	private boolean autoMoveWallOut = false;
-	
+
 	private boolean colourParticlesAtActEnergy;
 
 	public SimComponent(SimModel m, JFrame frame, JLabel currT, JLabel currP, ControlPanel controlPanel) {
@@ -52,7 +52,7 @@ public class SimComponent extends JComponent {
 						if (b != null) {
 							particles = b.getParticles();
 							contWidth = b.getContWidth();
-							r = particles.get(0).getRadius();
+							r = Particle.radius;
 							if (draggingWall) {
 								model.moveWall(mouseX);
 							}
@@ -68,11 +68,17 @@ public class SimComponent extends JComponent {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					String T = String.format("<html>Average temperature<br>of particles: %6.0f K</html>",
-							model.getAverageT());
+					double tValue = model.getAverageT();
+					if (Double.isNaN(tValue)) {
+						tValue = 0;
+					}
+					double pValue = model.getAverageP();
+					if (Double.isNaN(pValue)) {
+						pValue = 0;
+					}
+					String T = String.format("<html>Average temperature<br>of particles: %6.0f K</html>", tValue);
 					currT.setText(T);
-					String P = String.format("<html>Average pressure<br>on container: %6.2f Pa</html>",
-							model.getAverageP());
+					String P = String.format("<html>Average pressure<br>on container: %6.2f Pa</html>", pValue);
 					currP.setText(P);
 				}
 			}
@@ -147,22 +153,20 @@ public class SimComponent extends JComponent {
 	@Override
 	public void paintComponent(Graphics g) {
 		g.setColor(Color.BLACK);
-		g.drawRect(0, 0, (int) contWidth, cont.getHeight());
+		g.drawRect(0, 0, (int) contWidth, (int) cont.getHeight());
 
 		// System.out.println(particles);
 		// double tot = 0;
 		double energy;
 		for (Particle p : particles) {
-			if (p.isActive()) {
-				energy = Math.pow(p.getVel().normalise(), 2);
-				if (colourParticlesAtActEnergy && energy > model.getActivationEnergy()) {
-					g.setColor(Color.RED);
-				} else {
-					g.setColor(Color.CYAN);
-				}
-				g.fillOval((int) p.getX() - r, (int) p.getY() - r, 2 * r, 2 * r);
-				// tot += p.getVel().normalise();
+			energy = Math.pow(p.getVel().normalise(), 2);
+			if (colourParticlesAtActEnergy && energy > model.getActivationEnergy()) {
+				g.setColor(Color.RED);
+			} else {
+				g.setColor(Color.CYAN);
 			}
+			g.fillOval((int) p.getX() - r, (int) p.getY() - r, 2 * r, 2 * r);
+			// tot += p.getVel().normalise();
 		}
 		// tot /= particles.size();
 		// System.out.println("Average speed: " + tot);
@@ -173,7 +177,7 @@ public class SimComponent extends JComponent {
 	}
 
 	public int getFps() {
-		return this.fps;
+		return fps;
 	}
 
 	public void moveWallInAuto(int d, JButton button) {
@@ -189,7 +193,7 @@ public class SimComponent extends JComponent {
 					return;
 				}
 				button.setText("Stop movement");
-				
+
 				autoMoveWallIn = true;
 				model.setBufferMaxSize(1);
 				model.rollbackBuffer();
@@ -225,7 +229,7 @@ public class SimComponent extends JComponent {
 					return;
 				}
 				button.setText("Stop movement");
-				
+
 				autoMoveWallOut = true;
 				model.setBufferMaxSize(1);
 				model.rollbackBuffer();
@@ -252,7 +256,7 @@ public class SimComponent extends JComponent {
 		autoMoveWallIn = false;
 		autoMoveWallOut = false;
 	}
-	
+
 	public void setColouringParticles(boolean b) {
 		colourParticlesAtActEnergy = b;
 	}

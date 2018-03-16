@@ -30,7 +30,7 @@ public class Simulation extends Thread implements ActionListener {
 	private double speedRatio;
 	// Maximum number of pressure and temperature measurements to consider when
 	// calculating the average values
-	private final int maxMeasurements = 50;
+	private final int maxMeasurements = 10;
 
 	private double activationEnergy = 10;
 	private boolean disappearOnActEnergy = false;
@@ -66,8 +66,8 @@ public class Simulation extends Thread implements ActionListener {
 	private Container container;
 
 	private int numParticles;
-	private int numActiveParticles;
 	private static int defaultNumParticles = 250;
+	private boolean numParticlesChanged = false;
 
 	private int delay;
 	private static int defaultDelay = 2;
@@ -75,11 +75,6 @@ public class Simulation extends Thread implements ActionListener {
 	// Default container info
 	private int defaultWidth = 900;
 	private int defaultHeight = 700;
-	// Default particle info
-	private int radius = 10;
-
-	private boolean changeSize = false;
-	private int newSize = 10;
 
 	private boolean benchmark = false;
 
@@ -105,17 +100,16 @@ public class Simulation extends Thread implements ActionListener {
 		this.T = T;
 		this.numParticles = numParticles;
 		this.delay = delay;
-		pixelSize = particleDiam / (2 * radius);
+		pixelSize = particleDiam / (2 * Particle.radius);
 		container = new Container(defaultWidth, defaultHeight, pixelSize);
 		setup();
 	}
 
 	private void setup() {
 		iterations = 0;
-		numActiveParticles = numParticles;
 		particles = new CopyOnWriteArrayList<Particle>();
 		buffer = new CopyOnWriteArrayList<SimBuffer>();
-		pixelSize = particleDiam / (2 * radius);
+		pixelSize = particleDiam / (2 * Particle.radius);
 		container.setPixelSize(pixelSize);
 		previousTs = new CopyOnWriteArrayList<Double>();
 		previousPs = new CopyOnWriteArrayList<Double>();
@@ -127,7 +121,7 @@ public class Simulation extends Thread implements ActionListener {
 			delay = 0;
 		}
 		for (int i = 0; i < numParticles; i++) {
-			particles.add(new Particle(radius));
+			particles.add(new Particle());
 		}
 		spawn();
 		double expectedActualMSS = calculateExpectedActualMSS(defaultT);
@@ -145,7 +139,7 @@ public class Simulation extends Thread implements ActionListener {
 		System.out.println("rmss: " + rmss + "\nnewActualRMSS: " + newActualRMSS + "\nspeedRatio: " + speedRatio);
 
 		// double actualRms = Math.sqrt((3 * k * T) /
-		// particles.get(0).getMass());
+		// Particle.mass);
 		// this.speedRatio = 1;
 		// double rms = Math.sqrt(meanSquareSpeed());
 		// this.speedRatio = actualRms / rms;
@@ -180,13 +174,7 @@ public class Simulation extends Thread implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		if (changeSize) {
-			for (Particle p : particles) {
-				p.setRadius(newSize);
-			}
-			radius = newSize;
-			changeSize = false;
-		}
+		// System.out.println(numParticles + ", " + particles);
 		if (removeBuffer0 && !buffer.isEmpty()) {
 			buffer.remove(0);
 			removeBuffer0 = false;
@@ -199,18 +187,29 @@ public class Simulation extends Thread implements ActionListener {
 			buffer.clear();
 			rollback = false;
 		}
+		if (numParticlesChanged && Simulation.defaultNumParticles != numParticles) {
+			int n = Simulation.defaultNumParticles - numParticles;
+			if (n > 0) {
+				// Add particles
+				addParticles(n);
+			} else {
+				// Remove particles
+				removeParticles(Math.abs(n));
+			}
+			numParticles = Simulation.defaultNumParticles;
+			numParticlesChanged = false;
+		}
+
 		currP = 0;
 		// System.out.println(buffer.size());
 		if (benchmark || buffer.size() < bufferMaxSize) {
 			for (int i = 0; i < numParticles; i++) {
 				Particle p = particles.get(i);
-				if (p.isActive()) {
-					p.move();
-					collideWall(p);
-					for (int j = 0; j < numParticles; j++) {
-						if (i != j && particles.get(j).isActive()) {
-							collideParticle(p, particles.get(j));
-						}
+				p.move();
+				collideWall(p);
+				for (int j = 0; j < numParticles; j++) {
+					if (i != j) {
+						collideParticle(p, particles.get(j));
 					}
 				}
 			}
@@ -219,8 +218,10 @@ public class Simulation extends Thread implements ActionListener {
 				if (Math.pow(p.getVel().normalise(), 2) > activationEnergy) {
 					numReactions++;
 					if (disappearOnActEnergy) {
-						p.setActive(false);
-						numActiveParticles--;
+						Simulation.defaultNumParticles--;
+						numParticles = Simulation.defaultNumParticles;
+						particles.remove(i);
+						// numParticles--;
 					}
 				}
 			}
@@ -260,7 +261,6 @@ public class Simulation extends Thread implements ActionListener {
 	}
 
 	public void collideParticle(Particle p, Particle q) {
-		assert (p.isActive());
 		// Vector ppos = new Vector(p.getPos());
 		// Vector qpos = new Vector(q.getPos());
 		// System.out.println("before " + p.getPos());
@@ -268,7 +268,7 @@ public class Simulation extends Thread implements ActionListener {
 		n.sub(q.getPos());
 		// System.out.println("after " + p.getPos());
 		// If the two particles are overlapping
-		if (n.sqrNorm() < Math.pow((2 * p.getRadius()), 2)) {
+		if (n.sqrNorm() < Math.pow((2 * Particle.radius), 2)) {
 			// System.out.println("COLLISION");
 			// Make sure particles are not on top of each other
 			if (p.getPos().equals(q.getPos())) {
@@ -283,7 +283,7 @@ public class Simulation extends Thread implements ActionListener {
 				n.sub(q.getPos());
 			}
 			// Move particles back to where they collided
-			double dr = ((2 * p.getRadius()) - n.normalise()) / 2;
+			double dr = ((2 * Particle.radius) - n.normalise()) / 2;
 			Vector un = new Vector(n);
 			un.unitVector();
 			// System.out.println("p before: " + p.getPos());
@@ -334,25 +334,25 @@ public class Simulation extends Thread implements ActionListener {
 
 	public void collideWall(Particle p) {
 		int wallX = (int) container.getWidth();
-		int wallY = container.getHeight();
-		int r = p.getRadius();
+		int wallY = (int) container.getHeight();
+		int r = Particle.radius;
 		if (p.getX() < r) { // Left wall
 			p.setX(r);
 			collideWallSpeed(p, Wall.W);
-			currP += (p.getMass() * Math.abs(p.getVelX() * speedRatio)) / container.getActualVolume();
+			currP += (Particle.mass * Math.abs(p.getVelX() * speedRatio)) / container.getActualVolume();
 		} else if (p.getX() > (wallX - r)) { // Right wall
 			p.setX(wallX - r);
 			collideWallSpeed(p, Wall.E);
-			currP += (p.getMass() * Math.abs(p.getVelX() * speedRatio)) / container.getActualVolume();
+			currP += (Particle.mass * Math.abs(p.getVelX() * speedRatio)) / container.getActualVolume();
 		}
 		if (p.getY() < r) { // Top wall
 			p.setY(r);
 			collideWallSpeed(p, Wall.N);
-			currP += (p.getMass() * Math.abs(p.getVelY() * speedRatio)) / container.getActualVolume();
+			currP += (Particle.mass * Math.abs(p.getVelY() * speedRatio)) / container.getActualVolume();
 		} else if (p.getY() > (wallY - r)) { // Bottom wall
 			p.setY(wallY - r);
 			collideWallSpeed(p, Wall.S);
-			currP += (p.getMass() * Math.abs(p.getVelY() * speedRatio)) / container.getActualVolume();
+			currP += (Particle.mass * Math.abs(p.getVelY() * speedRatio)) / container.getActualVolume();
 		}
 	}
 
@@ -530,10 +530,12 @@ public class Simulation extends Thread implements ActionListener {
 			previousTs.remove(0);
 		}
 
-		double temp = (particles.get(0).getMass() * meanSquareSpeed()) / (3 * k);
+		double temp = (Particle.mass * meanSquareSpeed()) / (3 * k);
+		// System.out.println(Particle.mass + ", " +
+		// meanSquareSpeed() + ", " + temp);
 		previousTs.add(temp);
 
-		// double m = particles.get(0).getMass();
+		// double m = Particle.mass;
 		// double tot = 0;
 		// for (Particle p : particles) {
 		// tot += 0.5 * m * Math.pow(p.getVel().normalise() * speedRatio, 2);
@@ -548,10 +550,9 @@ public class Simulation extends Thread implements ActionListener {
 			previousPs.remove(0);
 		}
 		// previousPs.add(currP * speedRatio);
-		double pressure = (numActiveParticles * particles.get(0).getMass() * meanSquareSpeed())
-				/ (2 * container.getActualVolume());
+		double pressure = (numParticles * Particle.mass * meanSquareSpeed()) / (2 * container.getActualVolume());
 		// System.out.println("numParticles: " + numParticles + "\nmass: " +
-		// particles.get(0).getMass() + "\nMSS: "
+		// Particle.mass + "\nMSS: "
 		// + meanSquareSpeed() + "\nvol: " + container.getActualVolume());
 		previousPs.add(pressure);
 	}
@@ -559,11 +560,9 @@ public class Simulation extends Thread implements ActionListener {
 	private double meanSquareSpeed() {
 		double squareSpeed = 0;
 		for (Particle p : particles) {
-			if (p.isActive()) {
-				squareSpeed += p.getVel().sqrNorm() * speedRatio * speedRatio;
-			}
+			squareSpeed += p.getVel().sqrNorm() * speedRatio * speedRatio;
 		}
-		return squareSpeed /= numActiveParticles;
+		return squareSpeed /= numParticles;
 	}
 
 	private double averageSpeed() {
@@ -577,17 +576,17 @@ public class Simulation extends Thread implements ActionListener {
 	private void spawn() {
 		System.out.println("SPAWNING");
 
-		int wallX = (int) container.getWidth();
-		int wallY = container.getHeight();
+		double wallX = container.getWidth();
+		double wallY = container.getHeight();
 
 		Random rand = new Random();
 		for (Particle p : particles) {
 			p.setPos(wallX * rand.nextDouble(), wallY * rand.nextDouble());
 			for (Particle q : particles) {
 				if (!p.equals(q)) {
-					while ((p.getPos().getX() < p.getRadius() || p.getPos().getX() > wallX - p.getRadius())
-							|| (p.getPos().getY() < p.getRadius() || p.getPos().getY() > wallY - p.getRadius())
-							|| p.getPos().sqrDist(q.getPos()) < Math.pow(p.getRadius(), 2)) {
+					while ((p.getPos().getX() < Particle.radius || p.getPos().getX() > wallX - Particle.radius)
+							|| (p.getPos().getY() < Particle.radius || p.getPos().getY() > wallY - Particle.radius)
+							|| p.getPos().sqrDist(q.getPos()) < Math.pow(Particle.radius, 2)) {
 						p.setPos(wallX * rand.nextDouble(), wallY * rand.nextDouble());
 					}
 				}
@@ -599,15 +598,93 @@ public class Simulation extends Thread implements ActionListener {
 		System.out.println(particles);
 	}
 
+	/**
+	 * @param num
+	 *            The number of particles to add to the simulation.
+	 */
+	private void addParticles(int num) {
+		System.out.println("Adding " + num + " new particles...");
+
+		double wallX = container.getWidth();
+		double wallY = container.getHeight();
+		double mss = meanSquareSpeed();
+		double newMSS;
+		double ratioMSS;
+
+		System.out.println("rand");
+		Random rand = new Random();
+		for (int i = 0; i < num; i++) {
+			Particle newP = new Particle();
+			newP.setPos(wallX * rand.nextDouble(), wallY * rand.nextDouble());
+			System.out.println("check");
+			if (particles.size() == 0) {
+				newP.setPos(wallX * rand.nextDouble(), wallY * rand.nextDouble());
+			} else {
+				for (Particle p : particles) {
+					if (!p.equals(newP)) {
+						while ((newP.getPos().getX() < Particle.radius
+								|| newP.getPos().getX() > wallX - Particle.radius)
+								|| (newP.getPos().getY() < Particle.radius
+										|| newP.getPos().getY() > wallY - Particle.radius)
+								|| newP.getPos().sqrDist(p.getPos()) < Math.pow(Particle.radius, 2)) {
+							newP.setPos(wallX * rand.nextDouble(), wallY * rand.nextDouble());
+						}
+					}
+				}
+			}
+			System.out.println("check done");
+			newP.setVel(4 * (rand.nextDouble() - 0.5), 4 * (rand.nextDouble() - 0.5));
+			if (particles.size() == 0) {
+				double expectedActualMSS = calculateExpectedActualMSS(defaultT);
+				double expectedActualRMSS = Math.sqrt(expectedActualMSS);
+				double newActualRMSS = Math.sqrt(calculateExpectedActualMSS(T));
+				double speedIncrease = newActualRMSS / expectedActualRMSS;
+				newP.getVel().scale(speedIncrease);
+			} else {
+				newMSS = newP.getVel().sqrNorm() * speedRatio * speedRatio;
+				ratioMSS = mss / newMSS;
+				System.out.println("newP: pos=" + newP.getPos() + ", vel=" + newP.getVel() + ", newMSS=" + newMSS
+						+ ", MSS=" + mss + ", ratioMSS=" + ratioMSS);
+				newP.getVel().scale(Math.sqrt(ratioMSS));
+			}
+			System.out.println("add");
+			particles.add(newP);
+			numParticles++;
+			// Recalculate mss for next particle
+			if (particles.size() == 1) {
+				mss = meanSquareSpeed();
+			}
+			System.out.println("done");
+		}
+		System.out.println("DONE");
+	}
+
+	/**
+	 * @param num
+	 *            The number of particles to remove from the simulation.
+	 */
+	private void removeParticles(int num) {
+		System.out.println(Simulation.defaultNumParticles + " Removing " + num + " particles...");
+		Random rand = new Random();
+		for (int i = 0; i < num; i++) {
+			if (Simulation.defaultNumParticles == 0) {
+				particles.remove(0);
+			} else {
+				int r = rand.nextInt(Simulation.defaultNumParticles);
+				particles.remove(r);
+			}
+		}
+	}
+
 	public int getT() {
 		return T;
 	}
 
 	public void setT(int newT) {
 		// double prevActualRms = Math.sqrt((3 * k * T) /
-		// particles.get(0).getMass());
+		// Particle.mass);
 		// double newActualRms = Math.sqrt((3 * k * newT) /
-		// particles.get(0).getMass());
+		// Particle.mass);
 		// double speedIncrease = newActualRms / prevActualRms;
 		// System.out.println(speedIncrease);
 		// for (Particle p : particles) {
@@ -629,14 +706,7 @@ public class Simulation extends Thread implements ActionListener {
 
 	public void setNumParticles(int numParticles) {
 		Simulation.defaultNumParticles = numParticles;
-	}
-
-	public int getNumActiveParticles() {
-		return numActiveParticles;
-	}
-
-	public void setNumActiveParticles(int numActiveParticles) {
-		this.numActiveParticles = numActiveParticles;
+		numParticlesChanged = true;
 	}
 
 	public int getBufferMaxSize() {
@@ -687,7 +757,7 @@ public class Simulation extends Thread implements ActionListener {
 		// container.getActualVolume();
 		// System.out.println("1: " + pressure);
 		//
-		// pressure = (numParticles * particles.get(0).getMass() *
+		// pressure = (numParticles * Particle.mass *
 		// meanSquareSpeed()) / (3 * container.getActualVolume());
 		// System.out.println("2: " + pressure);
 
@@ -731,24 +801,19 @@ public class Simulation extends Thread implements ActionListener {
 	}
 
 	public double calculateExpectedActualMSS(double temp) {
-		return (3 * k * temp) / particles.get(0).getMass();
+		return (3 * k * temp) / Particle.mass;
 	}
 
 	public double calculateExpectedMSS(double temp) {
-		return ((3 * k * temp) / particles.get(0).getMass()) / (speedRatio * speedRatio);
-	}
-
-	public void setParticleSize(int size) {
-		changeSize = true;
-		newSize = size;
-		pixelSize = particleDiam / (2 * radius);
-		container.setPixelSize(pixelSize);
+		return ((3 * k * temp) / Particle.mass) / (speedRatio * speedRatio);
 	}
 
 	public void restartSim() {
 		timer.stop();
 		numParticles = defaultNumParticles;
-		setup();
+		if (numParticles != 0) {
+			setup();
+		}
 		timer.start();
 	}
 
@@ -770,9 +835,7 @@ public class Simulation extends Thread implements ActionListener {
 	public ArrayList<Double> getSpeeds() {
 		ArrayList<Double> speeds = new ArrayList<Double>();
 		for (Particle p : particles) {
-			if (p.isActive()) {
-				speeds.add(p.getVel().normalise());
-			}
+			speeds.add(p.getVel().normalise());
 		}
 		return speeds;
 	}
@@ -781,10 +844,8 @@ public class Simulation extends Thread implements ActionListener {
 		ArrayList<Double> energies = new ArrayList<Double>();
 		double energy;
 		for (Particle p : particles) {
-			if (p.isActive()) {
-				energy = Math.pow(p.getVel().normalise(), 2);
-				energies.add(energy);
-			}
+			energy = Math.pow(p.getVel().normalise(), 2);
+			energies.add(energy);
 		}
 		return energies;
 	}
@@ -802,9 +863,9 @@ public class Simulation extends Thread implements ActionListener {
 	}
 
 	public double getActualActivationEnergy() {
-		// System.out.println(0.5 * particles.get(0).getMass() *
+		// System.out.println(0.5 * Particle.mass *
 		// (activationEnergy * speedRatio * speedRatio));
-		return 0.5 * particles.get(0).getMass() * (activationEnergy * speedRatio * speedRatio);
+		return 0.5 * Particle.mass * (activationEnergy * speedRatio * speedRatio);
 	}
 
 	public void setActivationEnergy(double activationEnergy) {

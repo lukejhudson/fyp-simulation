@@ -7,11 +7,10 @@ public class Particle {
 
 	private Vector pos;
 	private Vector vel;
-	private int radius;
+	public static int radius = 10;
 	// Mass of hydrogen atom
-	private double mass = 1.67E-27;
+	public static double mass = 1.67E-27;
 	// Whether the particle is active and can interact with other particles
-	private boolean active = true;
 
 	public Particle(int x, int y, int vx, int vy) {
 		this.pos = new Vector(x, y);
@@ -23,12 +22,6 @@ public class Particle {
 		this.vel = new Vector(-1, -1);
 	}
 	
-	public Particle(int r) {
-		this.radius = r;
-		this.pos = new Vector(-1, -1);
-		this.vel = new Vector(0, 0);
-	}
-
 	public Particle() {
 		this.pos = new Vector(-1, -1);
 		this.vel = new Vector(0, 0);
@@ -37,19 +30,6 @@ public class Particle {
 	public Particle(Vector pos, Vector vel) {
 		this.pos = new Vector(pos);
 		this.vel = new Vector(vel);
-	}
-	
-	public Particle(Vector pos, Vector vel, int r) {
-		this.pos = new Vector(pos);
-		this.vel = new Vector(vel);
-		this.radius = r;
-	}
-
-	public Particle(Vector pos, Vector vel, int r, boolean active) {
-		this.pos = new Vector(pos);
-		this.vel = new Vector(vel);
-		this.radius = r;
-		this.active = active;
 	}
 
 	public void move() {
@@ -117,36 +97,12 @@ public class Particle {
 	public double getVelY() {
 		return this.vel.getY();
 	}
-	
-	public int getRadius() {
-		return radius;
-	}
 
-	public void setRadius(int radius) {
-		this.radius = radius;
-	}
-
-	public double getMass() {
-		return mass;
-	}
-
-	public void setMass(int mass) {
-		this.mass = mass;
-	}
-	
 	public String toString() {
 		return "<P:" + pos + " V:" + vel + ">";
 	}
 
 	public Particle createCopy() {
-		return new Particle(pos, vel, radius, active);
-	}
-
-	public boolean isActive() {
-		return active;
-	}
-
-	public void setActive(boolean active) {
-		this.active = active;
+		return new Particle(pos, vel);
 	}
 }

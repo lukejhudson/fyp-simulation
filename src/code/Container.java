@@ -5,7 +5,7 @@ public class Container {
 	private double widthChange;
 	private double width;
 	private double actualWidth;
-	private int height;
+	private double height;
 	private double actualHeight;
 	private double pixelSize;
 
@@ -56,8 +56,8 @@ public class Container {
 		widthChange = w;
 	}
 
-	public int getVolume() {
-		return (int) width * height;
+	public double getVolume() {
+		return width * height;
 	}
 
 	public double getActualVolume() {
@@ -81,7 +81,7 @@ public class Container {
 		this.actualWidth = actualWidth;
 	}
 
-	public int getHeight() {
+	public double getHeight() {
 		return height;
 	}
 

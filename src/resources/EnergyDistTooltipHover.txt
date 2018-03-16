@@ -1,5 +1,5 @@
 <html>
-Energy distribution graph (Maxwell-Boltzmann Distribution).
+Energy distribution graph.
 <br>
 Percentange of particles against energy (arbitrary units).
 <br><br>

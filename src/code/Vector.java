@@ -56,7 +56,7 @@ public class Vector {
 	public double normalise() {
 		return Math.hypot(x, y);
 	}
-	
+
 	public double sqrNorm() {
 		return x * x + y * y;
 	}
@@ -111,12 +111,12 @@ public class Vector {
 	public void setY(double y) {
 		this.y = y;
 	}
-	
+
 	public boolean equals(Vector v) {
-	    return x == v.x && y == v.y;
+		return x == v.x && y == v.y;
 	}
 
 	public String toString() {
-		return "(" + Math.round(this.x) + ", " + Math.round(this.y) + ")";
+		return "(" + (Math.round(x * 100.0) / 100.0) + ", " + (Math.round(y * 100.0) / 100.0) + ")";
 	}
 }

@@ -6,5 +6,5 @@ Otherwise, whenever a particle collides with a wall it will gain/lose some energ
 <br>
 equalise its energy to the wall temperature. This keeps the average temperature of the
 <br>
-particles approximately equal to the wall tempearture.
+particles approximately equal to the wall temperature.
 </html>

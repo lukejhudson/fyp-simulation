@@ -1,5 +1,5 @@
 <html>
-Speed distribution graph.
+Speed distribution graph (Maxwell-Boltzmann distribution).
 <br>
 Percentange of particles against speed (arbitrary units).
 <br><br>

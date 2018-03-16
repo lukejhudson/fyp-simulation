@@ -1,0 +1,71 @@
+<html>
+<h3 style=\"padding:10;">
+Heat Engines
+</h3>
+<p style=\"padding:10;">
+To read more about heat engines, click on the "<b>HELP</b>" button in the top left of the program when in "Heat Engines" mode, which can be selected using the drop-down menu next to the button. 
+<br><br>
+By utilising the tools available in the program, the "<b>Single Carnot</b>" and "<b>Const. Carnot</b>" buttons can create a Carnot cycle using the following:
+<br>
+First time around:
+<br>&#9679; The "Restart" button is pressed to reset the temperature of the particles
+<br>&#9679; The "Remove Traces" button is used on both PV and TS graphs to clear any unwanted traces on the graphs
+<br>&#9679; For best results, the number of particles is set to 250 using the "Number of Particles" slider
+<br>
+Step 1 (Hot reservoir, uninsulated walls, gas pushing wall outwards): 
+<br>&#9679; The container and therefore the volume is made as small as possible; The wall temperature is set to 3000K using the "Wall Temperature" slider
+<br>&#9679; "Insulate the walls" is unchecked; "Allow particles to push the right wall" is checked
+<br>
+Step 2 (Hot reservoir, insulated walls, gas pushing wall outwards): 
+<br>&#9679; "Insulate the walls" is checked
+<br>
+Step 3 (Cold reservoir, uninsulated walls, wall compressing gas): 
+<br>&#9679; The container and therefore the volume is made as large as possible; The wall temperature is set to 1000K
+<br>&#9679; "Insulate the walls" is unchecked; "Allow particles to push the right wall" is unchecked; The "Move Wall In" button is pressed
+<br>
+Step 4 (Cold reservoir, insulated walls, wall compressing gas):  
+<br>&#9679; "Insulate the walls" is checked
+<br>
+At the end of each step, the "Add Trace" button is pressed to allow for several different red and blue traces on the graph.
+<br><br>
+<b>Speed Distribution Graph</b>: Percentage of particles against speed (arbitrary units). 
+Note what happens to the shape of the distribution as you adjust the "Wall Temperature" slider (while the gas is not insulated) or move the right wall. 
+You should find that as the temperature of the gas increases: the average particle speed increases; the maximum particle speed increases; the distribution becomes more spread out. 
+<br><br>
+<b>Pressure-Volume Graph</b> (PV): Pressure exerted on the container (Pa) against the volume of the container (m<sup>2</sup>). 
+Compress the gas (by moving the right wall either manually or automatically) and see how the shape of the curve changes when you use a different temperature or turn insulation on / off.
+Red lines signify that the container was insulated. Blue lines signify that the container was not insulated. 
+<br><br>
+<b>Temperature-Entropy Graph</b> (TS): Temperature of the gas (K) against entropy (JK<sup>-1</sup>). 
+Red lines signify that the container was insulated. Blue lines signify that the container was not insulated. 
+<br><br>
+<b>Add Trace</b>: This buttons adds a new trace to the graph above it without affecting any of the current traces on the graph. 
+<br><br> 
+<b>Remove Traces</b>: This button removes all traces on the graph above it and then adds a fresh trace. 
+</p>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

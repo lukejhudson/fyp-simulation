@@ -1,0 +1,64 @@
+<html>
+<h2 style=padding:10>
+Activation Energy
+</h2>
+<p style=\"padding:10;">
+The activation energy, &epsilon; ("epsilon"), is the amount of energy needed to trigger a process. For example:
+<br><br>
+a) A change of state: the particles need enough energy to break the forces between them.
+<br> 
+b) Thermionic emission: if you heat up a conductor, electrons are released from the surface. These electrons need enough energy to escape from the attraction of the positive nuclei.
+<br> 
+c) Conduction in a semiconductor: semiconductors will only start to conduct once there are electrons in a high-energy state called the “conduction band”, so electrons need enough energy to jump from the ground state to this higher-energy state.
+<br><br>
+In each of these examples, the activation energy comes from the random thermal energy of the particles. 
+<br><br>
+The ratio &epsilon;/kT is really important (k is Boltzmann's constant, 1.38x10<sup>-23</sup>, T is the temperature in K). When kT is big enough compared with &epsilon;, some particles have enough energy to begin the process.  
+You might think, then, that these processes wouldn't happen unless kT&ge;&epsilon;, but it's not that simple. 
+If the ratio between the activation energy and the average energy of the particles (&epsilon;/kT) is too high, nothing happens.  
+As &epsilon;/kT gets down to somewhere around 15–30, the process starts to happen at a fair rate. Some particles must therefore have energies of 15–30 times the average energy in order to trigger the process. 
+<br><br>
+Every time particles collide, there's a chance that one of them will gain extra energy above and beyond the average kT. If that happens several times in a row, a particle can gain energies much, much higher than the average. 
+To end up with an energy of 15kT to 30kT, a particle would have to get very lucky, so there will only be a tiny proportion of particles with this energy. 
+Since there are typically huge numbers of particles colliding billions of times each second, this small fraction still adds up to a large number of particles.
+<br><br><br>
+You can say particles with different energies are in different energy states. A particle with an energy of kT + &epsilon; is in a higher energy state than a particle with an energy of kT. 
+<br>
+You can find the ratio of particles in two different energy states:
+<br>
+The Boltzmann factor, e<sup>-&epsilon;/kT</sup>, gives the ratio of the numbers of particles in energy states &epsilon; joules apart.
+<br>
+For &epsilon;/kT = 15 the Boltzmann factor is ~10<sup>–7</sup>, and for &epsilon;/kT = 30 it's only ~10<sup>–13</sup>. 
+That means that only about one in 10<sup>13</sup> to one in 10<sup>7</sup> particles have enough energy to overcome the activation energy. 
+That might sound like a tiny proportion, but you have to remember how fast these particles are moving and how often they are colliding with each other. 
+Every time there's a collision, there's an 'attempt' at the reaction, so even with so few particles having enough energy, the reaction can happen in a matter of seconds. 
+<br><br>
+For any particular reaction, the values of &epsilon; and k are fixed. This means that the only thing that will change the Boltzmann factor is the temperature. 
+If you plot a graph of the Boltzmann factor against temperature you get an s-shaped curve like the ones below.
+</p>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

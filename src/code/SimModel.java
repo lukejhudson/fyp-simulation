@@ -67,11 +67,9 @@ public class SimModel extends Observable {
 		setChanged();
 		notifyObservers(Changed.NumParticles);
 	}
-
-	public void setParticleSize(int i) {
-		sim.setParticleSize(i);
-		setChanged();
-		notifyObservers(Changed.ParticleSize);
+	
+	public int getNumParticles() {
+		return sim.getNumParticles();
 	}
 
 	public void setT(int t) {

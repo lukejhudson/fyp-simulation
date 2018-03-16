@@ -1,0 +1,47 @@
+<html>
+<h3 style=\"padding:10;">
+Activation Energy
+</h3>
+<p style=\"padding:10;">
+To read more about activation energy, click on the "<b>HELP</b>" button in the top left of the program when in "Activation Energy" mode, which can be selected using the drop-down menu next to the button. 
+Activation Energy
+<br><br>
+<b>Speed Distribution Graph</b>: Percentage of particles against speed (arbitrary units), also known as the Maxwell-Boltzmann distribution. 
+Note what happens to the shape of the distribution as you adjust the "Wall Temperature" slider (while the gas is not insulated) or move the right wall. 
+You should find that as the temperature of the gas increases: the average particle speed increases; the maximum particle speed increases; the distribution becomes more spread out. 
+<br><br>
+<b>Energy Distribution Graph</b>: Percentage of particles against energy (arbitrary units). 
+Note what happens to the shape of the distribution as you adjust the "Wall Temperature" slider (while the gas is not insulated) or move the right wall. 
+Compare this behaviour to that of the speed distribution graph. 
+<br><br>
+<b>Boltzmann Factor-Reactions/Iteration</b>: Boltzmann factor against reactions per iteration. 
+Note how the shape of the plots changes with different temperatures and activation energy values. 
+<br><br>
+<b>Clear Graph</b>: Clears all plots from the Boltzmann Factor-Reactions/Iteration graph.
+</p>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

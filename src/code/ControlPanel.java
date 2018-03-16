@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -51,7 +52,7 @@ public class ControlPanel extends JComponent {
 	private JCheckBox colourParticlesAtActEnergy;
 	private JCheckBox insulated;
 	private JCheckBox particlesPushWall;
-	
+
 	private JCheckBox particlesDisappearAtActEnergy;
 	private JSlider actEnergySlider;
 	// The button to automatically create a Carnot cycle graph
@@ -74,6 +75,7 @@ public class ControlPanel extends JComponent {
 		createAutoCarnot();
 		this.view = new GraphView(model, autoCarnot, autoCarnotCont);
 		model.addObserver(view);
+		HelpScreens help = new HelpScreens(this);
 
 		frame.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -87,7 +89,6 @@ public class ControlPanel extends JComponent {
 		menu.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// JComboBox cb = (JComboBox)e.getSource();
 				String m = (String) menu.getSelectedItem();
 				if (m.equals("Heat Engines")) {
 					model.changeMode(Mode.HeatEngines);
@@ -107,7 +108,7 @@ public class ControlPanel extends JComponent {
 		});
 		menu.setMinimumSize(new Dimension(160, 40));
 
-		JButton menuHelp = createMenuHelp(menu);
+		JButton menuHelp = help.createMenuHelp(menu);
 
 		menuBar.add(menu, BorderLayout.CENTER);
 		menuBar.add(menuHelp, BorderLayout.EAST);
@@ -131,8 +132,8 @@ public class ControlPanel extends JComponent {
 		// c.gridy = 0;
 		// c.gridheight = 2;
 
-		graphView.setMinimumSize(new Dimension(200, frame.getHeight()));
-		graphView.setPreferredSize(new Dimension(200, frame.getHeight()));
+		graphView.setMinimumSize(new Dimension(277, frame.getHeight()));
+		graphView.setPreferredSize(new Dimension(277, frame.getHeight()));
 
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
@@ -150,19 +151,34 @@ public class ControlPanel extends JComponent {
 		// graphView.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		frame.add(graphView, c); // Graphs
 
-		comp.setMinimumSize(
-				new Dimension((int) model.getContainer().getWidth() + 300, model.getContainer().getHeight() + 10));
-		comp.setPreferredSize(
-				new Dimension((int) model.getContainer().getWidth() + 300, model.getContainer().getHeight() + 10));
+		comp.setMinimumSize(new Dimension((int) model.getContainer().getWidth() + 305,
+				(int) model.getContainer().getHeight() + 10));
+		comp.setPreferredSize(new Dimension((int) model.getContainer().getWidth() + 305,
+				(int) model.getContainer().getHeight() + 10));
 		// c.fill = GridBagConstraints.BOTH;
 		// c.ipadx = 0;
 		// c.ipady = 0;
-		c.anchor = GridBagConstraints.PAGE_START;
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 1;
 		c.gridy = 0;
 		c.gridheight = 1;
 		comp.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		frame.add(comp, c); // Simulation
+
+		JButton info = help.createInfoButton();
+		JPanel compAndInfo = new JPanel(new GridBagLayout());
+		GridBagConstraints c2 = new GridBagConstraints();
+		c2.anchor = GridBagConstraints.FIRST_LINE_START;
+		c2.gridx = 0;
+		c2.gridy = 0;
+		c2.fill = GridBagConstraints.BOTH;
+		compAndInfo.add(comp, c2);
+		c2.anchor = GridBagConstraints.FIRST_LINE_END;
+		c2.gridx = 1;
+		c2.fill = GridBagConstraints.HORIZONTAL;
+		compAndInfo.add(info, c2);
+
+		frame.add(compAndInfo, c); // Simulation
 
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.PAGE_END; // Stick to bottom
@@ -172,79 +188,11 @@ public class ControlPanel extends JComponent {
 		c.gridy = 1;
 		UI.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		frame.add(UI, c); // Bottom bar
-	}
 
-	private JButton createMenuHelp(JComboBox<String> menu) {
-		JButton menuHelp = new JButton("?");
-		menuHelp.setFont(new Font("Monospaced", Font.BOLD, 20));
-		menuHelp.setContentAreaFilled(false);
-		menuHelp.setToolTipText("Detailed information for the current mode");
-		menuHelp.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				JFrame frame = new JFrame();
-				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-				JLabel container = new JLabel();
-				container.setLayout(new BorderLayout());
-				container.setVerticalTextPosition(SwingConstants.TOP);
-
-				String m = (String) menu.getSelectedItem();
-				if (m.equals("Heat Engines")) {
-					frame.setTitle("Heat Engines Help");
-					ImageIcon ccPistons = createImageIcon("CarnotCyclePistons.png",
-							"An ideal gas-piston model of the Carnot cycle");
-					ImageIcon ccPV = createImageIcon("CarnotCyclePV.png", "A P-V diagram of the Carnot cycle");
-					ImageIcon ccTS = createImageIcon("CarnotCycleTS.png", "A T-S diagram of the Carnot cycle");
-
-					JLabel pistonImg = new JLabel("Figure 1: An ideal gas-piston model of the Carnot cycle", ccPistons,
-							JLabel.CENTER);
-					pistonImg.setVerticalTextPosition(JLabel.BOTTOM);
-					pistonImg.setHorizontalTextPosition(JLabel.CENTER);
-					JLabel pvImg = new JLabel("Figure 2: A P-V diagram of the Carnot cycle", ccPV, JLabel.CENTER);
-					pvImg.setVerticalTextPosition(JLabel.BOTTOM);
-					pvImg.setHorizontalTextPosition(JLabel.CENTER);
-					JLabel tsImg = new JLabel("Figure 3: A T-S diagram of the Carnot cycle", ccTS, JLabel.CENTER);
-					tsImg.setVerticalTextPosition(JLabel.BOTTOM);
-					tsImg.setHorizontalTextPosition(JLabel.CENTER);
-					JPanel charts = new JPanel(new GridLayout(1, 0));
-					charts.add(pvImg);
-					charts.add(tsImg);
-
-					JLabel text1 = new JLabel(readFile("todo/HeatEnginesTooltip1.txt"));
-					text1.setFont(new Font("Calibri", Font.PLAIN, 14));
-					JLabel text2 = new JLabel(readFile("todo/HeatEnginesTooltip2.txt"));
-					text2.setFont(new Font("Calibri", Font.PLAIN, 14));
-					JLabel text3 = new JLabel(readFile("todo/HeatEnginesTooltip3.txt"));
-					text3.setFont(new Font("Calibri", Font.PLAIN, 14));
-					
-					JPanel top = new JPanel(new BorderLayout());
-					top.add(text1, BorderLayout.CENTER);
-					top.add(pistonImg, BorderLayout.EAST);
-					top.add(text2, BorderLayout.SOUTH);
-
-					JPanel bottom = new JPanel(new BorderLayout());
-					bottom.add(charts, BorderLayout.CENTER);
-					bottom.add(text3, BorderLayout.SOUTH);
-
-					container.add(top, BorderLayout.CENTER);
-					container.add(bottom, BorderLayout.SOUTH);
-					
-					frame.setSize(new Dimension(1300, 850));
-				} else if (m.equals("Activation Energy")) {
-					frame.setTitle("Activation Energy Help");
-					JLabel label1 = new JLabel(readFile("todo/ActEnergyTooltip.txt"));
-					container.add(label1);
-					
-					frame.setSize(new Dimension(200, 200));
-				}
-
-				frame.add(container);
-				frame.setLocation(20, 20);
-				frame.setVisible(true);
-			}
-		});
-		return menuHelp;
+		// c.anchor = GridBagConstraints.FIRST_LINE_START;
+		// c.gridx = 2;
+		// c.gridy = 0;
+		// frame.add(info, c);
 	}
 
 	private JPanel sliderBar() {
@@ -258,13 +206,11 @@ public class ControlPanel extends JComponent {
 		JPanel stats = new JPanel(new BorderLayout());
 		// NumParticles slider, label and value
 		JPanel numParticles = new JPanel(new BorderLayout());
-		// SizeParticles slider, label and value
-		// JPanel sizeParticles = new JPanel(new BorderLayout());
 		// ActivationEnergy slider, label and value
 		JPanel actEnergy = new JPanel(new BorderLayout());
 
 		JLabel numParticlesLabel = new JLabel("Number of particles", SwingConstants.CENTER);
-		JSlider numParticlesSlider = new JSlider(SwingConstants.HORIZONTAL, 1, 500, 250);
+		JSlider numParticlesSlider = new JSlider(SwingConstants.HORIZONTAL, 0, 500, 250);
 		numParticlesSlider.setMajorTickSpacing(100);
 		numParticlesSlider.setMinorTickSpacing(25);
 		numParticlesSlider.setPaintTicks(true);
@@ -283,25 +229,24 @@ public class ControlPanel extends JComponent {
 		numParticlesSlider.setToolTipText(readFile("NumParticlesSliderTooltipHover.txt"));
 
 		numParticles.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-
-		// JLabel sizeParticlesLabel = new JLabel("Particle size",
-		// SwingConstants.CENTER);
-		// JSlider sizeParticlesSlider = new JSlider(SwingConstants.HORIZONTAL,
-		// 2, 100, 10);
-		// sizeParticlesSlider.setMajorTickSpacing(10);
-		// sizeParticlesSlider.setMinorTickSpacing(5);
-		// sizeParticlesSlider.setPaintTicks(true);
-		// sizeParticlesSlider.setPaintLabels(true);
-		// JLabel sizeParticlesValue = new JLabel("10");
-		// sizeParticlesSlider.addChangeListener(new ChangeListener() {
-		// public void stateChanged(ChangeEvent e) {
-		// model.setParticleSize(sizeParticlesSlider.getValue());
-		// sizeParticlesValue.setText(Integer.toString(sizeParticlesSlider.getValue()));
-		// }
-		// });
-		// sizeParticles.add(sizeParticlesLabel, BorderLayout.NORTH);
-		// sizeParticles.add(sizeParticlesSlider, BorderLayout.CENTER);
-		// sizeParticles.add(sizeParticlesValue, BorderLayout.EAST);
+		Thread numParticlesUpdater = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (true) {
+					int num = model.getNumParticles();
+					if (!numParticlesSlider.getValueIsAdjusting()) {
+						numParticlesSlider.setValue(num);
+						numParticlesValue.setText(Integer.toString(num));
+					}
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		numParticlesUpdater.start();
 
 		JLabel actEnergyLabel = new JLabel("Activation energy", SwingConstants.CENTER);
 		// JSlider actEnergySlider = new JSlider(SwingConstants.HORIZONTAL,
@@ -496,8 +441,7 @@ public class ControlPanel extends JComponent {
 		colourParticlesAtActEnergy.setToolTipText(readFile("ColourParticlesCheckboxTooltipHover.txt"));
 		colourParticlesAtActEnergy.setEnabled(false);
 
-		particlesDisappearAtActEnergy = new JCheckBox(
-				"Make particles disappear upon reaching activation energy");
+		particlesDisappearAtActEnergy = new JCheckBox("Make particles disappear upon reaching activation energy");
 		particlesDisappearAtActEnergy.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -548,7 +492,7 @@ public class ControlPanel extends JComponent {
 		});
 
 		autoCarnotCont = new JButton("Const. Carnot");
-		autoCarnotCont.setToolTipText(readFile("AutoCarnotButtonTooltipHover.txt"));
+		autoCarnotCont.setToolTipText(readFile("AutoCarnotConstButtonTooltipHover.txt"));
 		autoCarnotCont.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -680,7 +624,7 @@ public class ControlPanel extends JComponent {
 			t.start();
 		}
 	}
-	
+
 	public boolean isPaused() {
 		return pause;
 	}
@@ -696,7 +640,7 @@ public class ControlPanel extends JComponent {
 	}
 
 	/** Returns an ImageIcon, or null if the path was invalid. */
-	protected ImageIcon createImageIcon(String path, String description) {
+	public ImageIcon createImageIcon(String path, String description) {
 		java.net.URL imgURL = getClass().getResource("../resources/images/" + path);
 		if (imgURL != null) {
 			return new ImageIcon(imgURL, description);
