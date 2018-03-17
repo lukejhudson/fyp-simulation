@@ -1,5 +1,8 @@
 <html>
 <p style=\"padding:10;">
+For any particular reaction, the values of &epsilon; and k are fixed. This means that the only thing that will change the Boltzmann factor is the temperature. 
+If you plot a graph of the Boltzmann factor against temperature you get an s-shaped curve like the ones to the right.
+<br><br>
 This shape shows that at low temperatures, the Boltzmann factor is also very low, so very few (if any) particles will have sufficient energy to react and the reaction will be really slow. 
 At high temperatures, the Boltzmann factor approaches 1, so nearly all the particles will have enough energy to react and the reaction will be really fast. 
 In between, the Boltzmann factor increases rapidly with temperature. So a small increase in temperature can make a big difference to the rate.

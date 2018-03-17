@@ -221,19 +221,19 @@ public class HelpScreens {
 	}
 
 	private void createInfoLabels() {
-		helpBottomMid = new JLabel(ControlPanel.readFile("todo/HelpBottomMid.txt"));
+		helpBottomMid = new JLabel(ControlPanel.readFile("helpscreens/HelpBottomMid.txt"));
 		helpBottomMid.setFont(new Font("Calibri", Font.PLAIN, 14));
 		helpBottomMid.setVerticalAlignment(SwingConstants.TOP);
-		helpBottomRight = new JLabel(ControlPanel.readFile("todo/HelpBottomRight.txt"));
+		helpBottomRight = new JLabel(ControlPanel.readFile("helpscreens/HelpBottomRight.txt"));
 		helpBottomRight.setFont(new Font("Calibri", Font.PLAIN, 14));
 		helpBottomRight.setVerticalAlignment(SwingConstants.TOP);
-		helpGeneral = new JLabel(ControlPanel.readFile("todo/HelpGeneralInfo.txt"));
+		helpGeneral = new JLabel(ControlPanel.readFile("helpscreens/HelpGeneralInfo.txt"));
 		helpGeneral.setFont(new Font("Calibri", Font.PLAIN, 14));
 		helpGeneral.setVerticalAlignment(SwingConstants.TOP);
-		helpActEn = new JLabel(ControlPanel.readFile("todo/HelpActEnergy.txt"));
+		helpActEn = new JLabel(ControlPanel.readFile("helpscreens/HelpActEnergy.txt"));
 		helpActEn.setFont(new Font("Calibri", Font.PLAIN, 14));
 		helpActEn.setVerticalAlignment(SwingConstants.TOP);
-		helpHeatEn = new JLabel(ControlPanel.readFile("todo/HelpHeatEngines.txt"));
+		helpHeatEn = new JLabel(ControlPanel.readFile("helpscreens/HelpHeatEngines.txt"));
 		helpHeatEn.setFont(new Font("Calibri", Font.PLAIN, 14));
 		helpHeatEn.setVerticalAlignment(SwingConstants.TOP);
 	}
@@ -276,11 +276,11 @@ public class HelpScreens {
 					charts.add(pvImg);
 					charts.add(tsImg);
 
-					JLabel text1 = new JLabel(ControlPanel.readFile("todo/HeatEnginesTooltip1.txt"));
+					JLabel text1 = new JLabel(ControlPanel.readFile("helpscreens/HeatEngines1.txt"));
 					text1.setFont(new Font("Calibri", Font.PLAIN, 14));
-					JLabel text2 = new JLabel(ControlPanel.readFile("todo/HeatEnginesTooltip2.txt"));
+					JLabel text2 = new JLabel(ControlPanel.readFile("helpscreens/HeatEngines2.txt"));
 					text2.setFont(new Font("Calibri", Font.PLAIN, 14));
-					JLabel text3 = new JLabel(ControlPanel.readFile("todo/HeatEnginesTooltip3.txt"));
+					JLabel text3 = new JLabel(ControlPanel.readFile("helpscreens/HeatEngines3.txt"));
 					text3.setFont(new Font("Calibri", Font.PLAIN, 14));
 
 					JPanel top = new JPanel(new BorderLayout());
@@ -305,15 +305,16 @@ public class HelpScreens {
 					btImg.setVerticalTextPosition(JLabel.BOTTOM);
 					btImg.setHorizontalTextPosition(JLabel.CENTER);
 
-					JLabel text1 = new JLabel(ControlPanel.readFile("todo/ActEnergyTooltip1.txt"));
+					JLabel text1 = new JLabel(ControlPanel.readFile("helpscreens/ActEnergy1.txt"));
 					text1.setFont(new Font("Calibri", Font.PLAIN, 14));
-					JLabel text2 = new JLabel(ControlPanel.readFile("todo/ActEnergyTooltip2.txt"));
+					JLabel text2 = new JLabel(ControlPanel.readFile("helpscreens/ActEnergy2.txt"), btChart, SwingConstants.LEFT);
+					text2.setHorizontalTextPosition(SwingConstants.LEFT);
 					text2.setFont(new Font("Calibri", Font.PLAIN, 14));
-					container.add(text1, BorderLayout.NORTH);
-					container.add(btImg, BorderLayout.CENTER);
+					container.add(text1, BorderLayout.CENTER);
+//					container.add(btImg, BorderLayout.CENTER);
 					container.add(text2, BorderLayout.SOUTH);
 
-					frame.setSize(new Dimension(1550, 950));
+					frame.setSize(new Dimension(1300, 800));
 				}
 
 				frame.add(container);

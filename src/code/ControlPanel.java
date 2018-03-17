@@ -2,11 +2,9 @@ package code;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -53,8 +51,12 @@ public class ControlPanel extends JComponent {
 	private JCheckBox insulated;
 	private JCheckBox particlesPushWall;
 
+	// Activation energy components which need to be enabled/disabled
 	private JCheckBox particlesDisappearAtActEnergy;
 	private JSlider actEnergySlider;
+	private JLabel actEnergyValue;
+	private JLabel actEnergyLabel;
+	
 	// The button to automatically create a Carnot cycle graph
 	private JButton autoCarnot;
 	// Continuous Carnot cycles
@@ -97,12 +99,16 @@ public class ControlPanel extends JComponent {
 					particlesDisappearAtActEnergy.setEnabled(false);
 					particlesDisappearAtActEnergy.setSelected(false);
 					actEnergySlider.setEnabled(false);
+					actEnergyValue.setEnabled(false);
+					actEnergyLabel.setEnabled(false);
 				} else if (m.equals("Activation Energy")) {
 					model.changeMode(Mode.ActivationEnergy);
 					colourParticlesAtActEnergy.setSelected(true);
 					colourParticlesAtActEnergy.setEnabled(true);
 					particlesDisappearAtActEnergy.setEnabled(true);
 					actEnergySlider.setEnabled(true);
+					actEnergyValue.setEnabled(true);
+					actEnergyLabel.setEnabled(true);
 				}
 			}
 		});
@@ -209,7 +215,7 @@ public class ControlPanel extends JComponent {
 		// ActivationEnergy slider, label and value
 		JPanel actEnergy = new JPanel(new BorderLayout());
 
-		JLabel numParticlesLabel = new JLabel("Number of particles", SwingConstants.CENTER);
+		JLabel numParticlesLabel = new JLabel("Number of Particles", SwingConstants.CENTER);
 		JSlider numParticlesSlider = new JSlider(SwingConstants.HORIZONTAL, 0, 500, 250);
 		numParticlesSlider.setMajorTickSpacing(100);
 		numParticlesSlider.setMinorTickSpacing(25);
@@ -225,8 +231,8 @@ public class ControlPanel extends JComponent {
 		numParticles.add(numParticlesLabel, BorderLayout.NORTH);
 		numParticles.add(numParticlesSlider, BorderLayout.CENTER);
 		numParticles.add(numParticlesValue, BorderLayout.EAST);
-		numParticles.setToolTipText(readFile("NumParticlesSliderTooltipHover.txt"));
-		numParticlesSlider.setToolTipText(readFile("NumParticlesSliderTooltipHover.txt"));
+		numParticles.setToolTipText(readFile("tooltips/NumParticlesSlider.txt"));
+		numParticlesSlider.setToolTipText(readFile("tooltips/NumParticlesSlider.txt"));
 
 		numParticles.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		Thread numParticlesUpdater = new Thread(new Runnable() {
@@ -248,7 +254,8 @@ public class ControlPanel extends JComponent {
 		});
 		numParticlesUpdater.start();
 
-		JLabel actEnergyLabel = new JLabel("Activation energy", SwingConstants.CENTER);
+		actEnergyLabel = new JLabel("Activation Energy", SwingConstants.CENTER);
+		actEnergyLabel.setEnabled(false);
 		// JSlider actEnergySlider = new JSlider(SwingConstants.HORIZONTAL,
 		// (int)model.calculateExpectedMSS(300) / 10,
 		// (int)model.calculateExpectedMSS(4000) * 2,
@@ -258,7 +265,8 @@ public class ControlPanel extends JComponent {
 		actEnergySlider.setMinorTickSpacing(10);
 		actEnergySlider.setPaintTicks(true);
 		actEnergySlider.setPaintLabels(true);
-		JLabel actEnergyValue = new JLabel("10");
+		actEnergyValue = new JLabel("10");
+		actEnergyValue.setEnabled(false);
 		actEnergySlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				model.setActivationEnergy(actEnergySlider.getValue());
@@ -270,8 +278,8 @@ public class ControlPanel extends JComponent {
 		actEnergy.add(actEnergySlider, BorderLayout.CENTER);
 		actEnergy.add(actEnergyValue, BorderLayout.EAST);
 		// actEnergySlider.setMaximum(maximum);
-		actEnergy.setToolTipText(readFile("ActEnergySliderTooltipHover.txt"));
-		actEnergySlider.setToolTipText(readFile("ActEnergySliderTooltipHover.txt"));
+		actEnergy.setToolTipText(readFile("tooltips/ActEnergySlider.txt"));
+		actEnergySlider.setToolTipText(readFile("tooltips/ActEnergySlider.txt"));
 
 		actEnergy.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
@@ -283,7 +291,7 @@ public class ControlPanel extends JComponent {
 				tempValue.setText(Integer.toString(tempSlider.getValue()));
 			}
 		});
-		JLabel tempLabel = new JLabel("Wall temperature", SwingConstants.CENTER);
+		JLabel tempLabel = new JLabel("Wall Temperature (K)", SwingConstants.CENTER);
 		tempSlider.setMajorTickSpacing(950);
 		tempSlider.setMinorTickSpacing(190);
 		tempSlider.setPaintTicks(true);
@@ -292,15 +300,15 @@ public class ControlPanel extends JComponent {
 		tempComp.add(tempSlider, BorderLayout.CENTER);
 		tempComp.add(tempValue, BorderLayout.EAST);
 
-		tempComp.setToolTipText(readFile("WallTempSliderTooltipHover.txt"));
-		tempSlider.setToolTipText(readFile("WallTempSliderTooltipHover.txt"));
+		tempComp.setToolTipText(readFile("tooltips/WallTempSlider.txt"));
+		tempSlider.setToolTipText(readFile("tooltips/WallTempSlider.txt"));
 
 		tempComp.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
 		currT = new JLabel("<html>Average temperature<br>of particles: </html>");
-		currT.setToolTipText(readFile("AvgTempLabelTooltipHover.txt"));
+		currT.setToolTipText(readFile("tooltips/AvgTempLabel.txt"));
 		currP = new JLabel("<html>Average pressure<br>on container: </html>");
-		currP.setToolTipText(readFile("AvgPressureLabelTooltipHover.txt"));
+		currP.setToolTipText(readFile("tooltips/AvgPressureLabel.txt"));
 		stats.add(currT, BorderLayout.NORTH);
 		stats.add(currP, BorderLayout.SOUTH);
 
@@ -313,7 +321,7 @@ public class ControlPanel extends JComponent {
 		labelTable.put(Integer.valueOf(12), new JLabel("3"));
 		labelTable.put(Integer.valueOf(16), new JLabel("4"));
 		fpsSlider.setLabelTable(labelTable);
-		JLabel fpsLabel = new JLabel("Simulation speed multipler", SwingConstants.CENTER);
+		JLabel fpsLabel = new JLabel("Simulation Speed Multipler", SwingConstants.CENTER);
 		JLabel fpsValue = new JLabel("1.00");
 		fpsSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
@@ -329,8 +337,8 @@ public class ControlPanel extends JComponent {
 		fps.add(fpsLabel, BorderLayout.NORTH);
 		fps.add(fpsValue, BorderLayout.EAST);
 
-		fps.setToolTipText(readFile("SimSpeedSliderTooltipHover.txt"));
-		fpsSlider.setToolTipText(readFile("SimSpeedSliderTooltipHover.txt"));
+		fps.setToolTipText(readFile("tooltips/SimSpeedSlider.txt"));
+		fpsSlider.setToolTipText(readFile("tooltips/SimSpeedSlider.txt"));
 
 		fps.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
@@ -365,7 +373,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
-		playPause.setToolTipText(readFile("PauseResumeButtonTooltipHover.txt"));
+		playPause.setToolTipText(readFile("tooltips/PauseResumeButton.txt"));
 
 		restart = new JButton("Restart");
 		restart.addActionListener(new ActionListener() {
@@ -383,11 +391,11 @@ public class ControlPanel extends JComponent {
 				carnotRestart = false;
 			}
 		});
-		restart.setToolTipText(readFile("RestartButtonTooltipHover.txt"));
+		restart.setToolTipText(readFile("tooltips/RestartButton.txt"));
 
 		JPanel moveWall = new JPanel(new GridLayout(1, 1));
 
-		moveWallIn = new JButton("Move wall in");
+		moveWallIn = new JButton("Move Wall In");
 		moveWallIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -397,9 +405,9 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
-		moveWallIn.setToolTipText(readFile("MoveWallInButtonTooltipHover.txt"));
+		moveWallIn.setToolTipText(readFile("tooltips/MoveWallInButton.txt"));
 
-		JButton moveWallOut = new JButton("Move wall out");
+		JButton moveWallOut = new JButton("Move Wall Out");
 		moveWallOut.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -409,7 +417,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
-		moveWallOut.setToolTipText(readFile("MoveWallOutButtonTooltipHover.txt"));
+		moveWallOut.setToolTipText(readFile("tooltips/MoveWallOutButton.txt"));
 
 		moveWall.add(moveWallIn);
 		moveWall.add(moveWallOut);
@@ -425,7 +433,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
-		insulated.setToolTipText(readFile("InsulateWallsCheckboxTooltipHover.txt"));
+		insulated.setToolTipText(readFile("tooltips/InsulateWallsCheckbox.txt"));
 
 		colourParticlesAtActEnergy = new JCheckBox("Colour particles when reaching activation energy");
 		colourParticlesAtActEnergy.addItemListener(new ItemListener() {
@@ -438,7 +446,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
-		colourParticlesAtActEnergy.setToolTipText(readFile("ColourParticlesCheckboxTooltipHover.txt"));
+		colourParticlesAtActEnergy.setToolTipText(readFile("tooltips/ColourParticlesCheckbox.txt"));
 		colourParticlesAtActEnergy.setEnabled(false);
 
 		particlesDisappearAtActEnergy = new JCheckBox("Make particles disappear upon reaching activation energy");
@@ -452,7 +460,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
-		particlesDisappearAtActEnergy.setToolTipText(readFile("ParticlesDisappearCheckboxTooltipHover.txt"));
+		particlesDisappearAtActEnergy.setToolTipText(readFile("tooltips/ParticlesDisappearCheckbox.txt"));
 		particlesDisappearAtActEnergy.setEnabled(false);
 
 		particlesPushWall = new JCheckBox("Allow particles to push the right wall");
@@ -467,7 +475,7 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
-		particlesPushWall.setToolTipText(readFile("ParticlesPushCheckboxTooltipHover.txt"));
+		particlesPushWall.setToolTipText(readFile("tooltips/ParticlesPushCheckbox.txt"));
 
 		playPauseRestart.add(restart);
 		playPauseRestart.add(playPause);
@@ -483,7 +491,7 @@ public class ControlPanel extends JComponent {
 
 	private void createAutoCarnot() {
 		autoCarnot = new JButton("Single Carnot");
-		autoCarnot.setToolTipText(readFile("AutoCarnotButtonTooltipHover.txt"));
+		autoCarnot.setToolTipText(readFile("tooltips/AutoCarnotButton.txt"));
 		autoCarnot.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -491,8 +499,8 @@ public class ControlPanel extends JComponent {
 			}
 		});
 
-		autoCarnotCont = new JButton("Const. Carnot");
-		autoCarnotCont.setToolTipText(readFile("AutoCarnotConstButtonTooltipHover.txt"));
+		autoCarnotCont = new JButton("Continual Carnot");
+		autoCarnotCont.setToolTipText(readFile("tooltips/AutoCarnotConstButton.txt"));
 		autoCarnotCont.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -610,7 +618,7 @@ public class ControlPanel extends JComponent {
 				model.setAutoCarnot(false);
 				model.setAutoCarnotCompress(false);
 				autoCarnot.setText("Single Carnot");
-				autoCarnotCont.setText("Const. Carnot");
+				autoCarnotCont.setText("Continual Carnot");
 			}
 		});
 		if (running) {
@@ -619,7 +627,7 @@ public class ControlPanel extends JComponent {
 			model.setAutoCarnotCompress(false);
 			particlesPushWall.setSelected(false);
 			autoCarnot.setText("Single Carnot");
-			autoCarnotCont.setText("Const. Carnot");
+			autoCarnotCont.setText("Continual Carnot");
 		} else {
 			t.start();
 		}

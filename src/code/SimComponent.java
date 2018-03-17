@@ -192,7 +192,7 @@ public class SimComponent extends JComponent {
 					model.getContainer().setWidthChange(0);
 					return;
 				}
-				button.setText("Stop movement");
+				button.setText("Stop Movement");
 
 				autoMoveWallIn = true;
 				model.setBufferMaxSize(1);
@@ -210,7 +210,7 @@ public class SimComponent extends JComponent {
 					model.setBufferMaxSize(10);
 					autoMoveWallIn = false;
 				}
-				button.setText("Move wall in");
+				button.setText("Move Wall In");
 			}
 		});
 		t.start();
@@ -228,7 +228,7 @@ public class SimComponent extends JComponent {
 					model.getContainer().setWidthChange(0);
 					return;
 				}
-				button.setText("Stop movement");
+				button.setText("Stop Movement");
 
 				autoMoveWallOut = true;
 				model.setBufferMaxSize(1);
@@ -246,7 +246,7 @@ public class SimComponent extends JComponent {
 					model.setBufferMaxSize(10);
 					autoMoveWallOut = false;
 				}
-				button.setText("Move wall out");
+				button.setText("Move Wall Out");
 			}
 		});
 		t.start();

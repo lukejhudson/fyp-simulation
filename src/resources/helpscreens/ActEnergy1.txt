@@ -32,9 +32,6 @@ For &epsilon;/kT = 15 the Boltzmann factor is ~10<sup>–7</sup>, and for &epsilon
 That means that only about one in 10<sup>13</sup> to one in 10<sup>7</sup> particles have enough energy to overcome the activation energy. 
 That might sound like a tiny proportion, but you have to remember how fast these particles are moving and how often they are colliding with each other. 
 Every time there's a collision, there's an 'attempt' at the reaction, so even with so few particles having enough energy, the reaction can happen in a matter of seconds. 
-<br><br>
-For any particular reaction, the values of &epsilon; and k are fixed. This means that the only thing that will change the Boltzmann factor is the temperature. 
-If you plot a graph of the Boltzmann factor against temperature you get an s-shaped curve like the ones below.
 </p>
 </html>
 

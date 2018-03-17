@@ -1,5 +1,0 @@
-<html>
-<p style=\"padding:10;">
-You can try this out for yourself in the simulation by pressing the "Single Carnot" or "Const. Carnot" buttons. Compare how the graphs produced and the gas itself behave to the images above.
-</p>
-</html>

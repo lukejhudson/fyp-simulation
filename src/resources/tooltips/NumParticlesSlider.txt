@@ -1,0 +1,3 @@
+<html>
+Adjusts the number of particles in the simulation.
+</html>

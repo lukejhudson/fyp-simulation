@@ -5,7 +5,7 @@ Heat Engines
 <p style=\"padding:10;">
 To read more about heat engines, click on the "<b>HELP</b>" button in the top left of the program when in "Heat Engines" mode, which can be selected using the drop-down menu next to the button. 
 <br><br>
-By utilising the tools available in the program, the "<b>Single Carnot</b>" and "<b>Const. Carnot</b>" buttons can create a Carnot cycle using the following:
+By utilising the tools available in the program, the "<b>Single Carnot</b>" and "<b>Continual Carnot</b>" buttons can create a Carnot cycle using the following:
 <br>
 First time around:
 <br>&#9679; The "Restart" button is pressed to reset the temperature of the particles
