@@ -9,6 +9,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.font.TextAttribute;
 import java.util.Hashtable;
 import java.util.Map;
@@ -25,7 +27,7 @@ import javax.swing.border.BevelBorder;
 
 public class HelpScreens {
 
-	private ControlPanel cont;
+	private ControlPanel controlPanel;
 
 	// Text used in the info screen
 	private JLabel helpBottomMid;
@@ -35,11 +37,17 @@ public class HelpScreens {
 	private JLabel helpHeatEn;
 	// Label containing any one of the above
 	private JLabel helpTextPanel;
-	
 	private JPanel helpContainer;
 
+	// Is the top right help screen open?
+	private boolean isHelpOpen = false;
+	private JFrame helpFrame;
+	// Is the top left help screen open?
+	private boolean isModeHelpOpen = false;
+	private JFrame modeFrame;
+
 	public HelpScreens(ControlPanel controlPanel) {
-		cont = controlPanel;
+		this.controlPanel = controlPanel;
 		createInfoLabels();
 	}
 
@@ -54,28 +62,63 @@ public class HelpScreens {
 		info.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JFrame frame = new JFrame();
-				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+				if (isHelpOpen) {
+					helpFrame.requestFocus();
+				} else {
+					helpFrame = new JFrame();
+					helpFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+					helpFrame.addWindowListener(new WindowListener() {
+						@Override
+						public void windowActivated(WindowEvent e) {
+						}
 
-				helpContainer = new JPanel();
-				helpContainer.setLayout(new BorderLayout());
-				helpContainer.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-				
-				helpTextPanel = new JLabel();
-				helpTextPanel.setLayout(new BorderLayout());
-				helpTextPanel.add(helpGeneral);
-				helpTextPanel.setVerticalAlignment(SwingConstants.TOP);
-				helpTextPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+						@Override
+						public void windowClosed(WindowEvent e) {
+							isHelpOpen = false;
+						}
 
-				JPanel contents = createContents();
+						@Override
+						public void windowClosing(WindowEvent e) {
+						}
 
-				helpContainer.add(contents, BorderLayout.WEST);
-				helpContainer.add(helpTextPanel, BorderLayout.CENTER);
+						@Override
+						public void windowDeactivated(WindowEvent e) {
+						}
 
-				frame.setSize(new Dimension(1200, 720));
-				frame.add(helpContainer);
-				frame.setLocation(325, 20);
-				frame.setVisible(true);
+						@Override
+						public void windowDeiconified(WindowEvent e) {
+						}
+
+						@Override
+						public void windowIconified(WindowEvent e) {
+						}
+
+						@Override
+						public void windowOpened(WindowEvent e) {
+							isHelpOpen = true;
+						}
+					});
+
+					helpContainer = new JPanel();
+					helpContainer.setLayout(new BorderLayout());
+					helpContainer.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+
+					helpTextPanel = new JLabel();
+					helpTextPanel.setLayout(new BorderLayout());
+					helpTextPanel.add(helpGeneral);
+					helpTextPanel.setVerticalAlignment(SwingConstants.TOP);
+					helpTextPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+
+					JPanel contents = createContents();
+
+					helpContainer.add(contents, BorderLayout.WEST);
+					helpContainer.add(helpTextPanel, BorderLayout.CENTER);
+
+					helpFrame.setSize(new Dimension(1200, 720));
+					helpFrame.add(helpContainer);
+					helpFrame.setLocation(325, 20);
+					helpFrame.setVisible(true);
+				}
 			}
 		});
 
@@ -155,7 +198,7 @@ public class HelpScreens {
 				helpContainer.updateUI();
 			}
 		});
-		
+
 		bottomRight.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -207,7 +250,7 @@ public class HelpScreens {
 
 		return contents;
 	}
-	
+
 	private java.awt.event.MouseAdapter createMouseListener(JButton b) {
 		return new java.awt.event.MouseAdapter() {
 			public void mouseExited(MouseEvent e) {
@@ -221,19 +264,19 @@ public class HelpScreens {
 	}
 
 	private void createInfoLabels() {
-		helpBottomMid = new JLabel(ControlPanel.readFile("helpscreens/HelpBottomMid.txt"));
+		helpBottomMid = new JLabel(controlPanel.readFile("helpscreens/HelpBottomMid.txt"));
 		helpBottomMid.setFont(new Font("Calibri", Font.PLAIN, 14));
 		helpBottomMid.setVerticalAlignment(SwingConstants.TOP);
-		helpBottomRight = new JLabel(ControlPanel.readFile("helpscreens/HelpBottomRight.txt"));
+		helpBottomRight = new JLabel(controlPanel.readFile("helpscreens/HelpBottomRight.txt"));
 		helpBottomRight.setFont(new Font("Calibri", Font.PLAIN, 14));
 		helpBottomRight.setVerticalAlignment(SwingConstants.TOP);
-		helpGeneral = new JLabel(ControlPanel.readFile("helpscreens/HelpGeneralInfo.txt"));
+		helpGeneral = new JLabel(controlPanel.readFile("helpscreens/HelpGeneralInfo.txt"));
 		helpGeneral.setFont(new Font("Calibri", Font.PLAIN, 14));
 		helpGeneral.setVerticalAlignment(SwingConstants.TOP);
-		helpActEn = new JLabel(ControlPanel.readFile("helpscreens/HelpActEnergy.txt"));
+		helpActEn = new JLabel(controlPanel.readFile("helpscreens/HelpActEnergy.txt"));
 		helpActEn.setFont(new Font("Calibri", Font.PLAIN, 14));
 		helpActEn.setVerticalAlignment(SwingConstants.TOP);
-		helpHeatEn = new JLabel(ControlPanel.readFile("helpscreens/HelpHeatEngines.txt"));
+		helpHeatEn = new JLabel(controlPanel.readFile("helpscreens/HelpHeatEngines.txt"));
 		helpHeatEn.setFont(new Font("Calibri", Font.PLAIN, 14));
 		helpHeatEn.setVerticalAlignment(SwingConstants.TOP);
 	}
@@ -247,79 +290,118 @@ public class HelpScreens {
 		menuHelp.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JFrame frame = new JFrame();
-				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+				if (isModeHelpOpen) {
+					modeFrame.requestFocus();
+				} else {
+					modeFrame = new JFrame();
+					modeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+					modeFrame.addWindowListener(new WindowListener() {
+						@Override
+						public void windowActivated(WindowEvent e) {
+						}
 
-				JLabel container = new JLabel();
-				container.setLayout(new BorderLayout());
-				container.setVerticalTextPosition(SwingConstants.TOP);
+						@Override
+						public void windowClosed(WindowEvent e) {
+							isModeHelpOpen = false;
+						}
 
-				String m = (String) menu.getSelectedItem();
-				if (m.equals("Heat Engines")) {
-					frame.setTitle("Heat Engines Help");
-					ImageIcon ccPistons = cont.createImageIcon("CarnotCyclePistons.png",
-							"An ideal gas-piston model of the Carnot cycle");
-					ImageIcon ccPV = cont.createImageIcon("CarnotCyclePV.png", "A P-V diagram of the Carnot cycle");
-					ImageIcon ccTS = cont.createImageIcon("CarnotCycleTS.png", "A T-S diagram of the Carnot cycle");
+						@Override
+						public void windowClosing(WindowEvent e) {
+						}
 
-					JLabel pistonImg = new JLabel("Figure 1: An ideal gas-piston model of the Carnot cycle", ccPistons,
-							JLabel.CENTER);
-					pistonImg.setVerticalTextPosition(JLabel.BOTTOM);
-					pistonImg.setHorizontalTextPosition(JLabel.CENTER);
-					JLabel pvImg = new JLabel("Figure 2: A P-V diagram of the Carnot cycle", ccPV, JLabel.CENTER);
-					pvImg.setVerticalTextPosition(JLabel.BOTTOM);
-					pvImg.setHorizontalTextPosition(JLabel.CENTER);
-					JLabel tsImg = new JLabel("Figure 3: A T-S diagram of the Carnot cycle", ccTS, JLabel.CENTER);
-					tsImg.setVerticalTextPosition(JLabel.BOTTOM);
-					tsImg.setHorizontalTextPosition(JLabel.CENTER);
-					JPanel charts = new JPanel(new GridLayout(1, 0));
-					charts.add(pvImg);
-					charts.add(tsImg);
+						@Override
+						public void windowDeactivated(WindowEvent e) {
+						}
 
-					JLabel text1 = new JLabel(ControlPanel.readFile("helpscreens/HeatEngines1.txt"));
-					text1.setFont(new Font("Calibri", Font.PLAIN, 14));
-					JLabel text2 = new JLabel(ControlPanel.readFile("helpscreens/HeatEngines2.txt"));
-					text2.setFont(new Font("Calibri", Font.PLAIN, 14));
-					JLabel text3 = new JLabel(ControlPanel.readFile("helpscreens/HeatEngines3.txt"));
-					text3.setFont(new Font("Calibri", Font.PLAIN, 14));
+						@Override
+						public void windowDeiconified(WindowEvent e) {
+						}
 
-					JPanel top = new JPanel(new BorderLayout());
-					top.add(text1, BorderLayout.CENTER);
-					top.add(pistonImg, BorderLayout.EAST);
-					top.add(text2, BorderLayout.SOUTH);
+						@Override
+						public void windowIconified(WindowEvent e) {
+						}
 
-					JPanel bottom = new JPanel(new BorderLayout());
-					bottom.add(charts, BorderLayout.CENTER);
-					bottom.add(text3, BorderLayout.SOUTH);
+						@Override
+						public void windowOpened(WindowEvent e) {
+							isModeHelpOpen = true;
+						}
+					});
 
-					container.add(top, BorderLayout.CENTER);
-					container.add(bottom, BorderLayout.SOUTH);
+					JLabel container = new JLabel();
+					container.setLayout(new BorderLayout());
+					container.setVerticalTextPosition(SwingConstants.TOP);
 
-					frame.setSize(new Dimension(1300, 900));
-				} else if (m.equals("Activation Energy")) {
-					frame.setTitle("Activation Energy Help");
+					String m = (String) menu.getSelectedItem();
+					if (m.equals("Heat Engines")) {
+						modeFrame.setTitle("Heat Engines Help");
+						ImageIcon ccPistons = controlPanel.createImageIcon("CarnotCyclePistons.png",
+								"An ideal gas-piston model of the Carnot cycle");
+						ImageIcon ccPV = controlPanel.createImageIcon("CarnotCyclePV.png",
+								"A P-V diagram of the Carnot cycle");
+						ImageIcon ccTS = controlPanel.createImageIcon("CarnotCycleTS.png",
+								"A T-S diagram of the Carnot cycle");
 
-					ImageIcon btChart = cont.createImageIcon("BoltzmannTemp - Uncropped, Small.png",
-							"Boltzmann Factor against Temperature");
-					JLabel btImg = new JLabel("Figure 1: Boltzmann Factor against Temperature", btChart, JLabel.CENTER);
-					btImg.setVerticalTextPosition(JLabel.BOTTOM);
-					btImg.setHorizontalTextPosition(JLabel.CENTER);
+						JLabel pistonImg = new JLabel("Figure 1: An ideal gas-piston model of the Carnot cycle",
+								ccPistons, JLabel.CENTER);
+						pistonImg.setVerticalTextPosition(JLabel.BOTTOM);
+						pistonImg.setHorizontalTextPosition(JLabel.CENTER);
+						JLabel pvImg = new JLabel("Figure 2: A P-V diagram of the Carnot cycle", ccPV, JLabel.CENTER);
+						pvImg.setVerticalTextPosition(JLabel.BOTTOM);
+						pvImg.setHorizontalTextPosition(JLabel.CENTER);
+						JLabel tsImg = new JLabel("Figure 3: A T-S diagram of the Carnot cycle", ccTS, JLabel.CENTER);
+						tsImg.setVerticalTextPosition(JLabel.BOTTOM);
+						tsImg.setHorizontalTextPosition(JLabel.CENTER);
+						JPanel charts = new JPanel(new GridLayout(1, 0));
+						charts.add(pvImg);
+						charts.add(tsImg);
 
-					JLabel text1 = new JLabel(ControlPanel.readFile("helpscreens/ActEnergy1.txt"));
-					text1.setFont(new Font("Calibri", Font.PLAIN, 14));
-					JLabel text2 = new JLabel(ControlPanel.readFile("helpscreens/ActEnergy2.txt"), btChart, SwingConstants.LEFT);
-					text2.setHorizontalTextPosition(SwingConstants.LEFT);
-					text2.setFont(new Font("Calibri", Font.PLAIN, 14));
-					container.add(text1, BorderLayout.CENTER);
-//					container.add(btImg, BorderLayout.CENTER);
-					container.add(text2, BorderLayout.SOUTH);
+						JLabel text1 = new JLabel(controlPanel.readFile("helpscreens/HeatEngines1.txt"));
+						text1.setFont(new Font("Calibri", Font.PLAIN, 14));
+						JLabel text2 = new JLabel(controlPanel.readFile("helpscreens/HeatEngines2.txt"));
+						text2.setFont(new Font("Calibri", Font.PLAIN, 14));
+						JLabel text3 = new JLabel(controlPanel.readFile("helpscreens/HeatEngines3.txt"));
+						text3.setFont(new Font("Calibri", Font.PLAIN, 14));
 
-					frame.setSize(new Dimension(1300, 800));
+						JPanel top = new JPanel(new BorderLayout());
+						top.add(text1, BorderLayout.CENTER);
+						top.add(pistonImg, BorderLayout.EAST);
+						top.add(text2, BorderLayout.SOUTH);
+
+						JPanel bottom = new JPanel(new BorderLayout());
+						bottom.add(charts, BorderLayout.CENTER);
+						bottom.add(text3, BorderLayout.SOUTH);
+
+						container.add(top, BorderLayout.CENTER);
+						container.add(bottom, BorderLayout.SOUTH);
+
+						modeFrame.setSize(new Dimension(1300, 900));
+					} else if (m.equals("Activation Energy")) {
+						modeFrame.setTitle("Activation Energy Help");
+
+						ImageIcon btChart = controlPanel.createImageIcon("BoltzmannTemp - Uncropped, Small.png",
+								"Boltzmann Factor against Temperature");
+						JLabel btImg = new JLabel("Figure 1: Boltzmann Factor against Temperature", btChart,
+								JLabel.CENTER);
+						btImg.setVerticalTextPosition(JLabel.BOTTOM);
+						btImg.setHorizontalTextPosition(JLabel.CENTER);
+
+						JLabel text1 = new JLabel(controlPanel.readFile("helpscreens/ActEnergy1.txt"));
+						text1.setFont(new Font("Calibri", Font.PLAIN, 14));
+						JLabel text2 = new JLabel(controlPanel.readFile("helpscreens/ActEnergy2.txt"), btChart,
+								SwingConstants.LEFT);
+						text2.setHorizontalTextPosition(SwingConstants.LEFT);
+						text2.setFont(new Font("Calibri", Font.PLAIN, 14));
+						container.add(text1, BorderLayout.CENTER);
+						// container.add(btImg, BorderLayout.CENTER);
+						container.add(text2, BorderLayout.SOUTH);
+
+						modeFrame.setSize(new Dimension(1300, 800));
+					}
+
+					modeFrame.add(container);
+					modeFrame.setLocation(20, 20);
+					modeFrame.setVisible(true);
 				}
-
-				frame.add(container);
-				frame.setLocation(20, 20);
-				frame.setVisible(true);
 			}
 		});
 		return menuHelp;

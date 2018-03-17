@@ -54,6 +54,13 @@ public class SimComponent extends JComponent {
 							contWidth = b.getContWidth();
 							r = Particle.radius;
 							if (draggingWall) {
+								int max = cont.getMaxWidth();
+								int min = cont.getMinWidth();
+								if (mouseX > max) {
+									mouseX = max;
+								} else if (mouseX < min) {
+									mouseX = min;
+								}
 								model.moveWall(mouseX);
 							}
 						}
@@ -105,7 +112,7 @@ public class SimComponent extends JComponent {
 				System.out.println("PRESSED: " + e.getPoint());
 				mouseX = e.getX();
 				double width = cont.getWidth();
-				if (!controlPanel.isPaused() && Math.abs(width - e.getX()) < 10) {
+				if (!controlPanel.isPaused() && width - e.getX() < 10 && width - e.getX() > -20) {//Math.abs(width - e.getX()) < 10) {
 					draggingWall = true;
 					model.setBufferMaxSize(1);
 					model.rollbackBuffer();
@@ -124,7 +131,7 @@ public class SimComponent extends JComponent {
 			public void mouseMoved(MouseEvent e) {
 				// System.out.println("MOVED: " + e.getPoint());
 				double width = cont.getWidth();
-				if (Math.abs(width - e.getX()) < 10) {
+				if (width - e.getX() < 10 && width - e.getX() > -20) {//Math.abs(width - e.getX()) < 10) {
 					setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
 				} else if (!draggingWall) {
 					setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -152,8 +159,14 @@ public class SimComponent extends JComponent {
 
 	@Override
 	public void paintComponent(Graphics g) {
+		int contHeight = (int) cont.getHeight();
+		// Draw container
 		g.setColor(Color.BLACK);
-		g.drawRect(0, 0, (int) contWidth, (int) cont.getHeight());
+		g.drawRect(0, 0, (int) contWidth, contHeight);
+		// Draw "handle" of container
+		g.setColor(Color.DARK_GRAY);
+		g.fillRect((int) contWidth, (contHeight / 2) - 5, 10, 10);
+		g.fillRect((int) contWidth + 10, (contHeight / 2) - 75, 7, 150);
 
 		// System.out.println(particles);
 		// double tot = 0;
@@ -200,7 +213,8 @@ public class SimComponent extends JComponent {
 				while (model.getContainer().getWidth() > min && autoMoveWallIn) {
 					model.moveWall(model.getContainer().getWidth() - d);
 					try {
-						Thread.sleep(20);
+						double sleep = 20.0 / (fps / 60.0);
+						Thread.sleep((long)sleep);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -236,7 +250,8 @@ public class SimComponent extends JComponent {
 				while (model.getContainer().getWidth() < max && autoMoveWallOut) {
 					model.moveWall(model.getContainer().getWidth() + d);
 					try {
-						Thread.sleep(20);
+						double sleep = 20.0 / (fps / 60.0);
+						Thread.sleep((long)sleep);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}

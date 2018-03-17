@@ -39,9 +39,9 @@ Red lines signify that the container was insulated. Blue lines signify that the 
 <b>Temperature-Entropy Graph</b> (TS): Temperature of the gas (K) against entropy (JK<sup>-1</sup>). 
 Red lines signify that the container was insulated. Blue lines signify that the container was not insulated. 
 <br><br>
-<b>Add Trace</b>: This buttons adds a new trace to the graph above it without affecting any of the current traces on the graph. 
+<b>Add Trace</b>: This buttons adds a new trace / line to the graph above it without affecting any of the current traces on the graph. 
 <br><br> 
-<b>Remove Traces</b>: This button removes all traces on the graph above it and then adds a fresh trace. 
+<b>Remove Traces</b>: This button removes all traces / lines on the graph above it and then adds a fresh trace. 
 </p>
 </html>
 

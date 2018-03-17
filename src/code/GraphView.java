@@ -34,6 +34,7 @@ public class GraphView extends JComponent implements Observer {
 	private static final long serialVersionUID = 1L;
 	private SimModel model;
 	private Container cont;
+	private ControlPanel controlPanel;
 
 	// HEAT ENGINES
 	// Speed distribution chart
@@ -49,9 +50,9 @@ public class GraphView extends JComponent implements Observer {
 	private double pvXAxisMax = 6;// 0.000000000000000006;
 	private double pvYAxisMax = 30;
 	// Entropy vs temperature chart
-	private Chart2D etChart;
-	private ITrace2D etTrace;
-	private JPanel etComponents;
+	private Chart2D tsChart;
+	private ITrace2D tsTrace;
+	private JPanel tsComponents;
 	private double maxEntropy = 0;
 	private double minEntropy = 0;
 	// Panel containing the auto Carnot buttons
@@ -84,6 +85,12 @@ public class GraphView extends JComponent implements Observer {
 	private Chart2D bmFactChart;
 	private ITrace2D bmFactTrace;
 
+	// Buttons which need to be visually pressed by the automatic Carnot cycle
+	private JButton pvAddTrace;
+	private JButton tsAddTrace;
+	private JButton pvRemoveTraces;
+	private JButton tsRemoveTraces;
+
 	// Used to delay the drawing of the PV and ET charts before they have good
 	// data
 	private int updateIterations = 0;
@@ -91,17 +98,14 @@ public class GraphView extends JComponent implements Observer {
 	// Which mode we are in and thus which information we need to show
 	private Mode mode = Mode.HeatEngines;
 
-	/**
-	 * @param model
-	 * @param autoCarnot
-	 */
-	public GraphView(SimModel model, JButton autoCarnot, JButton autoCarnotCont) {
+	public GraphView(SimModel model, JButton autoCarnot, JButton autoCarnotCont, ControlPanel controlPanel) {
 		super();
 		setLayout(new BorderLayout());
 		this.model = model;
 		this.cont = model.getContainer();
 		this.autoCarnot = autoCarnot;
 		this.autoCarnotCont = autoCarnotCont;
+		this.controlPanel = controlPanel;
 
 		createHeatEngineComponents();
 		createActivationEnergyComponents();
@@ -131,7 +135,7 @@ public class GraphView extends JComponent implements Observer {
 
 	private void createHeatEngineComponents() {
 		createSpeedDistChart();
-		createETChart();
+		createTSChart();
 		createPVChart();
 	}
 
@@ -141,7 +145,7 @@ public class GraphView extends JComponent implements Observer {
 		heatEngineGraphs = new JPanel(new GridLayout(3, 0));
 		heatEngineGraphs.add(speedDistChart);
 		heatEngineGraphs.add(pvComponents);
-		heatEngineGraphs.add(etComponents);
+		heatEngineGraphs.add(tsComponents);
 
 		autoCarnotPanel = new JPanel(new GridLayout(0, 2));
 		autoCarnotPanel.add(autoCarnot);
@@ -165,7 +169,7 @@ public class GraphView extends JComponent implements Observer {
 
 	private void createSpeedDistChart() {
 		speedDistChart = new Chart2D();
-		speedDistChart.setToolTipText(ControlPanel.readFile("tooltips/SpeedDist.txt"));
+		speedDistChart.setToolTipText(controlPanel.readFile("tooltips/SpeedDist.txt"));
 		speedDistTrace = new Trace2DBijective();
 		speedDistTrace.setTracePainter(new TracePainterVerticalBar(5, speedDistChart));
 		speedDistTrace.setName("Speed distribution");
@@ -209,7 +213,7 @@ public class GraphView extends JComponent implements Observer {
 
 	private void createPVChart() {
 		pvChart = new Chart2D();
-		pvChart.setToolTipText(ControlPanel.readFile("tooltips/PVChart.txt"));
+		pvChart.setToolTipText(controlPanel.readFile("tooltips/PVChart.txt"));
 		pvAddTrace();
 		pvChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Volume (m^2 x10^-18)"));
 		pvChart.getAxisY().setAxisTitle(new IAxis.AxisTitle("Pressure (Pa)"));
@@ -222,8 +226,8 @@ public class GraphView extends JComponent implements Observer {
 		// pvChart.setUseAntialiasing(true);
 		pvComponents = new JPanel(new BorderLayout());
 		JPanel pvButtons = new JPanel(new GridLayout(1, 0));
-		JButton pvAddTrace = new JButton("Add Trace");
-		pvAddTrace.setToolTipText(ControlPanel.readFile("tooltips/AddTraceButton.txt"));
+		pvAddTrace = new JButton("Add Trace");
+		pvAddTrace.setToolTipText(controlPanel.readFile("tooltips/AddTraceButton.txt"));
 		pvAddTrace.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -231,8 +235,8 @@ public class GraphView extends JComponent implements Observer {
 			}
 		});
 		pvButtons.add(pvAddTrace);
-		JButton pvRemoveTraces = new JButton("Remove Traces");
-		pvRemoveTraces.setToolTipText(ControlPanel.readFile("tooltips/RemoveTracesButton.txt"));
+		pvRemoveTraces = new JButton("Remove Traces");
+		pvRemoveTraces.setToolTipText(controlPanel.readFile("tooltips/RemoveTracesButton.txt"));
 		pvRemoveTraces.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -251,7 +255,7 @@ public class GraphView extends JComponent implements Observer {
 													// != 0) {
 						// if (updateIterations > -2) {
 						updatePVChart();
-						updateETChart();
+						updateTSChart();
 						// }
 					}
 					try {
@@ -266,50 +270,50 @@ public class GraphView extends JComponent implements Observer {
 		pvThread.start();
 	}
 
-	private void createETChart() {
+	private void createTSChart() {
 		// pvChart = new Chart2D();
-		etChart = new Chart2D();
-		etChart.setToolTipText(ControlPanel.readFile("tooltips/ETChart.txt"));
-		etAddTrace();
-		etChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Entropy (Heat transfer / temperature)"));
-		etChart.getAxisY().setAxisTitle(new IAxis.AxisTitle("Temperature (K)"));
-		// etChart.getAxisX().setPaintScale(false);
-		// etChart.getAxisY().setPaintScale(false);
-		// etChart.getAxisX().setAxisTitle(new IAxis.AxisTitle(""));
-		// etChart.getAxisY().setAxisTitle(new IAxis.AxisTitle(""));
+		tsChart = new Chart2D();
+		tsChart.setToolTipText(controlPanel.readFile("tooltips/TSChart.txt"));
+		tsAddTrace();
+		tsChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Entropy (Heat transfer / temperature)"));
+		tsChart.getAxisY().setAxisTitle(new IAxis.AxisTitle("Temperature (K)"));
+		// tsChart.getAxisX().setPaintScale(false);
+		// tsChart.getAxisY().setPaintScale(false);
+		// tsChart.getAxisX().setAxisTitle(new IAxis.AxisTitle(""));
+		// tsChart.getAxisY().setAxisTitle(new IAxis.AxisTitle(""));
 		// IRangePolicy etRangePolicyX = new RangePolicyFixedViewport(new
 		// Range(-0.001, 0.001));
-		// etChart.getAxisX().setRangePolicy(etRangePolicyX);
+		// tsChart.getAxisX().setRangePolicy(etRangePolicyX);
 		IRangePolicy etRangePolicyY = new RangePolicyFixedViewport(new Range(0, 5000));
-		etChart.getAxisY().setRangePolicy(etRangePolicyY);
+		tsChart.getAxisY().setRangePolicy(etRangePolicyY);
 
-		etComponents = new JPanel(new BorderLayout());
-		JPanel etButtons = new JPanel(new GridLayout(1, 0));
-		JButton etAddTrace = new JButton("Add Trace");
-		etAddTrace.setToolTipText(ControlPanel.readFile("tooltips/AddTraceButton.txt"));
-		etAddTrace.addActionListener(new ActionListener() {
+		tsComponents = new JPanel(new BorderLayout());
+		JPanel tsButtons = new JPanel(new GridLayout(1, 0));
+		tsAddTrace = new JButton("Add Trace");
+		tsAddTrace.setToolTipText(controlPanel.readFile("tooltips/AddTraceButton.txt"));
+		tsAddTrace.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				etAddTrace();
+				tsAddTrace();
 			}
 		});
-		etButtons.add(etAddTrace);
-		JButton etRemoveTraces = new JButton("Remove Traces");
-		etRemoveTraces.setToolTipText(ControlPanel.readFile("tooltips/RemoveTracesButton.txt"));
-		etRemoveTraces.addActionListener(new ActionListener() {
+		tsButtons.add(tsAddTrace);
+		tsRemoveTraces = new JButton("Remove Traces");
+		tsRemoveTraces.setToolTipText(controlPanel.readFile("tooltips/RemoveTracesButton.txt"));
+		tsRemoveTraces.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				etResetTraces();
+				tsResetTraces();
 			}
 		});
-		etButtons.add(etRemoveTraces);
-		etComponents.add(etChart, BorderLayout.CENTER);
-		etComponents.add(etButtons, BorderLayout.SOUTH);
+		tsButtons.add(tsRemoveTraces);
+		tsComponents.add(tsChart, BorderLayout.CENTER);
+		tsComponents.add(tsButtons, BorderLayout.SOUTH);
 	}
 
 	private void createEnergyDistChart() {
 		energyDistChart = new Chart2D();
-		energyDistChart.setToolTipText(ControlPanel.readFile("tooltips/EnergyDist.txt"));
+		energyDistChart.setToolTipText(controlPanel.readFile("tooltips/EnergyDist.txt"));
 
 		energyDistTraces = new ArrayList<Trace2DBijective>();
 		Trace2DBijective t;
@@ -361,7 +365,7 @@ public class GraphView extends JComponent implements Observer {
 
 	private void createBMFRsChart() {
 		bmfRsChart = new Chart2D();
-		bmfRsChart.setToolTipText(ControlPanel.readFile("tooltips/BMFRsChart.txt"));
+		bmfRsChart.setToolTipText(controlPanel.readFile("tooltips/BMFRsChart.txt"));
 		bmfRsTrace = new Trace2DSimple();
 		bmfRsChart.addTrace(bmfRsTrace);
 		bmfRsTrace.setTracePainter(new TracePainterDisc());
@@ -384,7 +388,7 @@ public class GraphView extends JComponent implements Observer {
 
 		JButton bmfrsClear = new JButton("Clear Graph");
 		bmfrsClear.addActionListener(e -> bmfrsClearChart());
-		bmfrsClear.setToolTipText(ControlPanel.readFile("tooltips/BMFRsClearChart.txt"));
+		bmfrsClear.setToolTipText(controlPanel.readFile("tooltips/BMFRsClearChart.txt"));
 
 		bmfrsComponents = new JPanel(new BorderLayout());
 		bmfrsComponents.add(bmfRsChart, BorderLayout.CENTER);
@@ -413,7 +417,7 @@ public class GraphView extends JComponent implements Observer {
 			break;
 		case WallMoved:
 			updatePVChart();
-			updateETChart();
+			updateTSChart();
 			break;
 		case HeatEngines:
 			if (mode != Mode.HeatEngines) {
@@ -482,8 +486,8 @@ public class GraphView extends JComponent implements Observer {
 		}
 	}
 
-	private void updateETChart() {
-		if (etChart.getTraces() == null) {
+	private void updateTSChart() {
+		if (tsChart.getTraces() == null) {
 			return;
 		}
 		if (mode == Mode.HeatEngines) {
@@ -504,9 +508,9 @@ public class GraphView extends JComponent implements Observer {
 				// entropy = maxEntropy;
 				// }
 				// }
-				etTrace.setColor(Color.RED);
+				tsTrace.setColor(Color.RED);
 			} else {
-				etTrace.setColor(Color.BLUE);
+				tsTrace.setColor(Color.BLUE);
 			}
 			// System.out.println(model.isAutoCarnot() + ", " +
 			// model.isAutoCarnotCompress() + ", " + entropy);
@@ -516,9 +520,9 @@ public class GraphView extends JComponent implements Observer {
 			// entropy = -0.0008;
 			// }
 			try {
-				etTrace.addPoint(entropy, temperature);
+				tsTrace.addPoint(entropy, temperature);
 			} catch (Exception e) {
-				System.err.println("Unable to plot ST point");
+				System.err.println("Unable to plot TS point");
 			}
 		}
 	}
@@ -539,24 +543,24 @@ public class GraphView extends JComponent implements Observer {
 		pvAddTrace();
 	}
 
-	public void etAddTrace() {
-		// etTrace = new Trace2DBijective();
-		etTrace = new Trace2DSimple();
+	public void tsAddTrace() {
+		// tsTrace = new Trace2DBijective();
+		tsTrace = new Trace2DSimple();
 		// IRangePolicy etRangePolicyX = new RangePolicyFixedViewport(new
 		// Range(0, pvXAxisMax));
-		// etChart.getAxisX().setRangePolicy(etRangePolicyX);
+		// tsChart.getAxisX().setRangePolicy(etRangePolicyX);
 		// IRangePolicy etRangePolicyY = new RangePolicyFixedViewport(new
 		// Range(0, pvYAxisMax));
-		// etChart.getAxisY().setRangePolicy(etRangePolicyY);
-		etChart.addTrace(etTrace);
-		etTrace.setName("");
+		// tsChart.getAxisY().setRangePolicy(etRangePolicyY);
+		tsChart.addTrace(tsTrace);
+		tsTrace.setName("");
 	}
 
-	public void etResetTraces() {
+	public void tsResetTraces() {
 		maxEntropy = 0;
 		minEntropy = 0;
-		etChart.removeAllTraces();
-		etAddTrace();
+		tsChart.removeAllTraces();
+		tsAddTrace();
 	}
 
 	private void updateEnergyDistChart() {
@@ -615,5 +619,37 @@ public class GraphView extends JComponent implements Observer {
 		bmfRsTrace = new Trace2DSimple();
 		bmfRsChart.addTrace(bmfRsTrace);
 		bmfRsTrace.setTracePainter(new TracePainterDisc());
+	}
+
+	/**
+	 * Used by the automatic Carnot cycle to visually press the PV "Add Trace"
+	 * button.
+	 */
+	public void pressPVAddTrace() {
+		pvAddTrace.doClick(100);
+	}
+
+	/**
+	 * Used by the automatic Carnot cycle to visually press the TS "Add Trace"
+	 * button.
+	 */
+	public void pressTSAddTrace() {
+		tsAddTrace.doClick(100);
+	}
+
+	/**
+	 * Used by the automatic Carnot cycle to visually press the PV
+	 * "Reset Traces" button.
+	 */
+	public void pressPVResetTraces() {
+		pvRemoveTraces.doClick(100);
+	}
+
+	/**
+	 * Used by the automatic Carnot cycle to visually press the TS
+	 * "Reset Traces" button.
+	 */
+	public void pressTSResetTraces() {
+		tsRemoveTraces.doClick(100);
 	}
 }

@@ -1,6 +1,7 @@
 package code;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -9,7 +10,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Hashtable;
@@ -50,13 +55,14 @@ public class ControlPanel extends JComponent {
 	private JCheckBox colourParticlesAtActEnergy;
 	private JCheckBox insulated;
 	private JCheckBox particlesPushWall;
+	private JSlider numParticlesSlider;
 
 	// Activation energy components which need to be enabled/disabled
 	private JCheckBox particlesDisappearAtActEnergy;
 	private JSlider actEnergySlider;
 	private JLabel actEnergyValue;
 	private JLabel actEnergyLabel;
-	
+
 	// The button to automatically create a Carnot cycle graph
 	private JButton autoCarnot;
 	// Continuous Carnot cycles
@@ -75,7 +81,7 @@ public class ControlPanel extends JComponent {
 
 		this.model = new SimModel(sim);
 		createAutoCarnot();
-		this.view = new GraphView(model, autoCarnot, autoCarnotCont);
+		this.view = new GraphView(model, autoCarnot, autoCarnotCont, this);
 		model.addObserver(view);
 		HelpScreens help = new HelpScreens(this);
 
@@ -157,15 +163,15 @@ public class ControlPanel extends JComponent {
 		// graphView.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		frame.add(graphView, c); // Graphs
 
-		comp.setMinimumSize(new Dimension((int) model.getContainer().getWidth() + 305,
+		comp.setMinimumSize(new Dimension((int) model.getContainer().getWidth() + 320,
 				(int) model.getContainer().getHeight() + 10));
-		comp.setPreferredSize(new Dimension((int) model.getContainer().getWidth() + 305,
+		comp.setPreferredSize(new Dimension((int) model.getContainer().getWidth() + 320,
 				(int) model.getContainer().getHeight() + 10));
 		// c.fill = GridBagConstraints.BOTH;
 		// c.ipadx = 0;
 		// c.ipady = 0;
-		c.anchor = GridBagConstraints.FIRST_LINE_START;
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.BOTH;
 		c.gridx = 1;
 		c.gridy = 0;
 		c.gridheight = 1;
@@ -174,15 +180,17 @@ public class ControlPanel extends JComponent {
 		JButton info = help.createInfoButton();
 		JPanel compAndInfo = new JPanel(new GridBagLayout());
 		GridBagConstraints c2 = new GridBagConstraints();
-		c2.anchor = GridBagConstraints.FIRST_LINE_START;
+		c2.anchor = GridBagConstraints.WEST;
 		c2.gridx = 0;
 		c2.gridy = 0;
 		c2.fill = GridBagConstraints.BOTH;
 		compAndInfo.add(comp, c2);
-		c2.anchor = GridBagConstraints.FIRST_LINE_END;
+		c2.anchor = GridBagConstraints.NORTHEAST;
 		c2.gridx = 1;
 		c2.fill = GridBagConstraints.HORIZONTAL;
 		compAndInfo.add(info, c2);
+//		compAndInfo.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+//		compAndInfo.setBackground(Color.BLUE);
 
 		frame.add(compAndInfo, c); // Simulation
 
@@ -216,7 +224,7 @@ public class ControlPanel extends JComponent {
 		JPanel actEnergy = new JPanel(new BorderLayout());
 
 		JLabel numParticlesLabel = new JLabel("Number of Particles", SwingConstants.CENTER);
-		JSlider numParticlesSlider = new JSlider(SwingConstants.HORIZONTAL, 0, 500, 250);
+		numParticlesSlider = new JSlider(SwingConstants.HORIZONTAL, 0, 500, 250);
 		numParticlesSlider.setMajorTickSpacing(100);
 		numParticlesSlider.setMinorTickSpacing(25);
 		numParticlesSlider.setPaintTicks(true);
@@ -239,8 +247,8 @@ public class ControlPanel extends JComponent {
 			@Override
 			public void run() {
 				while (true) {
-					int num = model.getNumParticles();
 					if (!numParticlesSlider.getValueIsAdjusting()) {
+						int num = model.getNumParticles();
 						numParticlesSlider.setValue(num);
 						numParticlesValue.setText(Integer.toString(num));
 					}
@@ -530,13 +538,14 @@ public class ControlPanel extends JComponent {
 					cont.setWidth(cont.getMinWidth());
 					tempSlider.setValue(3000);
 					if (i == 0) {
+						model.setNumParticles(250);
 						carnotRestart = true;
 						restart.doClick(100);
-						view.pvResetTraces();
-						view.etResetTraces();
+						view.pressPVResetTraces();
+						view.pressTSResetTraces();
 					} else {
-						view.pvAddTrace();
-						view.etAddTrace();
+						view.pressPVAddTrace();
+						view.pressTSAddTrace();
 					}
 					insulated.setSelected(false);
 					particlesPushWall.setSelected(true);
@@ -556,8 +565,8 @@ public class ControlPanel extends JComponent {
 					// Insulation on, allow gas to move wall out, wall
 					// starts halfway until out, high wall temp --> low
 					// wall temp
-					view.pvAddTrace();
-					view.etAddTrace();
+					view.pressPVAddTrace();
+					view.pressTSAddTrace();
 					insulated.setSelected(true);
 
 					while (cont.getWidth() < cont.getMaxWidth() && running) {
@@ -574,8 +583,8 @@ public class ControlPanel extends JComponent {
 					// Insulation off, compress gas, wall starts out
 					// until halfway, low wall temp --> low wall temp
 					comp.stopWalls();
-					view.pvAddTrace();
-					view.etAddTrace();
+					view.pressPVAddTrace();
+					view.pressTSAddTrace();
 					insulated.setSelected(false);
 					particlesPushWall.setSelected(false);
 					cont.setWidth(cont.getMaxWidth());
@@ -597,8 +606,8 @@ public class ControlPanel extends JComponent {
 
 					// Insulation on, compress gas, wall starts halfway
 					// until in, low wall temp --> high wall temp
-					view.pvAddTrace();
-					view.etAddTrace();
+					view.pressPVAddTrace();
+					view.pressTSAddTrace();
 					insulated.setSelected(true);
 
 					while (cont.getWidth() > cont.getMinWidth() && running) {
@@ -637,11 +646,28 @@ public class ControlPanel extends JComponent {
 		return pause;
 	}
 
-	public static String readFile(String name) {
+	public String readFile(String name) {
 		String s = "";
+		URL url = this.getClass().getResource("/resources/" + name);
+		InputStream stream = null;
 		try {
-			s = new String(Files.readAllBytes(Paths.get("./src/resources/" + name).toAbsolutePath()));
+			stream = url.openStream();
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		ByteArrayOutputStream result = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		int length;
+		try {
+			while ((length = stream.read(buffer)) != -1) {
+				result.write(buffer, 0, length);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			return result.toString("UTF-8");
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 		return s;
@@ -649,11 +675,11 @@ public class ControlPanel extends JComponent {
 
 	/** Returns an ImageIcon, or null if the path was invalid. */
 	public ImageIcon createImageIcon(String path, String description) {
-		java.net.URL imgURL = getClass().getResource("../resources/images/" + path);
+		URL imgURL = this.getClass().getResource("/resources/images/" + path);
 		if (imgURL != null) {
 			return new ImageIcon(imgURL, description);
 		} else {
-			System.err.println("Couldn't find file: ../resources/images/" + path);
+			System.err.println("Couldn't find file: /resources/images/" + path);
 			return null;
 		}
 	}
