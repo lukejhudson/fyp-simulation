@@ -26,7 +26,7 @@ Step 3 (Cold reservoir, uninsulated walls, wall compressing gas):
 Step 4 (Cold reservoir, insulated walls, wall compressing gas):  
 <br>&#9679; "Insulate the walls" is checked
 <br>
-At the end of each step, the "Add Trace" button is pressed to allow for several different red and blue traces on the graph.
+Whenever the insulation of the container is changed, the "Add Trace" button is pressed to allow for several different red and blue traces on the graph.
 <br><br>
 <b>Speed Distribution Graph</b>: Percentage of particles against speed (arbitrary units). 
 Note what happens to the shape of the distribution as you adjust the "Wall Temperature" slider (while the gas is not insulated) or move the right wall. 

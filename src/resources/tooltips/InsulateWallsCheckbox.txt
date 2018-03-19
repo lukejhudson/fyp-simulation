@@ -7,4 +7,6 @@ Otherwise, whenever a particle collides with a wall it will gain/lose some energ
 equalise its energy to the wall temperature. This keeps the average temperature of the
 <br>
 particles approximately equal to the wall temperature.
+<br><br>
+Also adds a new trace to the PV and TS graph for convenience.
 </html>

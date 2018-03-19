@@ -73,6 +73,8 @@ public class ControlPanel extends JComponent {
 	private boolean carnotRestart = false;
 	// Is the simulation paused?
 	private boolean pause = false;
+	// Colour for playPause button
+	private final Color playPauseColor = new Color(255, 128, 128);
 
 	public ControlPanel(Simulation sim, JFrame frame) {
 		super();
@@ -352,7 +354,6 @@ public class ControlPanel extends JComponent {
 
 		sliderBar.add(stats);
 		sliderBar.add(tempComp);
-		// sliderBar.add(sizeParticles);
 		sliderBar.add(actEnergy);
 		sliderBar.add(numParticles);
 		sliderBar.add(fps);
@@ -372,15 +373,18 @@ public class ControlPanel extends JComponent {
 					model.resumeSim();
 					playPause.setText("Pause");
 					pause = false;
+					playPause.setBackground(null);
 				} else {
 					model.rollbackBuffer();
 					model.pauseSim();
 					playPause.setText("Resume");
 					pause = true;
 					comp.stopWalls();
+					playPause.setBackground(playPauseColor);
 				}
 			}
 		});
+//		playPauseColor = playPause.getBackground();
 		playPause.setToolTipText(readFile("tooltips/PauseResumeButton.txt"));
 
 		restart = new JButton("Restart");
@@ -391,6 +395,7 @@ public class ControlPanel extends JComponent {
 				comp.stopWalls();
 				if (pause) {
 					pause = false;
+					playPause.setBackground(null);
 					playPause.setText("Pause");
 				}
 				if (!carnotRestart && running) {
@@ -434,6 +439,8 @@ public class ControlPanel extends JComponent {
 		insulated.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
+				view.pvAddTrace();
+				view.tsAddTrace();
 				if (e.getStateChange() == ItemEvent.DESELECTED) {
 					model.setIsInsulated(false);
 				} else {
@@ -532,7 +539,7 @@ public class ControlPanel extends JComponent {
 					// starts in until halfway, high wall temp --> high
 					// wall temp
 					if (i == 0) {
-						playPause.doClick(100);
+						playPause.doClick(50);
 					}
 					comp.stopWalls();
 					cont.setWidth(cont.getMinWidth());
@@ -540,12 +547,12 @@ public class ControlPanel extends JComponent {
 					if (i == 0) {
 						model.setNumParticles(250);
 						carnotRestart = true;
-						restart.doClick(100);
+						restart.doClick(50);
 						view.pressPVResetTraces();
 						view.pressTSResetTraces();
 					} else {
-						view.pressPVAddTrace();
-						view.pressTSAddTrace();
+//						view.pressPVAddTrace();
+//						view.pressTSAddTrace();
 					}
 					insulated.setSelected(false);
 					particlesPushWall.setSelected(true);
@@ -565,8 +572,8 @@ public class ControlPanel extends JComponent {
 					// Insulation on, allow gas to move wall out, wall
 					// starts halfway until out, high wall temp --> low
 					// wall temp
-					view.pressPVAddTrace();
-					view.pressTSAddTrace();
+//					view.pressPVAddTrace();
+//					view.pressTSAddTrace();
 					insulated.setSelected(true);
 
 					while (cont.getWidth() < cont.getMaxWidth() && running) {
@@ -583,13 +590,13 @@ public class ControlPanel extends JComponent {
 					// Insulation off, compress gas, wall starts out
 					// until halfway, low wall temp --> low wall temp
 					comp.stopWalls();
-					view.pressPVAddTrace();
-					view.pressTSAddTrace();
+//					view.pressPVAddTrace();
+//					view.pressTSAddTrace();
 					insulated.setSelected(false);
 					particlesPushWall.setSelected(false);
 					cont.setWidth(cont.getMaxWidth());
 					tempSlider.setValue(1000);
-					moveWallIn.doClick(100);
+					moveWallIn.doClick(50);
 					model.setAutoCarnotCompress(true);
 
 					double contOneThird = cont.getMinWidth() + (cont.getMaxWidth() - cont.getMinWidth()) / 3;
@@ -606,8 +613,8 @@ public class ControlPanel extends JComponent {
 
 					// Insulation on, compress gas, wall starts halfway
 					// until in, low wall temp --> high wall temp
-					view.pressPVAddTrace();
-					view.pressTSAddTrace();
+//					view.pressPVAddTrace();
+//					view.pressTSAddTrace();
 					insulated.setSelected(true);
 
 					while (cont.getWidth() > cont.getMinWidth() && running) {
@@ -622,7 +629,7 @@ public class ControlPanel extends JComponent {
 					}
 					i++;
 				}
-				playPause.doClick(100);
+				playPause.doClick(50);
 				running = false;
 				model.setAutoCarnot(false);
 				model.setAutoCarnotCompress(false);

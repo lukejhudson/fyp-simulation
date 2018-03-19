@@ -1,20 +1,20 @@
 <html>
 <p style=\"padding:10;">
-Step 1 (1 to 2 on Figure 2, A to B in Figure 3, not insulated): The gas is allowed to expand and it does work on the surroundings.
+Step 1 (1 to 2 on Figure 3, A to B in Figure 4, not insulated): The gas is allowed to expand and it does work on the surroundings.
 The temperature of the gas does not change during the process, and thus the expansion is <b>isothermal</b>. The gas expansion is 
 propelled by absorption of heat energy <i>Q<sub>1</sub></i> from the high temperature reservoir (3000K in the simulation) and results in an increase of entropy of the 
 gas in the amount <i>&Delta;S<sub>1</sub> = Q<sub>1</sub> / T<sub>H</sub></i>.
 <br><br>
-Step 2 (2 to 3 on Figure 2, B to C in Figure 3, insulated): The mechanisms of the engine are assumed to be thermally insulated, 
+Step 2 (2 to 3 on Figure 3, B to C in Figure 4, insulated): The mechanisms of the engine are assumed to be thermally insulated, 
 thus they neither gain nor lose heat (an <b>adiabatic</b> process). The gas continues to expand, doing work on the surroundings, 
 and losing an amount of internal energy equal to the work that leaves the system. The gas expansion causes it to cool to the 
 "cold" temperature, <i>T<sub>C</sub></i>. The entropy remains unchanged.
 <br><br>
-Step 3 (3 to 4 on Figure 2, C to D on Figure 3, not insulated): Now the surroundings do work on the gas, causing an amount of heat energy <i>Q<sub>2</sub></i> to leave the 
+Step 3 (3 to 4 on Figure 3, C to D on Figure 4, not insulated): Now the surroundings do work on the gas, causing an amount of heat energy <i>Q<sub>2</sub></i> to leave the 
 system to the low temperature reservoir (1000K in the simulation) and the entropy of the system decreases in the amount 
 <i>&Delta;S<sub>2</sub> = Q<sub>2</sub> / T<sub>C</sub></i>. (This is the same amount of entropy absorbed in step 1.)
 <br><br>
-Step 4 (4 to 1 on Figure 2, D to A on Figure 3, insulated): During this step, the 
+Step 4 (4 to 1 on Figure 3, D to A on Figure 4, insulated): During this step, the 
 surroundings do work on the gas, increasing its internal energy and compressing it, causing the temperature to rise to <i>T<sub>H</sub></i> 
 due solely to the work added to the system, but the entropy remains unchanged. At this point the gas is in the same state 
 as at the start of step 1.

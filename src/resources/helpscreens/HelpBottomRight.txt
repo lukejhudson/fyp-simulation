@@ -20,7 +20,8 @@ This is helpful when trying to produce smooth graphs as it is very difficult to 
 <b>Insulate the walls</b>: When checked, all collisions between the particles and walls are elastic except when the right wall is moving. 
 Otherwise, whenever a particle collides with a wall it will gain / lose some energy to equalise its energy to the wall temperature. 
 This keeps the average temperature of the particles approximately equal to the wall temperature. 
-This is most notable used when creating a Carnot cycle.
+This is most notable used when creating a Carnot cycle. 
+The checkbox also adds a trace to both the PV and TS graphs when checked / unchecked.
 <br><br>
 <b>Colour particles when reaching activation energy</b>: When checked, the particles will be coloured red upon reaching the activation energy specified by the "Activation Energy" slider.
 Note: This checkbox can only be used in the "Activation Energy" mode, which can be selected using the drop-down menu in the top left of the program.

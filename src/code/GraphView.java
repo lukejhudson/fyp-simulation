@@ -215,15 +215,15 @@ public class GraphView extends JComponent implements Observer {
 		pvChart = new Chart2D();
 		pvChart.setToolTipText(controlPanel.readFile("tooltips/PVChart.txt"));
 		pvAddTrace();
-		pvChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Volume (m^2 x10^-18)"));
-		pvChart.getAxisY().setAxisTitle(new IAxis.AxisTitle("Pressure (Pa)"));
+		pvChart.getAxisX().getAxisTitle().setTitle("Volume (m^2 x10^-18)");
+		pvChart.getAxisY().getAxisTitle().setTitle("Pressure (Pa)");
 		// pvChart.getAxisX().setAxisTitle(new IAxis.AxisTitle(""));
 		// pvChart.getAxisY().setAxisTitle(new IAxis.AxisTitle(""));
 		IRangePolicy pvRangePolicyX = new RangePolicyFixedViewport(new Range(0, pvXAxisMax));
 		pvChart.getAxisX().setRangePolicy(pvRangePolicyX);
 		IRangePolicy pvRangePolicyY = new RangePolicyFixedViewport(new Range(0, pvYAxisMax));
 		pvChart.getAxisY().setRangePolicy(pvRangePolicyY);
-		// pvChart.setUseAntialiasing(true);
+		pvChart.setUseAntialiasing(true);
 		pvComponents = new JPanel(new BorderLayout());
 		JPanel pvButtons = new JPanel(new GridLayout(1, 0));
 		pvAddTrace = new JButton("Add Trace");
@@ -275,8 +275,9 @@ public class GraphView extends JComponent implements Observer {
 		tsChart = new Chart2D();
 		tsChart.setToolTipText(controlPanel.readFile("tooltips/TSChart.txt"));
 		tsAddTrace();
-		tsChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Entropy (Heat transfer / temperature)"));
-		tsChart.getAxisY().setAxisTitle(new IAxis.AxisTitle("Temperature (K)"));
+		tsChart.getAxisX().getAxisTitle()
+				.setTitle("                                              Entropy (Heat transfer / temperature)");
+		tsChart.getAxisY().getAxisTitle().setTitle("Temperature (K)");
 		// tsChart.getAxisX().setPaintScale(false);
 		// tsChart.getAxisY().setPaintScale(false);
 		// tsChart.getAxisX().setAxisTitle(new IAxis.AxisTitle(""));
@@ -286,6 +287,7 @@ public class GraphView extends JComponent implements Observer {
 		// tsChart.getAxisX().setRangePolicy(etRangePolicyX);
 		IRangePolicy etRangePolicyY = new RangePolicyFixedViewport(new Range(0, 5000));
 		tsChart.getAxisY().setRangePolicy(etRangePolicyY);
+		tsChart.setUseAntialiasing(true);
 
 		tsComponents = new JPanel(new BorderLayout());
 		JPanel tsButtons = new JPanel(new GridLayout(1, 0));
@@ -626,7 +628,7 @@ public class GraphView extends JComponent implements Observer {
 	 * button.
 	 */
 	public void pressPVAddTrace() {
-		pvAddTrace.doClick(100);
+		pvAddTrace.doClick(50);
 	}
 
 	/**
@@ -634,7 +636,7 @@ public class GraphView extends JComponent implements Observer {
 	 * button.
 	 */
 	public void pressTSAddTrace() {
-		tsAddTrace.doClick(100);
+		tsAddTrace.doClick(50);
 	}
 
 	/**
@@ -642,7 +644,7 @@ public class GraphView extends JComponent implements Observer {
 	 * "Reset Traces" button.
 	 */
 	public void pressPVResetTraces() {
-		pvRemoveTraces.doClick(100);
+		pvRemoveTraces.doClick(50);
 	}
 
 	/**
@@ -650,6 +652,6 @@ public class GraphView extends JComponent implements Observer {
 	 * "Reset Traces" button.
 	 */
 	public void pressTSResetTraces() {
-		tsRemoveTraces.doClick(100);
+		tsRemoveTraces.doClick(50);
 	}
 }

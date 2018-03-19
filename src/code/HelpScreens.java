@@ -66,6 +66,7 @@ public class HelpScreens {
 					helpFrame.requestFocus();
 				} else {
 					helpFrame = new JFrame();
+					helpFrame.setTitle("Information");
 					helpFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 					helpFrame.addWindowListener(new WindowListener() {
 						@Override
@@ -334,6 +335,8 @@ public class HelpScreens {
 					String m = (String) menu.getSelectedItem();
 					if (m.equals("Heat Engines")) {
 						modeFrame.setTitle("Heat Engines Help");
+						ImageIcon ccReservoir = controlPanel.createImageIcon("Reservoirs.png",
+								"An overview of the model for the Carnot cycle");
 						ImageIcon ccPistons = controlPanel.createImageIcon("CarnotCyclePistons.png",
 								"An ideal gas-piston model of the Carnot cycle");
 						ImageIcon ccPV = controlPanel.createImageIcon("CarnotCyclePV.png",
@@ -341,17 +344,22 @@ public class HelpScreens {
 						ImageIcon ccTS = controlPanel.createImageIcon("CarnotCycleTS.png",
 								"A T-S diagram of the Carnot cycle");
 
-						JLabel pistonImg = new JLabel("Figure 1: An ideal gas-piston model of the Carnot cycle",
+						JLabel reservoirImg = new JLabel("Figure 1: An overview of the model for the Carnot cycle",
+								ccReservoir, JLabel.CENTER);
+						reservoirImg.setVerticalTextPosition(JLabel.BOTTOM);
+						reservoirImg.setHorizontalTextPosition(JLabel.CENTER);
+						JLabel pistonImg = new JLabel("Figure 2: An ideal gas-piston model of the Carnot cycle",
 								ccPistons, JLabel.CENTER);
 						pistonImg.setVerticalTextPosition(JLabel.BOTTOM);
 						pistonImg.setHorizontalTextPosition(JLabel.CENTER);
-						JLabel pvImg = new JLabel("Figure 2: A P-V diagram of the Carnot cycle", ccPV, JLabel.CENTER);
+						JLabel pvImg = new JLabel("Figure 3: A P-V diagram of the Carnot cycle", ccPV, JLabel.CENTER);
 						pvImg.setVerticalTextPosition(JLabel.BOTTOM);
 						pvImg.setHorizontalTextPosition(JLabel.CENTER);
-						JLabel tsImg = new JLabel("Figure 3: A T-S diagram of the Carnot cycle", ccTS, JLabel.CENTER);
+						JLabel tsImg = new JLabel("Figure 4: A T-S diagram of the Carnot cycle", ccTS, JLabel.CENTER);
 						tsImg.setVerticalTextPosition(JLabel.BOTTOM);
 						tsImg.setHorizontalTextPosition(JLabel.CENTER);
 						JPanel charts = new JPanel(new GridLayout(1, 0));
+						charts.add(pistonImg);
 						charts.add(pvImg);
 						charts.add(tsImg);
 
@@ -364,7 +372,7 @@ public class HelpScreens {
 
 						JPanel top = new JPanel(new BorderLayout());
 						top.add(text1, BorderLayout.CENTER);
-						top.add(pistonImg, BorderLayout.EAST);
+						top.add(reservoirImg, BorderLayout.EAST);
 						top.add(text2, BorderLayout.SOUTH);
 
 						JPanel bottom = new JPanel(new BorderLayout());
