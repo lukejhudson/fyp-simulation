@@ -367,8 +367,8 @@ public class Simulation extends Thread implements ActionListener {
 		// Find how much the wall has moved since last iteration
 		double wallSpeed = (double) container.getWidthChange();// / 3.0;
 		// Don't let the particles gain too much energy
-		if (wallSpeed < -20) {
-			wallSpeed = -20;
+		if (wallSpeed < -5) {
+			wallSpeed = -5;
 		}
 
 		// When particles are allowed to push the right wall
@@ -611,12 +611,10 @@ public class Simulation extends Thread implements ActionListener {
 		double newMSS;
 		double ratioMSS;
 
-		System.out.println("rand");
 		Random rand = new Random();
 		for (int i = 0; i < num; i++) {
 			Particle newP = new Particle();
 			newP.setPos(wallX * rand.nextDouble(), wallY * rand.nextDouble());
-			System.out.println("check");
 			if (particles.size() == 0) {
 				newP.setPos(wallX * rand.nextDouble(), wallY * rand.nextDouble());
 			} else {
@@ -632,7 +630,6 @@ public class Simulation extends Thread implements ActionListener {
 					}
 				}
 			}
-			System.out.println("check done");
 			newP.setVel(4 * (rand.nextDouble() - 0.5), 4 * (rand.nextDouble() - 0.5));
 			if (particles.size() == 0) {
 				double expectedActualMSS = calculateExpectedActualMSS(defaultT);
@@ -643,20 +640,17 @@ public class Simulation extends Thread implements ActionListener {
 			} else {
 				newMSS = newP.getVel().sqrNorm() * speedRatio * speedRatio;
 				ratioMSS = mss / newMSS;
-				System.out.println("newP: pos=" + newP.getPos() + ", vel=" + newP.getVel() + ", newMSS=" + newMSS
-						+ ", MSS=" + mss + ", ratioMSS=" + ratioMSS);
+//				System.out.println("newP: pos=" + newP.getPos() + ", vel=" + newP.getVel() + ", newMSS=" + newMSS
+//						+ ", MSS=" + mss + ", ratioMSS=" + ratioMSS);
 				newP.getVel().scale(Math.sqrt(ratioMSS));
 			}
-			System.out.println("add");
 			particles.add(newP);
 			numParticles++;
 			// Recalculate mss for next particle
 			if (particles.size() == 1) {
 				mss = meanSquareSpeed();
 			}
-			System.out.println("done");
 		}
-		System.out.println("DONE");
 	}
 
 	/**

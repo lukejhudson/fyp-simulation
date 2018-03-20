@@ -1,17 +1,17 @@
 <html>
 <p style=\"padding:10;">
-For any particular reaction, the values of &epsilon; and k are fixed. This means that the only thing that will change the Boltzmann factor is the temperature. 
-If you plot a graph of the Boltzmann factor against temperature you get an s-shaped curve like the ones to the right.
+For any particular reaction, the values of &epsilon; and k are <b>fixed</b>. This means that the <b>only thing</b> that will change the Boltzmann factor is the <b>temperature</b>. 
+If you plot a graph of the Boltzmann factor against temperature you get an <b>s-shaped</b> curve like the ones to the right.
 <br><br>
-This shape shows that at low temperatures, the Boltzmann factor is also very low, so very few (if any) particles will have sufficient energy to react and the reaction will be really slow. 
-At high temperatures, the Boltzmann factor approaches 1, so nearly all the particles will have enough energy to react and the reaction will be really fast. 
-In between, the Boltzmann factor increases rapidly with temperature. So a small increase in temperature can make a big difference to the rate.
+This shape shows that at low temperatures, the Boltzmann factor is also very low, so <b>very few</b> (if any) particles will have sufficient energy to react and the reaction will be very <b>slow</b>. 
+At high temperatures, the Boltzmann factor approaches 1, so <b>nearly all</b> the particles will have enough energy to react and the reaction will be very <b>fast</b>. 
+In between, the Boltzmann factor <b>increases rapidly</b> with temperature. So a small increase in temperature can make a big difference to the rate.
 <br><br>
-The rate of a reaction with activation energy &epsilon; is proportional to the Boltzmann factor, e<sup>-&epsilon;/kT</sup>.
+The rate of a reaction with activation energy &epsilon; is <b>proportional</b> to the Boltzmann factor, e<sup>-&epsilon;/kT</sup>.
 <br><br>
 You can test out this relationship in the simulation by varying the temperature and activation energy and observing the effects on the bottom graph (Boltzmann factor against reactions per iteration). 
 Varying the wall temperature with a fixed activation energy (e.g. from 200K to 4000K with activation energy 10) will produce a roughly straight line.
-Varying the activation energy with a fixed wall temperature (e.g. from 0 to 100 with wall temperature 4000K) will produce a curve with a slight upwards trend.
+Varying the activation energy with a fixed wall temperature (e.g. from 0x10<sup>-21</sup> J to 100x10<sup>-21</sup> J with wall temperature 4000K) will produce a curve with a slight upwards trend.
 </p>
 </html>
 

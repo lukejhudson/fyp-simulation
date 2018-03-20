@@ -36,6 +36,7 @@ public class SimComponent extends JComponent {
 
 	private boolean colourParticlesAtActEnergy;
 
+
 	public SimComponent(SimModel m, JFrame frame, JLabel currT, JLabel currP, ControlPanel controlPanel) {
 		super();
 		this.model = m;
@@ -112,7 +113,12 @@ public class SimComponent extends JComponent {
 				System.out.println("PRESSED: " + e.getPoint());
 				mouseX = e.getX();
 				double width = cont.getWidth();
-				if (!controlPanel.isPaused() && width - e.getX() < 10 && width - e.getX() > -20) {//Math.abs(width - e.getX()) < 10) {
+				if (!controlPanel.isPaused() && width - e.getX() < 10 && width - e.getX() > -20) {// Math.abs(width
+																									// -
+																									// e.getX())
+																									// <
+																									// 10)
+																									// {
 					draggingWall = true;
 					model.setBufferMaxSize(1);
 					model.rollbackBuffer();
@@ -131,7 +137,11 @@ public class SimComponent extends JComponent {
 			public void mouseMoved(MouseEvent e) {
 				// System.out.println("MOVED: " + e.getPoint());
 				double width = cont.getWidth();
-				if (width - e.getX() < 10 && width - e.getX() > -20) {//Math.abs(width - e.getX()) < 10) {
+				if (width - e.getX() < 10 && width - e.getX() > -20) {// Math.abs(width
+																		// -
+																		// e.getX())
+																		// < 10)
+																		// {
 					setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
 				} else if (!draggingWall) {
 					setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -214,7 +224,7 @@ public class SimComponent extends JComponent {
 					model.moveWall(model.getContainer().getWidth() - d);
 					try {
 						double sleep = 20.0 / (fps / 60.0);
-						Thread.sleep((long)sleep);
+						Thread.sleep((long) sleep);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -251,7 +261,7 @@ public class SimComponent extends JComponent {
 					model.moveWall(model.getContainer().getWidth() + d);
 					try {
 						double sleep = 20.0 / (fps / 60.0);
-						Thread.sleep((long)sleep);
+						Thread.sleep((long) sleep);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}

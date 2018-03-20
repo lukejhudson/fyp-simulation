@@ -1,5 +1,7 @@
 <html>
 Adjusts the energy required for a particle to trigger an activation.
+<br>
+Use the text box to enter a specific value. Press Enter to submit.
 <br><br>
 Only available in the Activation Energy mode.
 </html>

@@ -1,0 +1,1 @@
+Adds a new trace (line) to both the PV and TS graphs without affecting any current traces.

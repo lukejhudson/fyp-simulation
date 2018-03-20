@@ -9,5 +9,5 @@ the container is insulated.
 <br><br>
 Red lines signify an insulated container.
 <br>
-Blue lines signify a uninsulated container.
+Blue lines signify an uninsulated container.
 </html>

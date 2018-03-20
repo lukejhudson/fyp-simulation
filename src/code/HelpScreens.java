@@ -56,8 +56,8 @@ public class HelpScreens {
 		info.setFont(new Font("Calibri", Font.BOLD, 16));
 		info.setToolTipText("Click to see an overview of the entire program");
 		info.setMargin(new Insets(0, 5, 0, 5));
-		info.setPreferredSize(new Dimension(50, 20));
-		info.setMaximumSize(new Dimension(50, 20));
+		info.setPreferredSize(new Dimension(60, 25));
+		info.setMaximumSize(new Dimension(60, 25));
 
 		info.addActionListener(new ActionListener() {
 			@Override

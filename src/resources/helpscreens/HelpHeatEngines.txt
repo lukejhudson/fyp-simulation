@@ -9,7 +9,7 @@ By utilising the tools available in the program, the "<b>Single Carnot</b>" and 
 <br>
 First time around:
 <br>&#9679; The "Restart" button is pressed to reset the temperature of the particles
-<br>&#9679; The "Remove Traces" button is used on both PV and TS graphs to clear any unwanted traces on the graphs
+<br>&#9679; The "Remove Traces" button is used to clear any unwanted traces on the graphs
 <br>&#9679; For best results, the number of particles is set to 250 using the "Number of Particles" slider
 <br>
 Step 1 (Hot reservoir, uninsulated walls, gas pushing wall outwards): 
@@ -26,7 +26,7 @@ Step 3 (Cold reservoir, uninsulated walls, wall compressing gas):
 Step 4 (Cold reservoir, insulated walls, wall compressing gas):  
 <br>&#9679; "Insulate the walls" is checked
 <br>
-Whenever the insulation of the container is changed, the "Add Trace" button is pressed to allow for several different red and blue traces on the graph.
+Whenever the insulation of the container is changed, the "Add Traces" button is pressed to allow for several different red and blue traces on the graph.
 <br><br>
 <b>Speed Distribution Graph</b>: Percentage of particles against speed (arbitrary units). 
 Note what happens to the shape of the distribution as you adjust the "Wall Temperature" slider (while the gas is not insulated) or move the right wall. 
@@ -39,9 +39,9 @@ Red lines signify that the container was insulated. Blue lines signify that the 
 <b>Temperature-Entropy Graph</b> (TS): Temperature of the gas (K) against entropy (JK<sup>-1</sup>). 
 Red lines signify that the container was insulated. Blue lines signify that the container was not insulated. 
 <br><br>
-<b>Add Trace</b>: This buttons adds a new trace / line to the graph above it without affecting any of the current traces on the graph. 
+<b>Add Traces</b>: This buttons adds a new trace / line to both the PV and TS graphs without affecting any of the current traces on the graph. 
 <br><br> 
-<b>Remove Traces</b>: This button removes all traces / lines on the graph above it and then adds a fresh trace. 
+<b>Remove Traces</b>: This button removes all traces / lines on both the PV and TS graphs and then adds a fresh trace. 
 </p>
 </html>
 

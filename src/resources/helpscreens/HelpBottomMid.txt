@@ -9,17 +9,17 @@ This is calculated using the mean squared speed of the particles.
 <b>Average Pressure</b>: This label displays the current pressure exerted by the particles on the container, averaged over the last 10 iterations (1/6th of a second at default speed). 
 This is calculated using the mean squared speed of the particles and the volume of the container.
 <br><br>
-<b>Wall Temperature</b>: This slider controls the temperature of the walls in kelvin. 
+<b>Wall Temperature</b>: This slider controls the temperature of the walls in kelvin. (You can also use the text box to choose a specific value, then press Enter to apply this value.) 
 If the walls are not insulated, the particles will move towards this temperature by gaining or losing energy whenever they collide with a wall. 
 When the "Restart" button is pressed, the particles will start at the temperature of the walls. 
 <br><br>
-<b>Activation Energy</b>: This slider controls the activation energy of the particles. 
+<b>Activation Energy</b>: This slider controls the activation energy of the particles. (You can also use the text box to choose a specific value, then press Enter to apply this value.) 
 This controls how much thermal energy (i.e. the speed) a particle requires in order to trigger a process. 
 This is used in conjunction with the "Colour particles when reaching activation energy" and "Make particles disappear upon reaching activation energy" checkboxes. 
 You can read more about activation energy using the "HELP" button in the top left when in "Activation Energy" mode.
 Note: This slider can only be used in the "Activation Energy" mode, which can be selected using the drop-down menu in the top left of the program.
 <br><br>
-<b>Number of Particles</b>: This slider controls the number of particles in the simulation. 
+<b>Number of Particles</b>: This slider controls the number of particles in the simulation. (You can also use the text box to choose a specific value, then press Enter to apply this value.) 
 Adjusting the value of the slider will add or remove particles from the simulation. 
 When the "Restart" button is pressed, the simulation will start with a number of particles equal to what this slider specifies. 
 <br><br>
