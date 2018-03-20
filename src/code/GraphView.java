@@ -534,14 +534,7 @@ public class GraphView extends JComponent implements Observer {
 	}
 
 	public void tsAddTrace() {
-		// tsTrace = new Trace2DBijective();
 		tsTrace = new Trace2DSimple();
-		// IRangePolicy etRangePolicyX = new RangePolicyFixedViewport(new
-		// Range(0, pvXAxisMax));
-		// tsChart.getAxisX().setRangePolicy(etRangePolicyX);
-		// IRangePolicy etRangePolicyY = new RangePolicyFixedViewport(new
-		// Range(0, pvYAxisMax));
-		// tsChart.getAxisY().setRangePolicy(etRangePolicyY);
 		if (tsChart.getTraces().size() >= 30) {
 			tsChart.removeTrace(tsChart.getTraces().first());
 		}
