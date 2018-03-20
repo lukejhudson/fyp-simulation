@@ -17,8 +17,6 @@ import javax.swing.JLabel;
 public class SimComponent extends JComponent {
 
 	private SimModel model;
-	private ControlPanel controlPanel;
-	private JFrame frame;
 	private int fps = 60;
 	private CopyOnWriteArrayList<Particle> particles;
 	// Width of container (from buffer)
@@ -36,15 +34,16 @@ public class SimComponent extends JComponent {
 
 	private boolean colourParticlesAtActEnergy;
 
-
 	public SimComponent(SimModel m, JFrame frame, JLabel currT, JLabel currP, ControlPanel controlPanel) {
 		super();
 		this.model = m;
-		this.frame = frame;
 		this.cont = model.getContainer();
 
 		System.out.println("Starting GUI");
 
+		// New thread which regularly updates important variables used in this
+		// class. Also handles movement of the right wall and the temperature
+		// and pressure labels.
 		Thread t = new Thread(new Runnable() {
 			public void run() {
 				while (true) {
@@ -84,14 +83,16 @@ public class SimComponent extends JComponent {
 					if (Double.isNaN(pValue)) {
 						pValue = 0;
 					}
-					String T = String.format("<html>Average temperature<br>of particles: %6.0f K</html>", tValue);
+					String T = String.format("<html>Average temperature<br>of particles: <b>%6.0f K</b></html>",
+							tValue);
 					currT.setText(T);
-					String P = String.format("<html>Average pressure<br>on container: %6.2f Pa</html>", pValue);
+					String P = String.format("<html>Average pressure<br>on container: <b>%6.2f Pa</b></html>", pValue);
 					currP.setText(P);
 				}
 			}
 		});
 
+		// New thread to repaint the container 60 times per second
 		Thread timer = new Thread(new Runnable() {
 			public void run() {
 				while (true) {
@@ -108,17 +109,13 @@ public class SimComponent extends JComponent {
 
 		t.start();
 
+		// Mouse listener which listens to click and release events from the
+		// mouse. Used to move the right wall.
 		addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
-				System.out.println("PRESSED: " + e.getPoint());
 				mouseX = e.getX();
 				double width = cont.getWidth();
-				if (!controlPanel.isPaused() && width - e.getX() < 10 && width - e.getX() > -20) {// Math.abs(width
-																									// -
-																									// e.getX())
-																									// <
-																									// 10)
-																									// {
+				if (!controlPanel.isPaused() && width - e.getX() < 10 && width - e.getX() > -20) {
 					draggingWall = true;
 					model.setBufferMaxSize(1);
 					model.rollbackBuffer();
@@ -126,22 +123,18 @@ public class SimComponent extends JComponent {
 			}
 
 			public void mouseReleased(MouseEvent e) {
-				System.out.println("RELEASED: " + e.getPoint());
 				draggingWall = false;
 				cont.setWidthChange(0);
 				model.setBufferMaxSize(10);
 			}
 		});
+		// Mouse listener which listens to mouse movement events. Used to move
+		// the right wall.
 		addMouseMotionListener(new MouseMotionAdapter() {
 			// Whenever the mouse is moved
 			public void mouseMoved(MouseEvent e) {
-				// System.out.println("MOVED: " + e.getPoint());
 				double width = cont.getWidth();
-				if (width - e.getX() < 10 && width - e.getX() > -20) {// Math.abs(width
-																		// -
-																		// e.getX())
-																		// < 10)
-																		// {
+				if (width - e.getX() < 10 && width - e.getX() > -20) {
 					setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
 				} else if (!draggingWall) {
 					setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -150,7 +143,6 @@ public class SimComponent extends JComponent {
 
 			// WHenever the mouse is moved while mouse is pressed
 			public void mouseDragged(MouseEvent e) {
-				// System.out.println("DRAGGED: " + e.getPoint());
 				int x = e.getX();
 				if (draggingWall) {
 					int max = cont.getMaxWidth();
@@ -178,8 +170,6 @@ public class SimComponent extends JComponent {
 		g.fillRect((int) contWidth, (contHeight / 2) - 5, 10, 10);
 		g.fillRect((int) contWidth + 10, (contHeight / 2) - 75, 7, 150);
 
-		// System.out.println(particles);
-		// double tot = 0;
 		double energy;
 		for (Particle p : particles) {
 			energy = Math.pow(p.getVel().normalise(), 2);
@@ -189,20 +179,34 @@ public class SimComponent extends JComponent {
 				g.setColor(Color.CYAN);
 			}
 			g.fillOval((int) p.getX() - r, (int) p.getY() - r, 2 * r, 2 * r);
-			// tot += p.getVel().normalise();
 		}
-		// tot /= particles.size();
-		// System.out.println("Average speed: " + tot);
 	}
 
+	/**
+	 * @param fps
+	 *            The new FPS
+	 */
 	public void setFps(int fps) {
 		this.fps = fps;
 	}
 
+	/**
+	 * @return The current FPS
+	 */
 	public int getFps() {
 		return fps;
 	}
 
+	/**
+	 * Automatically moves the right wall inwards until the width of the
+	 * container is equal to the minimum width.
+	 * 
+	 * @param d
+	 *            The distance to move the wall during each step
+	 * @param button
+	 *            The button used to activate this function so that its text can
+	 *            be updated
+	 */
 	public void moveWallInAuto(int d, JButton button) {
 		int min = cont.getMinWidth();
 		Thread t = new Thread(new Runnable() {
@@ -223,7 +227,7 @@ public class SimComponent extends JComponent {
 				while (model.getContainer().getWidth() > min && autoMoveWallIn) {
 					model.moveWall(model.getContainer().getWidth() - d);
 					try {
-						double sleep = 20.0 / (fps / 60.0);
+						double sleep = 20.0 / ((double) fps / 60.0);
 						Thread.sleep((long) sleep);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -240,6 +244,16 @@ public class SimComponent extends JComponent {
 		t.start();
 	}
 
+	/**
+	 * Automatically moves the right wall outwards until the width of the
+	 * container is equal to the maximum width.
+	 * 
+	 * @param d
+	 *            The distance to move the wall during each step
+	 * @param button
+	 *            The button used to activate this function so that its text can
+	 *            be updated
+	 */
 	public void moveWallOutAuto(int d, JButton button) {
 		int max = cont.getMaxWidth();
 		Thread t = new Thread(new Runnable() {
@@ -260,7 +274,7 @@ public class SimComponent extends JComponent {
 				while (model.getContainer().getWidth() < max && autoMoveWallOut) {
 					model.moveWall(model.getContainer().getWidth() + d);
 					try {
-						double sleep = 20.0 / (fps / 60.0);
+						double sleep = 20.0 / ((double) fps / 60.0);
 						Thread.sleep((long) sleep);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -277,11 +291,19 @@ public class SimComponent extends JComponent {
 		t.start();
 	}
 
+	/**
+	 * Stops the right wall from moving.
+	 */
 	public void stopWalls() {
 		autoMoveWallIn = false;
 		autoMoveWallOut = false;
 	}
 
+	/**
+	 * @param b
+	 *            Should the particles be coloured red when they reach the
+	 *            activation energy?
+	 */
 	public void setColouringParticles(boolean b) {
 		colourParticlesAtActEnergy = b;
 	}

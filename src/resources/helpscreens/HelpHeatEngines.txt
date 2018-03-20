@@ -7,23 +7,23 @@ To read more about heat engines, click on the "<b>HELP</b>" button in the top le
 <br><br>
 By utilising the tools available in the program, the "<b>Single Carnot</b>" and "<b>Continual Carnot</b>" buttons can create a Carnot cycle using the following:
 <br>
-First time around:
+<b>First time around</b>:
 <br>&#9679; The "Restart" button is pressed to reset the temperature of the particles
 <br>&#9679; The "Remove Traces" button is used to clear any unwanted traces on the graphs
 <br>&#9679; For best results, the number of particles is set to 250 using the "Number of Particles" slider
 <br>
-Step 1 (Hot reservoir, uninsulated walls, gas pushing wall outwards): 
+<b>Step 1 (Hot reservoir, uninsulated walls, gas pushing wall outwards)</b>: 
 <br>&#9679; The container and therefore the volume is made as small as possible; The wall temperature is set to 3000K using the "Wall Temperature" slider
 <br>&#9679; "Insulate the walls" is unchecked; "Allow particles to push the right wall" is checked
 <br>
-Step 2 (Hot reservoir, insulated walls, gas pushing wall outwards): 
+<b>Step 2 (Hot reservoir, insulated walls, gas pushing wall outwards)</b>: 
 <br>&#9679; "Insulate the walls" is checked
 <br>
-Step 3 (Cold reservoir, uninsulated walls, wall compressing gas): 
+<b>Step 3 (Cold reservoir, uninsulated walls, wall compressing gas)</b>: 
 <br>&#9679; The container and therefore the volume is made as large as possible; The wall temperature is set to 1000K
 <br>&#9679; "Insulate the walls" is unchecked; "Allow particles to push the right wall" is unchecked; The "Move Wall In" button is pressed
 <br>
-Step 4 (Cold reservoir, insulated walls, wall compressing gas):  
+<b>Step 4 (Cold reservoir, insulated walls, wall compressing gas)</b>:  
 <br>&#9679; "Insulate the walls" is checked
 <br>
 Whenever the insulation of the container is changed, the "Add Traces" button is pressed to allow for several different red and blue traces on the graph.

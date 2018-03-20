@@ -3,7 +3,9 @@ package code;
 import javax.swing.JFrame;
 
 /**
- * @author Luke Starts the GUI and simulation.
+ * Starts the GUI and simulation.
+ * 
+ * @author Luke
  */
 public class SimulationGUI {
 
@@ -13,10 +15,9 @@ public class SimulationGUI {
 		JFrame frame = new JFrame("Simulation");
 		frame.setSize(1565, 900);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		ControlPanel pan = new ControlPanel(sim, frame);
-		
-//		frame.pack();
+
+		new ControlPanel(sim, frame);
+
 		frame.setVisible(true);
 	}
 

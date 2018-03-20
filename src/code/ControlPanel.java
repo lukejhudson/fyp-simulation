@@ -97,12 +97,15 @@ public class ControlPanel extends JComponent {
 		JPanel UI = new JPanel(new BorderLayout());
 		JPanel graphView = new JPanel(new GridBagLayout());
 
+		// Top left drop-down menu
 		String[] modes = { "Heat Engines", "Activation Energy" };
 		JComboBox<String> menu = new JComboBox<String>(modes);
 		menu.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String m = (String) menu.getSelectedItem();
+				// The user should only be able to interact with Activation
+				// Energy components in the activation energy mode
 				if (m.equals("Heat Engines")) {
 					model.changeMode(Mode.HeatEngines);
 					colourParticlesAtActEnergy.setSelected(false);
@@ -139,15 +142,12 @@ public class ControlPanel extends JComponent {
 
 		view.setMinimumSize(new Dimension(200, frame.getHeight() - 50));
 		view.setPreferredSize(new Dimension(200, frame.getHeight()));
-		 view.setMaximumSize(new Dimension(200, frame.getHeight()));
+		view.setMaximumSize(new Dimension(200, frame.getHeight()));
 		c.anchor = GridBagConstraints.FIRST_LINE_START; // Stick to top left
 		c.ipadx = 0;
 		c.ipady = 0;
 		c.weightx = 0.5;
 		c.weighty = 0.5;
-		// c.gridx = 0;
-		// c.gridy = 0;
-		// c.gridheight = 2;
 
 		graphView.setMinimumSize(new Dimension(277, frame.getHeight()));
 		graphView.setPreferredSize(new Dimension(277, frame.getHeight()));
@@ -165,16 +165,12 @@ public class ControlPanel extends JComponent {
 		c.gridy = 0;
 		c.gridheight = 2;
 
-		// graphView.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		frame.add(graphView, c); // Graphs
 
 		Dimension d = new Dimension((int) model.getContainer().getWidth() + 320,
 				(int) model.getContainer().getHeight() + 10);
 		comp.setMinimumSize(d);
 		comp.setPreferredSize(d);
-		// c.fill = GridBagConstraints.BOTH;
-		// c.ipadx = 0;
-		// c.ipady = 0;
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.fill = GridBagConstraints.BOTH;
 		c.gridx = 1;
@@ -194,8 +190,6 @@ public class ControlPanel extends JComponent {
 		c2.gridx = 1;
 		c2.fill = GridBagConstraints.HORIZONTAL;
 		compAndInfo.add(info, c2);
-		// compAndInfo.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		// compAndInfo.setBackground(Color.BLUE);
 
 		frame.add(compAndInfo, c); // Simulation
 
@@ -207,13 +201,12 @@ public class ControlPanel extends JComponent {
 		c.gridy = 1;
 		UI.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		frame.add(UI, c); // Bottom bar
-
-		// c.anchor = GridBagConstraints.FIRST_LINE_START;
-		// c.gridx = 2;
-		// c.gridy = 0;
-		// frame.add(info, c);
 	}
 
+	/**
+	 * @return A JPanel containing all of the components on the slider bar
+	 *         (bottom centre)
+	 */
 	private JPanel sliderBar() {
 		// Whole thing
 		JPanel sliderBar = new JPanel(new GridLayout(0, 5));
@@ -302,10 +295,6 @@ public class ControlPanel extends JComponent {
 		actEnergyLabel = new JLabel("Activation Energy (~E-21 J)", SwingConstants.CENTER);
 		actEnergyLabel.setFont(new Font("Calibri", Font.PLAIN, 12));
 		actEnergyLabel.setEnabled(false);
-		// JSlider actEnergySlider = new JSlider(SwingConstants.HORIZONTAL,
-		// (int)model.calculateExpectedMSS(300) / 10,
-		// (int)model.calculateExpectedMSS(4000) * 2,
-		// (int)model.calculateExpectedMSS(300));
 		actEnergySlider = new JSlider(SwingConstants.HORIZONTAL, 0, 100, 10);
 		actEnergySlider.setMajorTickSpacing(20);
 		actEnergySlider.setMinorTickSpacing(10);
@@ -346,7 +335,6 @@ public class ControlPanel extends JComponent {
 		actEnergyText.add(actEnergyTextBot);
 		actEnergy.add(actEnergyText, BorderLayout.NORTH);
 		actEnergy.add(actEnergySlider, BorderLayout.CENTER);
-		// actEnergySlider.setMaximum(maximum);
 		actEnergy.setToolTipText(readFile("tooltips/ActEnergySlider.txt"));
 		actEnergySlider.setToolTipText(readFile("tooltips/ActEnergySlider.txt"));
 
@@ -456,6 +444,10 @@ public class ControlPanel extends JComponent {
 		return sliderBar;
 	}
 
+	/**
+	 * @return A JPanel containing all components on the button bar (bottom
+	 *         right)
+	 */
 	private JPanel buttonBar() {
 		JPanel playPauseRestart = new JPanel(new GridLayout(1, 2));
 		JPanel buttons = new JPanel(new GridLayout(0, 1));
@@ -480,7 +472,6 @@ public class ControlPanel extends JComponent {
 				}
 			}
 		});
-		// playPauseColor = playPause.getBackground();
 		playPause.setToolTipText(readFile("tooltips/PauseResumeButton.txt"));
 
 		restart = new JButton("Restart");
@@ -603,6 +594,9 @@ public class ControlPanel extends JComponent {
 		return buttons;
 	}
 
+	/**
+	 * Create the buttons used to automatically create a Carnot cycle.
+	 */
 	private void createAutoCarnot() {
 		autoCarnot = new JButton("Single Carnot");
 		autoCarnot.setFont(new Font(null, Font.BOLD, 10));
@@ -625,6 +619,12 @@ public class ControlPanel extends JComponent {
 		});
 	}
 
+	/**
+	 * Creates one or more Carnot cycles using the tools in the program.
+	 * 
+	 * @param continuous
+	 *            Do we want to produce more than one cycle?
+	 */
 	private void autoCarnot(boolean continuous) {
 		Container cont = model.getContainer();
 		Thread t = new Thread(new Runnable() {
@@ -650,9 +650,6 @@ public class ControlPanel extends JComponent {
 						carnotRestart = true;
 						restart.doClick(50);
 						view.pressRemoveTraces();
-					} else {
-						// view.pressPVAddTrace();
-						// view.pressTSAddTrace();
 					}
 					insulated.setSelected(false);
 					particlesPushWall.setSelected(true);
@@ -672,8 +669,6 @@ public class ControlPanel extends JComponent {
 					// Insulation on, allow gas to move wall out, wall
 					// starts halfway until out, high wall temp --> low
 					// wall temp
-					// view.pressPVAddTrace();
-					// view.pressTSAddTrace();
 					insulated.setSelected(true);
 
 					while (cont.getWidth() < cont.getMaxWidth() && running) {
@@ -690,8 +685,6 @@ public class ControlPanel extends JComponent {
 					// Insulation off, compress gas, wall starts out
 					// until halfway, low wall temp --> low wall temp
 					comp.stopWalls();
-					// view.pressPVAddTrace();
-					// view.pressTSAddTrace();
 					insulated.setSelected(false);
 					particlesPushWall.setSelected(false);
 					cont.setWidth(cont.getMaxWidth());
@@ -713,8 +706,6 @@ public class ControlPanel extends JComponent {
 
 					// Insulation on, compress gas, wall starts halfway
 					// until in, low wall temp --> high wall temp
-					// view.pressPVAddTrace();
-					// view.pressTSAddTrace();
 					insulated.setSelected(true);
 
 					while (cont.getWidth() > cont.getMinWidth() && running) {
@@ -749,10 +740,20 @@ public class ControlPanel extends JComponent {
 		}
 	}
 
+	/**
+	 * @return Is the simulation paused?
+	 */
 	public boolean isPaused() {
 		return pause;
 	}
 
+	/**
+	 * Reads a text file with name name and returns a String with its contents.
+	 * 
+	 * @param name
+	 *            The name of the text file
+	 * @return The contents of the text file
+	 */
 	public String readFile(String name) {
 		String s = "";
 		URL url = this.getClass().getResource("/resources/" + name);
@@ -777,16 +778,29 @@ public class ControlPanel extends JComponent {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
+		try {
+			stream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return s;
 	}
 
-	/** Returns an ImageIcon, or null if the path was invalid. */
-	public ImageIcon createImageIcon(String path, String description) {
-		URL imgURL = this.getClass().getResource("/resources/images/" + path);
+	/**
+	 * Opens an image and returns an ImageIcon, or null if the path was invalid.
+	 * 
+	 * @param name
+	 *            The name to the image
+	 * @param description
+	 *            A description of the image
+	 * @return An ImageIcon of the specified image
+	 */
+	public ImageIcon createImageIcon(String name, String description) {
+		URL imgURL = this.getClass().getResource("/resources/images/" + name);
 		if (imgURL != null) {
 			return new ImageIcon(imgURL, description);
 		} else {
-			System.err.println("Couldn't find file: /resources/images/" + path);
+			System.err.println("Couldn't find file: /resources/images/" + name);
 			return null;
 		}
 	}

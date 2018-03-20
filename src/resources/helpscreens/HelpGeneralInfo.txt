@@ -9,7 +9,10 @@ Being able to visually see how these processes work and behave should give you m
 The particles in the simulation are based on hydrogen atoms. This means that the particles have a mass of 1.67x10<sup>-27</sup> kg and a diameter of 5.29x10<sup>-11</sup> m.
 <br><br>
 The simulation updates the position and velocity of all the particles in what is called an <b>iteration</b>, then waits for a brief period of time before performing another update / iteration. 
-When the simulation is running at its default speed it updates the particles 60 times per second. At this speed, the simulation is still running several orders of magnitude slower than real life so that you can keep track of what is going on. 
+When the simulation is running at its default speed it updates the particles 60 times per second. At this speed, the simulation is still running several orders of magnitude slower than real life so that you can keep track of what is going on.
+<br><br>
+If you want to quickly find out about a component you can hold your mouse cursor over it and a tooltip will pop up. 
+This will provide you with some basic information, but you can find more detailed information by reading the various pages in this window.
 </p>
 </html>
 

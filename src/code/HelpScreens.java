@@ -8,6 +8,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -51,6 +52,9 @@ public class HelpScreens {
 		createInfoLabels();
 	}
 
+	/**
+	 * @return A JButton which will open the information window
+	 */
 	public JButton createInfoButton() {
 		JButton info = new JButton("INFO");
 		info.setFont(new Font("Calibri", Font.BOLD, 16));
@@ -127,7 +131,7 @@ public class HelpScreens {
 	}
 
 	/**
-	 * @return The panel used in the "INFO" button containing the contents menu.
+	 * @return The panel used in the "INFO" button containing the contents menu
 	 */
 	private JPanel createContents() {
 		JPanel contents = new JPanel(new GridLayout(0, 1));
@@ -252,8 +256,16 @@ public class HelpScreens {
 		return contents;
 	}
 
-	private java.awt.event.MouseAdapter createMouseListener(JButton b) {
-		return new java.awt.event.MouseAdapter() {
+	/**
+	 * Creates a mouse listener which changes the colour of the text of the
+	 * button b when the mouse is hovering over it.
+	 * 
+	 * @param b
+	 *            The button to apply the effect to
+	 * @return The MouseAdapter to produce the effect
+	 */
+	private MouseAdapter createMouseListener(JButton b) {
+		return new MouseAdapter() {
 			public void mouseExited(MouseEvent e) {
 				b.setForeground(Color.BLUE);
 			}
@@ -264,6 +276,9 @@ public class HelpScreens {
 		};
 	}
 
+	/**
+	 * Reads all of the required text files for the information window.
+	 */
 	private void createInfoLabels() {
 		helpBottomMid = new JLabel(controlPanel.readFile("helpscreens/HelpBottomMid.txt"));
 		helpBottomMid.setFont(new Font("Calibri", Font.PLAIN, 14));
@@ -282,10 +297,15 @@ public class HelpScreens {
 		helpHeatEn.setVerticalAlignment(SwingConstants.TOP);
 	}
 
+	/**
+	 * @param menu
+	 *            The menu used to select the current mode
+	 * @return A JButton to open a window with information relating to the
+	 *         current mode
+	 */
 	public JButton createMenuHelp(JComboBox<String> menu) {
 		JButton menuHelp = new JButton("HELP");
 		menuHelp.setFont(new Font("Calibri", Font.BOLD, 16));
-		// menuHelp.setContentAreaFilled(false);
 		menuHelp.setToolTipText("Detailed information for the current mode");
 		menuHelp.setMargin(new Insets(0, 5, 0, 5));
 		menuHelp.addActionListener(new ActionListener() {
@@ -400,7 +420,6 @@ public class HelpScreens {
 						text2.setHorizontalTextPosition(SwingConstants.LEFT);
 						text2.setFont(new Font("Calibri", Font.PLAIN, 14));
 						container.add(text1, BorderLayout.CENTER);
-						// container.add(btImg, BorderLayout.CENTER);
 						container.add(text2, BorderLayout.SOUTH);
 
 						modeFrame.setSize(new Dimension(1300, 800));

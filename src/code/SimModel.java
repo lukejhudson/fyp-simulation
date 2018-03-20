@@ -5,6 +5,12 @@ import java.util.Observable;
 
 import code.GraphView.Mode;
 
+/**
+ * Model used in the Model-View-Controller architecture.
+ * 
+ * @author Luke
+ *
+ */
 public class SimModel extends Observable {
 
 	// Is the simulation running an auto Carnot cycle?
@@ -50,8 +56,8 @@ public class SimModel extends Observable {
 		return sim.getEntropy();
 	}
 
-	public double getAverageNoReactions() {
-		return sim.getAverageNoReactions();
+	public double getAverageNumReactions() {
+		return sim.getAverageNumReactions();
 	}
 
 	public void setBufferMaxSize(int i) {
@@ -67,7 +73,7 @@ public class SimModel extends Observable {
 		setChanged();
 		notifyObservers(Changed.NumParticles);
 	}
-	
+
 	public int getNumParticles() {
 		return sim.getNumParticles();
 	}
@@ -133,7 +139,6 @@ public class SimModel extends Observable {
 			notifyObservers(Changed.ActivationEnergy);
 			break;
 		default:
-			System.out.println("DEFAULT MODE???");
 			break;
 		}
 	}
@@ -169,7 +174,7 @@ public class SimModel extends Observable {
 	public void setAutoCarnot(boolean isAutoCarnot) {
 		this.isAutoCarnot = isAutoCarnot;
 	}
-	
+
 	public boolean isAutoCarnotCompress() {
 		return isAutoCarnotCompress;
 	}
