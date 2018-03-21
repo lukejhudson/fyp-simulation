@@ -120,9 +120,9 @@ public class HelpScreens {
 					helpContainer.add(contents, BorderLayout.WEST);
 					helpContainer.add(helpTextPanel, BorderLayout.CENTER);
 
-					helpFrame.setSize(new Dimension(1200, 720));
+					helpFrame.setSize(new Dimension(1250, 725));
 					helpFrame.add(helpContainer);
-					helpFrame.setLocation(325, 20);
+					helpFrame.setLocation(280, 20);
 					helpFrame.setVisible(true);
 				}
 			}
@@ -419,7 +419,7 @@ public class HelpScreens {
 						container.add(top, BorderLayout.CENTER);
 						container.add(bottom, BorderLayout.SOUTH);
 
-						modeFrame.setSize(new Dimension(1300, 900));
+						modeFrame.setSize(new Dimension(1400, 950));
 					} else if (m.equals("Activation Energy")) {
 						modeFrame.setTitle("Activation Energy Help");
 
@@ -439,7 +439,7 @@ public class HelpScreens {
 						container.add(text1, BorderLayout.CENTER);
 						container.add(text2, BorderLayout.SOUTH);
 
-						modeFrame.setSize(new Dimension(1300, 800));
+						modeFrame.setSize(new Dimension(1400, 850));
 					}
 
 					modeFrame.add(container);

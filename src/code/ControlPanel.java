@@ -234,7 +234,7 @@ public class ControlPanel extends JComponent {
 		JTextField numParticlesValue = new JTextField("250");
 		PlainDocument numParticlesDoc = (PlainDocument) numParticlesValue.getDocument();
 		numParticlesDoc.setDocumentFilter(new IntFilter());
-		numParticlesValue.setColumns(2);
+		numParticlesValue.setColumns(3);
 		// When the user pressed Enter to confirm their input
 		numParticlesValue.addActionListener(new ActionListener() {
 			@Override
@@ -303,7 +303,7 @@ public class ControlPanel extends JComponent {
 		actEnergyValue = new JTextField("10");
 		PlainDocument actEnergyDoc = (PlainDocument) actEnergyValue.getDocument();
 		actEnergyDoc.setDocumentFilter(new IntFilter());
-		actEnergyValue.setColumns(2);
+		actEnergyValue.setColumns(3);
 		actEnergyValue.setEnabled(false);
 		actEnergyValue.addActionListener(new ActionListener() {
 			@Override
@@ -498,16 +498,11 @@ public class ControlPanel extends JComponent {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				numParticlesSlider.setValueIsAdjusting(true);
-				if (pause) {
-					pause = false;
-					playPause.setIcon(createImageIcon("Pause.png", "Pause icon"));
-				}
 				tempSlider.setValue(300);
 				actEnergySlider.setValue(10);
 				numParticlesSlider.setValue(250);
 				fpsSlider.setValue(4);
 
-				insulated.setSelected(false);
 				String m = (String) menu.getSelectedItem();
 				if (m.equals("Heat Engines")) {
 					colourParticlesAtActEnergy.setSelected(false);
@@ -522,9 +517,9 @@ public class ControlPanel extends JComponent {
 
 				model.getContainer().setWidth(900);
 				model.getContainer().setWidthChange(0);
-				comp.stopWalls();
 				numParticlesSlider.setValueIsAdjusting(false);
-				model.restartSim();
+				restart.doClick();
+				insulated.setSelected(false);
 			}
 		});
 
@@ -578,7 +573,8 @@ public class ControlPanel extends JComponent {
 		});
 		insulated.setToolTipText(readFile("tooltips/InsulateWallsCheckbox.txt"));
 
-		colourParticlesAtActEnergy = new JCheckBox("Colour particles when reaching activation energy");
+		colourParticlesAtActEnergy = new JCheckBox("Colour particles at activation energy");
+		colourParticlesAtActEnergy.setFont(new Font("Calibri", Font.PLAIN, 11));
 		colourParticlesAtActEnergy.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -592,7 +588,8 @@ public class ControlPanel extends JComponent {
 		colourParticlesAtActEnergy.setToolTipText(readFile("tooltips/ColourParticlesCheckbox.txt"));
 		colourParticlesAtActEnergy.setEnabled(false);
 
-		particlesDisappearAtActEnergy = new JCheckBox("Make particles disappear upon reaching activation energy");
+		particlesDisappearAtActEnergy = new JCheckBox("Make particles disappear at activation energy");
+		particlesDisappearAtActEnergy.setFont(new Font("Calibri", Font.PLAIN, 11));
 		particlesDisappearAtActEnergy.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {

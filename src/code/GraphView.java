@@ -285,25 +285,14 @@ public class GraphView extends JComponent implements Observer {
 		tsChart.setToolTipText(controlPanel.readFile("tooltips/TSChart.txt"));
 		tsAddTrace();
 		tsChart.getAxisX().getAxisTitle().setTitle("Temperature (K) vs Entropy");
+		tsChart.getAxisX().setPaintScale(false);
 		tsChart.getAxisY().getAxisTitle().setTitle("");
 		IRangePolicy etRangePolicyY = new RangePolicyFixedViewport(new Range(0, 5000));
 		tsChart.getAxisY().setRangePolicy(etRangePolicyY);
 		tsChart.setUseAntialiasing(true);
 
 		tsComponents = new JPanel(new BorderLayout());
-		JPanel tsButtons = new JPanel(new GridLayout(1, 0));
-		addTraces = new JButton("Add Traces");
-		addTraces.setFont(new Font(null, Font.BOLD, 10));
-		addTraces.setToolTipText(controlPanel.readFile("tooltips/AddTracesButton.txt"));
-		addTraces.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				pvAddTrace();
-				tsAddTrace();
-			}
-		});
-		tsButtons.add(addTraces);
-		removeTraces = new JButton("Remove Traces");
+		removeTraces = new JButton("Clear Graphs");
 		removeTraces.setFont(new Font(null, Font.BOLD, 10));
 		removeTraces.setToolTipText(controlPanel.readFile("tooltips/RemoveTracesButton.txt"));
 		removeTraces.addActionListener(new ActionListener() {
@@ -313,9 +302,8 @@ public class GraphView extends JComponent implements Observer {
 				tsRemoveTraces();
 			}
 		});
-		tsButtons.add(removeTraces);
 		tsComponents.add(tsChart, BorderLayout.CENTER);
-		tsComponents.add(tsButtons, BorderLayout.SOUTH);
+		tsComponents.add(removeTraces, BorderLayout.SOUTH);
 	}
 
 	/**
@@ -644,8 +632,7 @@ public class GraphView extends JComponent implements Observer {
 	}
 
 	/**
-	 * Removes all points from the Boltzmann factor vs reactions/iteration
-	 * chart.
+	 * Removes all points from the Boltzmann factor vs reactions/iteration chart.
 	 */
 	public void bfrClearChart() {
 		bfrChart.removeAllTraces();
@@ -656,8 +643,7 @@ public class GraphView extends JComponent implements Observer {
 	}
 
 	/**
-	 * Used by the automatic Carnot cycle to visually press the "Add Traces"
-	 * button.
+	 * Used by the automatic Carnot cycle to visually press the "Add Traces" button.
 	 */
 	public void pressAddTraces() {
 		addTraces.doClick(50);

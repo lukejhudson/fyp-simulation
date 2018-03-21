@@ -1,1 +1,1 @@
-Removes all traces (lines) from both the PV and TS graphs, then adds a fresh trace.
+Clears both the PV and TS graphs.
