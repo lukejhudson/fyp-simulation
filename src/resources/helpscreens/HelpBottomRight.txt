@@ -9,7 +9,11 @@ The average temperature of the particles will be equal to the wall temperature.
 <br><br>
 <b>Pause / Resume</b>: This button pauses / resumes the simulation. 
 When pausing, the particles will stop moving and the graphs will stop updating. You cannot interact with the right wall of the container while the simulation is paused.
-Upon resuming the simulation, the simulation will continue where it left off.
+The simulation will continue where it left off upon resuming.
+<br><br>
+<b>Reset</b>: This button resets the simulation. 
+The values of the sliders and checkboxes are set to their default values (based on the current mode), the graphs are cleared of any traces, and the wall is moved back to its default position.  
+The simulation is then restarted. 
 <br><br>
 <b>Move Wall In</b>: This button moves the right wall in at a slow, steady rate until this button is pressed again or the container reaches the smallest volume that it can be. 
 This is helpful when trying to produce smooth graphs as it is very difficult to manually move the wall in at a constant rate. 

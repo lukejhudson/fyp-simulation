@@ -414,7 +414,7 @@ public class GraphView extends JComponent implements Observer {
 		bfrComponents.add(bfrClear, BorderLayout.SOUTH);
 	}
 
-	/* 
+	/*
 	 * Triggered when a change is detected in the model.
 	 */
 	@Override
@@ -644,7 +644,8 @@ public class GraphView extends JComponent implements Observer {
 	}
 
 	/**
-	 * Removes all points from the Boltzmann factor vs reactions/iteration chart.
+	 * Removes all points from the Boltzmann factor vs reactions/iteration
+	 * chart.
 	 */
 	public void bfrClearChart() {
 		bfrChart.removeAllTraces();

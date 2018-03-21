@@ -44,7 +44,8 @@ public class HelpScreens {
 	private boolean isHelpOpen = false;
 	private JFrame helpFrame;
 	// Is the top left help screen open?
-	private boolean isModeHelpOpen = false;
+	private boolean isModeHelpOpenHE = false;
+	private boolean isModeHelpOpenAE = false;
 	private JFrame modeFrame;
 
 	public HelpScreens(ControlPanel controlPanel) {
@@ -308,12 +309,15 @@ public class HelpScreens {
 		menuHelp.setFont(new Font("Calibri", Font.BOLD, 16));
 		menuHelp.setToolTipText("Detailed information for the current mode");
 		menuHelp.setMargin(new Insets(0, 5, 0, 5));
+
 		menuHelp.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (isModeHelpOpen) {
-					modeFrame.requestFocus();
-				} else {
+				String m = (String) menu.getSelectedItem();
+				// Only allow one Heat Engines and one Activation Energy window
+				// open at a time
+				if (!((isModeHelpOpenHE && m.equals(menu.getItemAt(0)))
+						|| (isModeHelpOpenAE && m.equals(menu.getItemAt(1))))) {
 					modeFrame = new JFrame();
 					modeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 					modeFrame.addWindowListener(new WindowListener() {
@@ -323,7 +327,14 @@ public class HelpScreens {
 
 						@Override
 						public void windowClosed(WindowEvent e) {
-							isModeHelpOpen = false;
+							// Heat Engines
+							if (m.equals(menu.getItemAt(0))) {
+								isModeHelpOpenHE = false;
+							}
+							// Activation Energy
+							if (m.equals(menu.getItemAt(1))) {
+								isModeHelpOpenAE = false;
+							}
 						}
 
 						@Override
@@ -344,7 +355,14 @@ public class HelpScreens {
 
 						@Override
 						public void windowOpened(WindowEvent e) {
-							isModeHelpOpen = true;
+							// Heat Engines
+							if (m.equals(menu.getItemAt(0))) {
+								isModeHelpOpenHE = true;
+							}
+							// Activation Energy
+							if (m.equals(menu.getItemAt(1))) {
+								isModeHelpOpenAE = true;
+							}
 						}
 					});
 
@@ -352,7 +370,6 @@ public class HelpScreens {
 					container.setLayout(new BorderLayout());
 					container.setVerticalTextPosition(SwingConstants.TOP);
 
-					String m = (String) menu.getSelectedItem();
 					if (m.equals("Heat Engines")) {
 						modeFrame.setTitle("Heat Engines Help");
 						ImageIcon ccReservoir = controlPanel.createImageIcon("Reservoirs.png",
@@ -406,7 +423,7 @@ public class HelpScreens {
 					} else if (m.equals("Activation Energy")) {
 						modeFrame.setTitle("Activation Energy Help");
 
-						ImageIcon btChart = controlPanel.createImageIcon("BoltzmannTemp - Uncropped, Small.png",
+						ImageIcon btChart = controlPanel.createImageIcon("BoltzmannTemp.png",
 								"Boltzmann Factor against Temperature");
 						JLabel btImg = new JLabel("Figure 1: Boltzmann Factor against Temperature", btChart,
 								JLabel.CENTER);

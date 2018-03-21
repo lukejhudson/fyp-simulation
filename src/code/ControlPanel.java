@@ -1,7 +1,6 @@
 package code;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -64,6 +63,9 @@ public class ControlPanel extends JComponent {
 	private JSlider actEnergySlider;
 	private JTextField actEnergyValue;
 	private JLabel actEnergyLabel;
+	// For reset button:
+	private JSlider fpsSlider;
+	private JComboBox<String> menu;
 
 	// The button to automatically create a Carnot cycle graph
 	private JButton autoCarnot;
@@ -75,8 +77,6 @@ public class ControlPanel extends JComponent {
 	private boolean carnotRestart = false;
 	// Is the simulation paused?
 	private boolean pause = false;
-	// Colour for playPause button
-	private final Color playPauseColor = new Color(255, 128, 128);
 
 	public ControlPanel(Simulation sim, JFrame frame) {
 		super();
@@ -99,7 +99,7 @@ public class ControlPanel extends JComponent {
 
 		// Top left drop-down menu
 		String[] modes = { "Heat Engines", "Activation Energy" };
-		JComboBox<String> menu = new JComboBox<String>(modes);
+		menu = new JComboBox<String>(modes);
 		menu.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -168,7 +168,7 @@ public class ControlPanel extends JComponent {
 		frame.add(graphView, c); // Graphs
 
 		Dimension d = new Dimension((int) model.getContainer().getWidth() + 320,
-				(int) model.getContainer().getHeight() + 10);
+				(int) model.getContainer().getHeight() + 3);
 		comp.setMinimumSize(d);
 		comp.setPreferredSize(d);
 		c.anchor = GridBagConstraints.NORTHWEST;
@@ -398,7 +398,7 @@ public class ControlPanel extends JComponent {
 		stats.add(currT, BorderLayout.NORTH);
 		stats.add(currP, BorderLayout.SOUTH);
 
-		JSlider fpsSlider = new JSlider(SwingConstants.HORIZONTAL, 1, 16, 4);
+		fpsSlider = new JSlider(SwingConstants.HORIZONTAL, 1, 16, 4);
 		Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
 		labelTable.put(Integer.valueOf(2), new JLabel("0.5"));
 		labelTable.put(Integer.valueOf(4), new JLabel("1"));
@@ -449,26 +449,24 @@ public class ControlPanel extends JComponent {
 	 *         right)
 	 */
 	private JPanel buttonBar() {
-		JPanel playPauseRestart = new JPanel(new GridLayout(1, 2));
+		JPanel simControls = new JPanel(new GridLayout(1, 3));
 		JPanel buttons = new JPanel(new GridLayout(0, 1));
 
-		playPause = new JButton("Pause");
+		playPause = new JButton(createImageIcon("Pause.png", "Pause icon"));
 		playPause.setFont(new Font("Calibri", Font.BOLD, 12));
 		playPause.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (pause) {
 					model.resumeSim();
-					playPause.setText("Pause");
+					playPause.setIcon(createImageIcon("Pause.png", "Pause icon"));
 					pause = false;
-					playPause.setBackground(null);
 				} else {
 					model.rollbackBuffer();
 					model.pauseSim();
-					playPause.setText("Resume");
+					playPause.setIcon(createImageIcon("Play.png", "Play icon"));
 					pause = true;
 					comp.stopWalls();
-					playPause.setBackground(playPauseColor);
 				}
 			}
 		});
@@ -483,8 +481,7 @@ public class ControlPanel extends JComponent {
 				comp.stopWalls();
 				if (pause) {
 					pause = false;
-					playPause.setBackground(null);
-					playPause.setText("Pause");
+					playPause.setIcon(createImageIcon("Pause.png", "Pause icon"));
 				}
 				if (!carnotRestart && running) {
 					autoCarnot.doClick();
@@ -493,6 +490,47 @@ public class ControlPanel extends JComponent {
 			}
 		});
 		restart.setToolTipText(readFile("tooltips/RestartButton.txt"));
+
+		JButton reset = new JButton("Reset");
+		reset.setFont(new Font("Calibri", Font.BOLD, 12));
+		reset.setToolTipText(readFile("tooltips/ResetButton.txt"));
+		reset.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				numParticlesSlider.setValueIsAdjusting(true);
+				if (pause) {
+					pause = false;
+					playPause.setIcon(createImageIcon("Pause.png", "Pause icon"));
+				}
+				tempSlider.setValue(300);
+				actEnergySlider.setValue(10);
+				numParticlesSlider.setValue(250);
+				fpsSlider.setValue(4);
+
+				insulated.setSelected(false);
+				String m = (String) menu.getSelectedItem();
+				if (m.equals("Heat Engines")) {
+					colourParticlesAtActEnergy.setSelected(false);
+				} else if (m.equals("Activation Energy")) {
+					colourParticlesAtActEnergy.setSelected(true);
+				}
+				particlesDisappearAtActEnergy.setSelected(false);
+				particlesPushWall.setSelected(false);
+
+				view.pressRemoveTraces();
+				view.bfrClearChart();
+
+				model.getContainer().setWidth(900);
+				model.getContainer().setWidthChange(0);
+				comp.stopWalls();
+				numParticlesSlider.setValueIsAdjusting(false);
+				model.restartSim();
+			}
+		});
+
+		simControls.add(restart);
+		simControls.add(playPause);
+		simControls.add(reset);
 
 		JPanel moveWall = new JPanel(new GridLayout(1, 1));
 
@@ -582,10 +620,7 @@ public class ControlPanel extends JComponent {
 		});
 		particlesPushWall.setToolTipText(readFile("tooltips/ParticlesPushCheckbox.txt"));
 
-		playPauseRestart.add(restart);
-		playPauseRestart.add(playPause);
-
-		buttons.add(playPauseRestart);
+		buttons.add(simControls);
 		buttons.add(moveWall);
 		buttons.add(insulated);
 		buttons.add(colourParticlesAtActEnergy);

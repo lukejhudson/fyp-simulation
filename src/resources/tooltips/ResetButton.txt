@@ -1,0 +1,3 @@
+<html>
+Resets the simulation to how it was when it was first opened.
+</html>

@@ -12,7 +12,10 @@ The simulation updates the position and velocity of all the particles in what is
 When the simulation is running at its default speed it updates the particles 60 times per second. At this speed, the simulation is still running several orders of magnitude slower than real life so that you can keep track of what is going on.
 <br><br>
 If you want to quickly find out about a component you can hold your mouse cursor over it and a tooltip will pop up. 
-This will provide you with some basic information, but you can find more detailed information by reading the various pages in this window.
+This will provide you with some basic information, but you can find more detailed information by reading the various pages in this window. 
+<br><br>
+Note that the number of particles in this simulation is several orders of magnitude less than we would expect to see in a typical gas. 
+This means that the behaviour of the particles and therefore the graphs produced in the simulation will not be as consistent as those in real life.
 </p>
 </html>
 

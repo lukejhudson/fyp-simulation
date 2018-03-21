@@ -213,7 +213,7 @@ public class Vector {
 		return x == v.x && y == v.y;
 	}
 
-	/* 
+	/*
 	 * A string representation of this Vector.
 	 */
 	public String toString() {
