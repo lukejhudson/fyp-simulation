@@ -7,7 +7,7 @@ gas in the amount <i>&Delta;S<sub>1</sub> = Q<sub>1</sub> / T<sub>H</sub></i>.
 <br><br>
 <b>Step 2 (2 to 3 on Figure 3, B to C in Figure 4, insulated)</b>: The mechanisms of the engine are assumed to be thermally insulated, 
 thus they neither gain nor lose heat (an <b>adiabatic</b> process). The gas continues to expand, doing work on the surroundings, 
-and losing an amount of internal energy equal to the work that leaves the system. The gas expansion causes it to cool to the 
+and losing an amount of internal energy equal to the work done by the system. The gas expansion causes it to cool to the 
 "cold" temperature, <i>T<sub>C</sub></i>. The entropy remains unchanged.
 <br><br>
 <b>Step 3 (3 to 4 on Figure 3, C to D on Figure 4, not insulated)</b>: Now the surroundings do work on the gas, causing an amount of heat energy <i>Q<sub>2</sub></i> to leave the 
@@ -16,7 +16,7 @@ system to the low temperature reservoir (1000K in the simulation) and the entrop
 <br><br>
 <b>Step 4 (4 to 1 on Figure 3, D to A on Figure 4, insulated)</b>: During this step, the 
 surroundings do work on the gas, increasing its internal energy and compressing it, causing the temperature to rise to <i>T<sub>H</sub></i> 
-due solely to the work added to the system, but the entropy remains unchanged. At this point the gas is in the same state 
+due to the work added to the system, but the entropy remains unchanged. At this point the gas is in the same state 
 as at the start of step 1.
 </p>
 </html>

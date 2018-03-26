@@ -3,16 +3,16 @@
 Heat Engines and the Carnot Cycle
 </h2>
 <p style=\"padding:10;">
-The Carnot cycle is a <b>reversible</b> process which provides an upper limit on the efficiency that any classical thermodynamic engine can achieve during the conversion of heat into work, 
-or conversely, the efficiency of a refrigeration system in creating a temperature difference by the application of work to the system. The Carnot cycle assumes that no energy is lost to wasteful 
-processes such as friction.
+The Carnot cycle is a <b>reversible</b> process which provides an upper limit on the efficiency of any engine. It assumes that no energy is lost to wasteful 
+processes such as friction. The cycle is reversible as the engine can convert heat into work (as in a typical car engine), or conversely work can be applied to the system in order to remove heat from it (as in a refrigerator). 
+In this simulation we are only considering the first case where heat is converted into work.
 <br><br>
 There are two "heat reservoirs" forming part of the heat engine at temperatures <i>T<sub>H</sub></i> and <i>T<sub>C</sub></i> (hot and cold respectively). 
-They have such large thermal capacity that their temperatures are practically unaffected by a single cycle. 
+They have such large thermal capacity that we assume their temperatures are unaffected by a single cycle. 
 Figure 1 shows an overview of the model being used (during step 1 of the Carnot cycle). 
 During the cycle, an arbitrary amount of <b>entropy</b> <i>&Delta;S</i> is extracted from the hot reservoir and deposited in the cold reservoir. 
 Entropy, <i>&Delta;S</i>, is the amount of heat energy transferred into the system, <i>&Delta;Q</i>, divided by the temperature of that system, <i>T</i>. 
-An amount of energy <i>T<sub>H</sub>&Delta;S</i> is extracted from the hot reservoir and a smaller amount of energy <i>T<sub>C</sub>&Delta;S</i> is deposited in the cold reservoir. 
+An amount of <b>energy</b> <i>T<sub>H</sub>&Delta;S</i> is extracted from the hot reservoir and a smaller amount of energy <i>T<sub>C</sub>&Delta;S</i> is deposited in the cold reservoir. 
 The difference in the two energies <i>(T<sub>H</sub>-T<sub>C</sub>)&Delta;S</i> is equal to the work done by the engine.
 </p>
 </html>

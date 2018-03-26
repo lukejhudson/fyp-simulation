@@ -1,11 +1,11 @@
 <html>
 <p style=\"padding:10;">
-For any particular reaction, the values of &epsilon; and k are <b>fixed</b>. This means that the <b>only thing</b> that will change the Boltzmann factor is the <b>temperature</b>. 
-If you plot a graph of the Boltzmann factor against temperature you get an <b>s-shaped</b> curve like the ones to the right.
+For any particular reaction, the values of &epsilon; and k are <b>fixed</b>. This means that the <b>only</b> variable that will have an affect on the Boltzmann factor is the <b>temperature</b>. 
+A graph of the Boltzmann factor against temperature produces an <b>s-shaped</b> curve like the ones to the right.
 <br><br>
-This shape shows that at low temperatures, the Boltzmann factor is also very low, so <b>very few</b> (if any) particles will have sufficient energy to react and the reaction will be very <b>slow</b>. 
-At high temperatures, the Boltzmann factor approaches 1, so <b>nearly all</b> the particles will have enough energy to react and the reaction will be very <b>fast</b>. 
-In between, the Boltzmann factor <b>increases rapidly</b> with temperature. So a small increase in temperature can make a big difference to the rate.
+At low temperatures the Boltzmann factor is also very low, so <b>very few</b> (if any) particles will have energies at or above the activation energy and the reaction will occur very <b>slowly</b>. 
+At high temperatures the Boltzmann factor approaches 1, so a much <b>greater proportion</b> of the particles will have sufficient energy to react and the reaction will occur very <b>quickly</b>. 
+In between, the Boltzmann factor <b>increases rapidly</b> with temperature. So a small increase in temperature will have a large effect on the rate of reaction. 
 <br><br>
 The rate of a reaction with activation energy &epsilon; is <b>proportional</b> to the Boltzmann factor, e<sup>-&epsilon;/kT</sup>.
 <br><br>
