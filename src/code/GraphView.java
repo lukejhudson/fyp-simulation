@@ -27,18 +27,8 @@ import info.monitorenter.gui.chart.traces.painters.TracePainterVerticalBar;
 import info.monitorenter.util.Range;
 
 /**
- * @author Luke
- *
- */
-/**
- * @author Luke
- *
- */
-/**
- * @author Luke
- *
- */
-/**
+ * Creates and updates the graphs on the screen.
+ * 
  * @author Luke
  *
  */
@@ -64,14 +54,12 @@ public class GraphView extends JComponent implements Observer {
 	private Chart2D pvChart;
 	private ITrace2D pvTrace;
 	private JPanel pvComponents;
-	private double pvXAxisMax = 6;// 0.000000000000000006;
+	private double pvXAxisMax = 6; // 0.000000000000000006;
 	private double pvYAxisMax = 30;
 	// Entropy vs temperature chart
 	private Chart2D tsChart;
 	private ITrace2D tsTrace;
 	private JPanel tsComponents;
-	private double maxEntropy = 0;
-	private double minEntropy = 0;
 	// Panel containing the auto Carnot buttons
 	private JPanel autoCarnotPanel;
 	// Button to create Carnot cycle
@@ -203,24 +191,27 @@ public class GraphView extends JComponent implements Observer {
 	 * Creates the speed distribution chart.
 	 */
 	private void createSpeedDistChart() {
+		// Create the chart
 		speedDistChart = new Chart2D();
 		speedDistChart.setToolTipText(controlPanel.readFile("tooltips/SpeedDist.txt"));
+		// Add a bijective trace to the graph (only one bar can be drawn at each
+		// x value)
 		speedDistTrace = new Trace2DBijective();
+		// Make the trace represent vertical bars rather than points
 		speedDistTrace.setTracePainter(new TracePainterVerticalBar(5, speedDistChart));
 		speedDistTrace.setName("");
 		speedDistChart.addTrace(speedDistTrace);
 		speedDistChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Percentage of Particles vs Speed"));
 		speedDistChart.getAxisY().setAxisTitle(new IAxis.AxisTitle(""));
-
+		// Make the axes display a fixed range
 		IRangePolicy speedDistRangePolicyX = new RangePolicyFixedViewport(new Range(0, 200));
 		speedDistChart.getAxisX().setRangePolicy(speedDistRangePolicyX);
 		IRangePolicy speedDistRangePolicyY = new RangePolicyFixedViewport(new Range(0, 70));
 		speedDistChart.getAxisY().setRangePolicy(speedDistRangePolicyY);
 		speedDistChart.getAxisX().setPaintScale(false);
 		speedDistChart.getAxisY().setPaintScale(false);
-		// Stops y-axis flickering
-		speedDistChart.setMinPaintLatency(5000);
-
+		// Calculate the smallest and largest values on the x-axis, as well as
+		// the width of each bar
 		lowestSpeed = Math.sqrt(model.calculateExpectedMSS(300)) / 10;
 		highestSpeed = Math.sqrt(model.calculateExpectedMSS(4000)) * 5;
 		speedDistBarWidth = (highestSpeed - lowestSpeed) / 20;
@@ -245,11 +236,14 @@ public class GraphView extends JComponent implements Observer {
 	 * Creates the pressure vs volume chart.
 	 */
 	private void createPVChart() {
+		// Create the PV chart
 		pvChart = new Chart2D();
 		pvChart.setToolTipText(controlPanel.readFile("tooltips/PVChart.txt"));
+		// Add a new trace to the chart
 		pvAddTrace();
 		pvChart.getAxisX().getAxisTitle().setTitle("Pressure (Pa) vs Volume (E-18 m^2)");
 		pvChart.getAxisY().getAxisTitle().setTitle("");
+		// Make the axes display a fixed range
 		IRangePolicy pvRangePolicyX = new RangePolicyFixedViewport(new Range(0, pvXAxisMax));
 		pvChart.getAxisX().setRangePolicy(pvRangePolicyX);
 		IRangePolicy pvRangePolicyY = new RangePolicyFixedViewport(new Range(0, pvYAxisMax));
@@ -281,17 +275,21 @@ public class GraphView extends JComponent implements Observer {
 	 * Creates the temperature vs entropy chart.
 	 */
 	private void createTSChart() {
+		// Create the TS chart
 		tsChart = new Chart2D();
 		tsChart.setToolTipText(controlPanel.readFile("tooltips/TSChart.txt"));
+		// Add a new trace to the chart
 		tsAddTrace();
 		tsChart.getAxisX().getAxisTitle().setTitle("Temperature (K) vs Entropy");
 		tsChart.getAxisX().setPaintScale(false);
 		tsChart.getAxisY().getAxisTitle().setTitle("");
+		// Set only the y-axis to be fixed
 		IRangePolicy etRangePolicyY = new RangePolicyFixedViewport(new Range(0, 5000));
 		tsChart.getAxisY().setRangePolicy(etRangePolicyY);
 		tsChart.setUseAntialiasing(true);
 
 		tsComponents = new JPanel(new BorderLayout());
+		// Create the "Clear Graphs" button
 		removeTraces = new JButton("Clear Graphs");
 		removeTraces.setFont(new Font(null, Font.BOLD, 10));
 		removeTraces.setToolTipText(controlPanel.readFile("tooltips/RemoveTracesButton.txt"));
@@ -310,10 +308,13 @@ public class GraphView extends JComponent implements Observer {
 	 * Creates the energy distribution chart.
 	 */
 	private void createEnergyDistChart() {
+		// Create the energy distribution chart
 		energyDistChart = new Chart2D();
 		energyDistChart.setToolTipText(controlPanel.readFile("tooltips/EnergyDist.txt"));
-
+		// Each bar is represented by its own trace
+		// Used to individually colour the bars
 		energyDistTraces = new ArrayList<Trace2DBijective>();
+		// Bijective trace to only allow one bar at each x value
 		Trace2DBijective t;
 		for (int i = 0; i < 20; i++) {
 			t = new Trace2DBijective();
@@ -328,16 +329,16 @@ public class GraphView extends JComponent implements Observer {
 		}
 		energyDistChart.getAxisX().setAxisTitle(new IAxis.AxisTitle("Percentage of Particles vs Energy"));
 		energyDistChart.getAxisY().setAxisTitle(new IAxis.AxisTitle(""));
-
+		// Make the axes display a fixed range
 		IRangePolicy energyDistRangePolicyX = new RangePolicyFixedViewport(new Range(0, 200));
 		energyDistChart.getAxisX().setRangePolicy(energyDistRangePolicyX);
 		IRangePolicy energyDistRangePolicyY = new RangePolicyFixedViewport(new Range(0, 80));
 		energyDistChart.getAxisY().setRangePolicy(energyDistRangePolicyY);
 		energyDistChart.getAxisX().setPaintScale(false);
 		energyDistChart.getAxisY().setPaintScale(false);
-		// Stops y-axis flickering
-		energyDistChart.setMinPaintLatency(5000);
 
+		// Calculate the smallest and largest values on the x-axis, as well as
+		// the width of each bar
 		lowestEnergy = model.calculateExpectedMSS(300) / 10;
 		highestEnergy = model.calculateExpectedMSS(4000) * 2;
 		energyDistBarWidth = (highestEnergy - lowestEnergy) / 20;
@@ -364,8 +365,10 @@ public class GraphView extends JComponent implements Observer {
 	 * Creates the Boltzmann factor vs reactions/iteration chart.
 	 */
 	private void createBFRChart() {
+		// Create the chart
 		bfrChart = new Chart2D();
 		bfrChart.setToolTipText(controlPanel.readFile("tooltips/BFRChart.txt"));
+		// Set the axes to display a fixed range
 		IRangePolicy bfrChartRangePolicyX = new RangePolicyFixedViewport(new Range(0, 250));
 		bfrChart.getAxisX().setRangePolicy(bfrChartRangePolicyX);
 		IRangePolicy bfrChartRangePolicyY = new RangePolicyFixedViewport(new Range(0, 1));
@@ -392,7 +395,7 @@ public class GraphView extends JComponent implements Observer {
 			}
 		});
 		t.start();
-
+		// Create the "Clear Graph" button
 		JButton bfrClear = new JButton("Clear Graph");
 		bfrClear.addActionListener(e -> bfrClearChart());
 		bfrClear.setToolTipText(controlPanel.readFile("tooltips/BFRClearChart.txt"));
@@ -413,7 +416,7 @@ public class GraphView extends JComponent implements Observer {
 		case ParticleSize:
 			break;
 		case Restart:
-			speedDistTrace.removeAllPoints();
+			// Clear and refresh the PV graph
 			IRangePolicy pvRangePolicyX = new RangePolicyFixedViewport(new Range(0, pvXAxisMax));
 			pvChart.getAxisX().setRangePolicy(pvRangePolicyX);
 			IRangePolicy pvRangePolicyY = new RangePolicyFixedViewport(new Range(0, pvYAxisMax));
@@ -422,10 +425,12 @@ public class GraphView extends JComponent implements Observer {
 		case T:
 			break;
 		case WallMoved:
+			// Update the PV and TS graphs when the wall is moved
 			updatePVChart();
 			updateTSChart();
 			break;
 		case HeatEngines:
+			// Switch the graphs to the ones in the heat engine mode
 			if (mode != Mode.HeatEngines) {
 				mode = Mode.HeatEngines;
 				removeActivationEnergyPanel();
@@ -435,6 +440,7 @@ public class GraphView extends JComponent implements Observer {
 			}
 			break;
 		case ActivationEnergy:
+			// Switch the graphs to the ones in the activation energy mode
 			if (mode != Mode.ActivationEnergy) {
 				mode = Mode.ActivationEnergy;
 				removeHeatEnginePanel();
@@ -442,7 +448,6 @@ public class GraphView extends JComponent implements Observer {
 			}
 			break;
 		default:
-			System.out.println("DEFAULT");
 			break;
 		}
 	}
@@ -454,10 +459,11 @@ public class GraphView extends JComponent implements Observer {
 		if (speedDistChart.getTraces() == null) {
 			return;
 		}
+		// Get an ordered list of the speeds
 		ArrayList<Double> speeds = model.getSpeeds();
 		speeds.sort((a, b) -> (a > b) ? 1 : (a < b) ? -1 : 0);
 		int barTot = 0;
-
+		// Calculate the height of each bar given the speeds
 		for (int i = 0; i < 20; i++) {
 			for (double speed : speeds) {
 				if (speed >= (lowestSpeed + i * speedDistBarWidth)
@@ -466,6 +472,7 @@ public class GraphView extends JComponent implements Observer {
 				}
 			}
 			try {
+				// Add the bar to the graph
 				speedDistTrace.addPoint(new TracePoint2D((i + 1) * 10, ((double) barTot / speeds.size()) * 100));
 			} catch (Exception e) {
 				System.err.println("Unable to plot speed distriubtion bar");
@@ -484,13 +491,15 @@ public class GraphView extends JComponent implements Observer {
 		if (mode == Mode.HeatEngines) {
 			double pressure = model.getAverageP();
 			double volume = cont.getActualVolume();
-
+			// Set the colour of the trace to red if the container is insulated,
+			// blue otherwise
 			if (model.getIsInsulated()) {
 				pvTrace.setColor(Color.RED);
 			} else {
 				pvTrace.setColor(Color.BLUE);
 			}
 			try {
+				// Add the new point to the graph
 				pvTrace.addPoint(volume * 1E18, pressure);
 			} catch (Exception e) {
 				System.err.println("Unable to plot PV point");
@@ -508,19 +517,15 @@ public class GraphView extends JComponent implements Observer {
 		if (mode == Mode.HeatEngines) {
 			double temperature = model.getAverageT();
 			double entropy = model.getEntropy();
-
-			if (entropy > maxEntropy) {
-				maxEntropy = entropy;
-			} else if (entropy < minEntropy) {
-				minEntropy = entropy;
-			}
-
+			// Set the colour of the trace to red if the container is insulated,
+			// blue otherwise
 			if (model.getIsInsulated()) {
 				tsTrace.setColor(Color.RED);
 			} else {
 				tsTrace.setColor(Color.BLUE);
 			}
 			try {
+				// Add the new point to the graph
 				tsTrace.addPoint(entropy, temperature);
 			} catch (Exception e) {
 				System.err.println("Unable to plot TS point");
@@ -529,7 +534,7 @@ public class GraphView extends JComponent implements Observer {
 	}
 
 	/**
-	 * Adds a trace to the pressure vs volume chart.
+	 * Adds a trace to the pressure vs volume chart and format it appropriately.
 	 */
 	public void pvAddTrace() {
 		pvTrace = new Trace2DSimple();
@@ -553,7 +558,8 @@ public class GraphView extends JComponent implements Observer {
 	}
 
 	/**
-	 * Adds a trace to the temperature vs entropy chart.
+	 * Adds a trace to the temperature vs entropy chart and format it
+	 * appropriately.
 	 */
 	public void tsAddTrace() {
 		tsTrace = new Trace2DSimple();
@@ -568,8 +574,6 @@ public class GraphView extends JComponent implements Observer {
 	 * Removes all traces from the temperature vs entropy chart.
 	 */
 	public void tsRemoveTraces() {
-		maxEntropy = 0;
-		minEntropy = 0;
 		tsChart.removeAllTraces();
 		tsAddTrace();
 	}
@@ -581,22 +585,26 @@ public class GraphView extends JComponent implements Observer {
 		if (energyDistChart.getTraces() == null) {
 			return;
 		}
+		// Get an ordered list of the energies
 		ArrayList<Double> energies = model.getEnergies();
 		energies.sort((a, b) -> (a > b) ? 1 : (a < b) ? -1 : 0);
 		int barTot = 0;
-
+		// Calculate the height of each bar given the energies
 		for (int i = 0; i < 20; i++) {
 			for (double e : energies) {
 				if (e >= (lowestEnergy + i * energyDistBarWidth) && e < (lowestEnergy + (i + 1) * energyDistBarWidth)) {
 					barTot++;
 				}
 			}
+			// Colour the bar red if the energy it represents is above the
+			// activation energy
 			if ((lowestEnergy + i * energyDistBarWidth) > model.getActivationEnergy()) {
 				energyDistTraces.get(i).setColor(Color.RED);
 			} else {
 				energyDistTraces.get(i).setColor(Color.BLACK);
 			}
 			try {
+				// Add the bar to the graph
 				energyDistTraces.get(i)
 						.addPoint(new TracePoint2D((i + 1) * 10, ((double) barTot / energies.size()) * 100));
 			} catch (Exception e) {
@@ -614,6 +622,7 @@ public class GraphView extends JComponent implements Observer {
 			return;
 		}
 		if (mode == Mode.ActivationEnergy) {
+			// Calculate the Boltzmann factor
 			double temp = model.getAverageT();
 			double factor = -(model.getActualActivationEnergy() / (1.38E-23 * temp));
 			double bmf = Math.exp(factor);
@@ -622,6 +631,8 @@ public class GraphView extends JComponent implements Observer {
 
 			try {
 				if (temp != prevTemp) {
+					// If the simulation is not paused, add the point to the
+					// graph
 					bfrTrace.addPoint(noReactions, bmf);
 				}
 				prevTemp = temp;
@@ -632,7 +643,8 @@ public class GraphView extends JComponent implements Observer {
 	}
 
 	/**
-	 * Removes all points from the Boltzmann factor vs reactions/iteration chart.
+	 * Removes all points from the Boltzmann factor vs reactions/iteration
+	 * chart.
 	 */
 	public void bfrClearChart() {
 		bfrChart.removeAllTraces();
@@ -643,7 +655,8 @@ public class GraphView extends JComponent implements Observer {
 	}
 
 	/**
-	 * Used by the automatic Carnot cycle to visually press the "Add Traces" button.
+	 * Used by the automatic Carnot cycle to visually press the "Add Traces"
+	 * button.
 	 */
 	public void pressAddTraces() {
 		addTraces.doClick(50);

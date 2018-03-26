@@ -1,12 +1,24 @@
 package code;
 
+/**
+ * A class to represent the container in which the particles are held.
+ * 
+ * @author Luke
+ *
+ */
 public class Container {
 
+	// How far has the right wall moved since the last update?
 	private double widthChange;
+	// Width in pixels
 	private double width;
+	// Width in metres
 	private double actualWidth;
+	// Height in pixels
 	private double height;
+	// Height in metres
 	private double actualHeight;
+	// The number of metres represented by one pixel
 	private double pixelSize;
 
 	private int maxWidth = 1200;
@@ -70,13 +82,6 @@ public class Container {
 	 */
 	public void setWidthChange(double w) {
 		widthChange = w;
-	}
-
-	/**
-	 * @return The current volume of the container (in pixels)
-	 */
-	public double getVolume() {
-		return width * height;
 	}
 
 	/**

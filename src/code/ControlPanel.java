@@ -39,6 +39,13 @@ import javax.swing.text.PlainDocument;
 
 import code.GraphView.Mode;
 
+/**
+ * Creates and handles the components on the screen that the user can interact
+ * with.
+ * 
+ * @author Luke
+ *
+ */
 @SuppressWarnings("serial")
 public class ControlPanel extends JComponent {
 
@@ -85,9 +92,12 @@ public class ControlPanel extends JComponent {
 		createAutoCarnot();
 		this.view = new GraphView(model, autoCarnot, autoCarnotCont, this);
 		model.addObserver(view);
+		// Prepare the help screens (top left and top right buttons)
 		HelpScreens help = new HelpScreens(this);
 
+		// Increase the time that the tooltips are displayed before disappearing
 		ToolTipManager.sharedInstance().setDismissDelay(15000);
+		// Set the default font of checkboxes to Calibri
 		UIManager.put("CheckBox.font", "Calibri");
 
 		frame.setLayout(new GridBagLayout());
@@ -127,19 +137,22 @@ public class ControlPanel extends JComponent {
 			}
 		});
 		menu.setMinimumSize(new Dimension(160, 40));
-
+		// Get the buttons for the top left help screen
 		JButton menuHelp = help.createMenuHelp(menu);
 
 		menuBar.add(menu, BorderLayout.CENTER);
 		menuBar.add(menuHelp, BorderLayout.EAST);
-
+		// Create the slider bar (bottom centre)
 		JPanel sliders = sliderBar();
+		// Create the button bar (bottom right)
 		JPanel buttons = buttonBar();
+		// Start drawing the container and the particles in it
 		comp = new SimComponent(model, frame, currT, currP, this);
 
 		UI.add(sliders, BorderLayout.CENTER);
 		UI.add(buttons, BorderLayout.EAST);
 
+		// Set the size and position of the graphs and components above it
 		view.setMinimumSize(new Dimension(200, frame.getHeight() - 50));
 		view.setPreferredSize(new Dimension(200, frame.getHeight()));
 		view.setMaximumSize(new Dimension(200, frame.getHeight()));
@@ -165,8 +178,10 @@ public class ControlPanel extends JComponent {
 		c.gridy = 0;
 		c.gridheight = 2;
 
-		frame.add(graphView, c); // Graphs
+		// Draw the graphs on the window
+		frame.add(graphView, c);
 
+		// Set the size and position of the container
 		Dimension d = new Dimension((int) model.getContainer().getWidth() + 320,
 				(int) model.getContainer().getHeight() + 3);
 		comp.setMinimumSize(d);
@@ -177,7 +192,7 @@ public class ControlPanel extends JComponent {
 		c.gridy = 0;
 		c.gridheight = 1;
 		comp.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-
+		// Add the INFO button to the right of the container
 		JButton info = help.createInfoButton();
 		JPanel compAndInfo = new JPanel(new GridBagLayout());
 		GridBagConstraints c2 = new GridBagConstraints();
@@ -191,8 +206,10 @@ public class ControlPanel extends JComponent {
 		c2.fill = GridBagConstraints.HORIZONTAL;
 		compAndInfo.add(info, c2);
 
-		frame.add(compAndInfo, c); // Simulation
+		// Draw the simulation on the window
+		frame.add(compAndInfo, c);
 
+		// Set the position of the bottom bar
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.PAGE_END; // Stick to bottom
 		c.ipadx = 20;
@@ -200,7 +217,8 @@ public class ControlPanel extends JComponent {
 		c.gridx = 1;
 		c.gridy = 1;
 		UI.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		frame.add(UI, c); // Bottom bar
+		// Draw the bottom bar on the window
+		frame.add(UI, c);
 	}
 
 	/**
@@ -221,6 +239,7 @@ public class ControlPanel extends JComponent {
 		// ActivationEnergy slider, label and value
 		JPanel actEnergy = new JPanel(new BorderLayout());
 
+		// Create the Number of Particles slider and its surrounding components
 		JPanel numParticlesText = new JPanel(new GridLayout(0, 1));
 		JPanel numParticlesTextTop = new JPanel();
 		JPanel numParticlesTextBot = new JPanel();
@@ -232,16 +251,19 @@ public class ControlPanel extends JComponent {
 		numParticlesSlider.setPaintTicks(true);
 		numParticlesSlider.setPaintLabels(true);
 		JTextField numParticlesValue = new JTextField("250");
+		// Make sure only integers can be entered into the text field
 		PlainDocument numParticlesDoc = (PlainDocument) numParticlesValue.getDocument();
 		numParticlesDoc.setDocumentFilter(new IntFilter());
+
 		numParticlesValue.setColumns(3);
-		// When the user pressed Enter to confirm their input
+		// When the user presses Enter to confirm their input
 		numParticlesValue.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				int val = Integer.parseInt(numParticlesValue.getText());
 				int max = numParticlesSlider.getMaximum();
 				int min = numParticlesSlider.getMinimum();
+				// Make sure the new value is a valid one
 				if (val > max) {
 					val = max;
 				}
@@ -253,6 +275,7 @@ public class ControlPanel extends JComponent {
 				numParticlesValue.setText(Integer.toString(val));
 			}
 		});
+		// Make sure the slider and the text field show the same value
 		numParticlesSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				model.setNumParticles(numParticlesSlider.getValue());
@@ -270,6 +293,9 @@ public class ControlPanel extends JComponent {
 		numParticlesSlider.setToolTipText(readFile("tooltips/NumParticlesSlider.txt"));
 
 		numParticles.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+		// Updates the value displayed by the slider and the text field to that
+		// of the simulation
+		// Used when "Particles disappear at activation energy" is enabled
 		Thread numParticlesUpdater = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -289,6 +315,7 @@ public class ControlPanel extends JComponent {
 		});
 		numParticlesUpdater.start();
 
+		// Create the Activation Energy slider and its surrounding components
 		JPanel actEnergyText = new JPanel(new GridLayout(0, 1));
 		JPanel actEnergyTextTop = new JPanel();
 		JPanel actEnergyTextBot = new JPanel();
@@ -301,16 +328,20 @@ public class ControlPanel extends JComponent {
 		actEnergySlider.setPaintTicks(true);
 		actEnergySlider.setPaintLabels(true);
 		actEnergyValue = new JTextField("10");
+		// Make sure only integers can be entered into the text field
 		PlainDocument actEnergyDoc = (PlainDocument) actEnergyValue.getDocument();
 		actEnergyDoc.setDocumentFilter(new IntFilter());
+
 		actEnergyValue.setColumns(3);
 		actEnergyValue.setEnabled(false);
+		// When the user presses Enter to confirm their input
 		actEnergyValue.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				int val = Integer.parseInt(actEnergyValue.getText());
 				int max = actEnergySlider.getMaximum();
 				int min = actEnergySlider.getMinimum();
+				// Make sure the new value is a valid one
 				if (val > max) {
 					val = max;
 				}
@@ -322,6 +353,7 @@ public class ControlPanel extends JComponent {
 				actEnergyValue.setText(Integer.toString(val));
 			}
 		});
+		// Make sure the slider and the text field show the same value
 		actEnergySlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				model.setActivationEnergy(actEnergySlider.getValue());
@@ -340,20 +372,25 @@ public class ControlPanel extends JComponent {
 
 		actEnergy.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
+		// Create the Wall Temperature slider and its surrounding components
 		JPanel tempText = new JPanel(new GridLayout(0, 1));
 		JPanel tempTextTop = new JPanel();
 		JPanel tempTextBot = new JPanel();
 		tempSlider = new JSlider(SwingConstants.HORIZONTAL, 200, 4000, 300);
 		JTextField tempValue = new JTextField("300");
+		// Make sure only integers can be entered into the text field
 		PlainDocument tempDoc = (PlainDocument) tempValue.getDocument();
 		tempDoc.setDocumentFilter(new IntFilter());
+
 		tempValue.setColumns(3);
+		// When the user presses Enter to confirm their input
 		tempValue.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				int val = Integer.parseInt(tempValue.getText());
 				int max = tempSlider.getMaximum();
 				int min = tempSlider.getMinimum();
+				// Make sure the new value is a valid one
 				if (val > max) {
 					val = max;
 				}
@@ -365,6 +402,7 @@ public class ControlPanel extends JComponent {
 				tempValue.setText(Integer.toString(val));
 			}
 		});
+		// Make sure the slider and the text field show the same value
 		tempSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				model.setT(tempSlider.getValue());
@@ -398,6 +436,8 @@ public class ControlPanel extends JComponent {
 		stats.add(currT, BorderLayout.NORTH);
 		stats.add(currP, BorderLayout.SOUTH);
 
+		// Create the Simulation Speed Multiplier slider and its surrounding
+		// components
 		fpsSlider = new JSlider(SwingConstants.HORIZONTAL, 1, 16, 4);
 		Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
 		labelTable.put(Integer.valueOf(2), new JLabel("0.5"));
@@ -414,6 +454,7 @@ public class ControlPanel extends JComponent {
 		fpsLabel.setFont(new Font("Calibri", Font.PLAIN, 12));
 		JLabel fpsValue = new JLabel("1.00");
 		fpsValue.setFont(new Font("Calibri", Font.PLAIN, 12));
+		// Make sure the slider and the text field show the same value
 		fpsSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				comp.setFps(fpsSlider.getValue() * 15);
@@ -435,6 +476,7 @@ public class ControlPanel extends JComponent {
 
 		fps.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
+		// Place the components into one panel
 		sliderBar.add(stats);
 		sliderBar.add(tempComp);
 		sliderBar.add(actEnergy);
@@ -452,8 +494,10 @@ public class ControlPanel extends JComponent {
 		JPanel simControls = new JPanel(new GridLayout(1, 3));
 		JPanel buttons = new JPanel(new GridLayout(0, 1));
 
+		// Create the Pause / Resume button
 		playPause = new JButton(createImageIcon("Pause.png", "Pause icon"));
 		playPause.setFont(new Font("Calibri", Font.BOLD, 12));
+		// What happens when the button is pressed
 		playPause.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -472,8 +516,10 @@ public class ControlPanel extends JComponent {
 		});
 		playPause.setToolTipText(readFile("tooltips/PauseResumeButton.txt"));
 
+		// Create the Restart button
 		restart = new JButton("Restart");
 		restart.setFont(new Font("Calibri", Font.BOLD, 12));
+		// What happens when the button is pressed
 		restart.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -491,9 +537,11 @@ public class ControlPanel extends JComponent {
 		});
 		restart.setToolTipText(readFile("tooltips/RestartButton.txt"));
 
+		// Create the Reset button
 		JButton reset = new JButton("Reset");
 		reset.setFont(new Font("Calibri", Font.BOLD, 12));
 		reset.setToolTipText(readFile("tooltips/ResetButton.txt"));
+		// What happens when the button is pressed
 		reset.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -529,8 +577,10 @@ public class ControlPanel extends JComponent {
 
 		JPanel moveWall = new JPanel(new GridLayout(1, 1));
 
+		// Create the Move Wall In button
 		moveWallIn = new JButton("Move Wall In");
 		moveWallIn.setFont(new Font("Calibri", Font.BOLD, 12));
+		// What happens when the button is pressed
 		moveWallIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -542,8 +592,10 @@ public class ControlPanel extends JComponent {
 		});
 		moveWallIn.setToolTipText(readFile("tooltips/MoveWallInButton.txt"));
 
+		// Create the Move Wall Out button
 		JButton moveWallOut = new JButton("Move Wall Out");
 		moveWallOut.setFont(new Font("Calibri", Font.BOLD, 12));
+		// What happens when the button is pressed
 		moveWallOut.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -558,6 +610,7 @@ public class ControlPanel extends JComponent {
 		moveWall.add(moveWallIn);
 		moveWall.add(moveWallOut);
 
+		// Create the "Insulate the walls" checkbox
 		insulated = new JCheckBox("Insulate the walls");
 		insulated.addItemListener(new ItemListener() {
 			@Override
@@ -573,6 +626,7 @@ public class ControlPanel extends JComponent {
 		});
 		insulated.setToolTipText(readFile("tooltips/InsulateWallsCheckbox.txt"));
 
+		// Create the "Colour particles at activation energy" checkbox
 		colourParticlesAtActEnergy = new JCheckBox("Colour particles at activation energy");
 		colourParticlesAtActEnergy.setFont(new Font("Calibri", Font.PLAIN, 11));
 		colourParticlesAtActEnergy.addItemListener(new ItemListener() {
@@ -588,6 +642,7 @@ public class ControlPanel extends JComponent {
 		colourParticlesAtActEnergy.setToolTipText(readFile("tooltips/ColourParticlesCheckbox.txt"));
 		colourParticlesAtActEnergy.setEnabled(false);
 
+		// Create the "Make particles disappear at activation energy" checkbox
 		particlesDisappearAtActEnergy = new JCheckBox("Make particles disappear at activation energy");
 		particlesDisappearAtActEnergy.setFont(new Font("Calibri", Font.PLAIN, 11));
 		particlesDisappearAtActEnergy.addItemListener(new ItemListener() {
@@ -603,6 +658,7 @@ public class ControlPanel extends JComponent {
 		particlesDisappearAtActEnergy.setToolTipText(readFile("tooltips/ParticlesDisappearCheckbox.txt"));
 		particlesDisappearAtActEnergy.setEnabled(false);
 
+		// Create the "Allow particles to push the right wall" checkbox
 		particlesPushWall = new JCheckBox("Allow particles to push the right wall");
 		particlesPushWall.addItemListener(new ItemListener() {
 			@Override
@@ -617,6 +673,7 @@ public class ControlPanel extends JComponent {
 		});
 		particlesPushWall.setToolTipText(readFile("tooltips/ParticlesPushCheckbox.txt"));
 
+		// Place all the components into one panel
 		buttons.add(simControls);
 		buttons.add(moveWall);
 		buttons.add(insulated);
@@ -661,7 +718,6 @@ public class ControlPanel extends JComponent {
 		Container cont = model.getContainer();
 		Thread t = new Thread(new Runnable() {
 			public void run() {
-				model.setAutoCarnot(true);
 				running = true;
 				autoCarnot.setText("Stop Carnot");
 				autoCarnotCont.setText("Stop Carnot");
@@ -686,6 +742,8 @@ public class ControlPanel extends JComponent {
 					insulated.setSelected(false);
 					particlesPushWall.setSelected(true);
 
+					// Wait until the wall is pushed to 2/3 of the way to the
+					// maximum container width
 					double contTwoThirds = cont.getMinWidth() + 2 * (cont.getMaxWidth() - cont.getMinWidth()) / 3;
 					while (cont.getWidth() < contTwoThirds && running) {
 						try {
@@ -703,6 +761,8 @@ public class ControlPanel extends JComponent {
 					// wall temp
 					insulated.setSelected(true);
 
+					// Wait until the wall is pushed to the maximum container
+					// width
 					while (cont.getWidth() < cont.getMaxWidth() && running) {
 						try {
 							Thread.sleep(50);
@@ -722,8 +782,9 @@ public class ControlPanel extends JComponent {
 					cont.setWidth(cont.getMaxWidth());
 					tempSlider.setValue(1000);
 					moveWallIn.doClick(50);
-					model.setAutoCarnotCompress(true);
 
+					// Wait until the wall moves to 1/3 of the way to the
+					// minimum container width
 					double contOneThird = cont.getMinWidth() + (cont.getMaxWidth() - cont.getMinWidth()) / 3;
 					while (cont.getWidth() > contOneThird && running) {
 						try {
@@ -740,6 +801,7 @@ public class ControlPanel extends JComponent {
 					// until in, low wall temp --> high wall temp
 					insulated.setSelected(true);
 
+					// Wait until the wall moves to the minimum container width
 					while (cont.getWidth() > cont.getMinWidth() && running) {
 						try {
 							Thread.sleep(50);
@@ -754,16 +816,12 @@ public class ControlPanel extends JComponent {
 				}
 				playPause.doClick(50);
 				running = false;
-				model.setAutoCarnot(false);
-				model.setAutoCarnotCompress(false);
 				autoCarnot.setText("Single Carnot");
 				autoCarnotCont.setText("Continual Carnot");
 			}
 		});
 		if (running) {
 			running = false;
-			model.setAutoCarnot(false);
-			model.setAutoCarnotCompress(false);
 			particlesPushWall.setSelected(false);
 			autoCarnot.setText("Single Carnot");
 			autoCarnotCont.setText("Continual Carnot");

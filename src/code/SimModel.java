@@ -13,11 +13,9 @@ import code.GraphView.Mode;
  */
 public class SimModel extends Observable {
 
-	// Is the simulation running an auto Carnot cycle?
-	private boolean isAutoCarnot = false;
-	// If isAutoCarnot is true, is the container shrinking or expanding?
-	private boolean isAutoCarnotCompress = false;
-
+	/*
+	 * Enum to communicate which aspect of the simulation has changed.
+	 */
 	public enum Changed {
 		NumParticles, ParticleSize, T, Restart, WallMoved, HeatEngines, ActivationEnergy
 	};
@@ -48,10 +46,6 @@ public class SimModel extends Observable {
 		return sim.getAverageP();
 	}
 
-	public double getAverageTChange() {
-		return sim.getAverageTChange();
-	}
-
 	public double getEntropy() {
 		return sim.getEntropy();
 	}
@@ -70,6 +64,8 @@ public class SimModel extends Observable {
 
 	public void setNumParticles(int n) {
 		sim.setNumParticles(n);
+		// Notify the observers (GraphView) that the number of particles has
+		// changed
 		setChanged();
 		notifyObservers(Changed.NumParticles);
 	}
@@ -80,12 +76,15 @@ public class SimModel extends Observable {
 
 	public void setT(int t) {
 		sim.setT(t);
+		// Notify the observers (GraphView) that the temperature has changed
 		setChanged();
 		notifyObservers(Changed.T);
 	}
 
 	public void restartSim() {
 		sim.restartSim();
+		// Notify the observers (GraphView) that the simulation has been
+		// restarted
 		setChanged();
 		notifyObservers(Changed.Restart);
 	}
@@ -117,6 +116,7 @@ public class SimModel extends Observable {
 	public void moveWall(double x) {
 		sim.getContainer().moveWall(x);
 		if (sim.getContainer().getWidthChange() != 0) {
+			// Notify the observers (GraphView) that the right wall has moved
 			setChanged();
 			notifyObservers(Changed.WallMoved);
 		}
@@ -130,7 +130,13 @@ public class SimModel extends Observable {
 		return sim.getIsInsulated();
 	}
 
+	/**
+	 * @param mode
+	 *            The new mode of the simulation (Changed.HeatEngines or
+	 *            Changed.ActivationEnergy)
+	 */
 	public void changeMode(Mode mode) {
+		// Notify the observers (GraphView) that the mode has changed
 		setChanged();
 		switch (mode) {
 		case HeatEngines:
@@ -165,21 +171,5 @@ public class SimModel extends Observable {
 
 	public void setParticlesPushWall(boolean b) {
 		sim.setParticlesPushWall(b);
-	}
-
-	public boolean isAutoCarnot() {
-		return isAutoCarnot;
-	}
-
-	public void setAutoCarnot(boolean isAutoCarnot) {
-		this.isAutoCarnot = isAutoCarnot;
-	}
-
-	public boolean isAutoCarnotCompress() {
-		return isAutoCarnotCompress;
-	}
-
-	public void setAutoCarnotCompress(boolean isAutoCarnotCompress) {
-		this.isAutoCarnotCompress = isAutoCarnotCompress;
 	}
 }

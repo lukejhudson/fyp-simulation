@@ -11,14 +11,6 @@ public class Vector {
 	private double y;
 
 	/**
-	 * Creates a new Vector with no specified x or y values.
-	 */
-	public Vector() {
-		this.x = -1;
-		this.y = -1;
-	}
-
-	/**
 	 * Creates a new Vector with the specified x and y values (doubles)
 	 * 
 	 * @param x
@@ -159,17 +151,6 @@ public class Vector {
 	public void set(Vector v) {
 		this.x = v.getX();
 		this.y = v.getY();
-	}
-
-	/**
-	 * @param x
-	 *            The new x value
-	 * @param y
-	 *            The new y value
-	 */
-	public void set(double x, double y) {
-		this.x = x;
-		this.y = y;
 	}
 
 	/**

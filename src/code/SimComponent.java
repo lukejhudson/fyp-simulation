@@ -13,6 +13,13 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+/**
+ * Paints the particles and the container they are in onto the screen. Also
+ * handles how the user moves the right wall.
+ * 
+ * @author Luke
+ *
+ */
 @SuppressWarnings("serial")
 public class SimComponent extends JComponent {
 
@@ -22,9 +29,12 @@ public class SimComponent extends JComponent {
 	// Width of container (from buffer)
 	private double contWidth;
 	private Container cont;
-	private int r;
+	// Radius of the particles
+	private int r = Particle.radius;
 
+	// Is the wall being moved by the user?
 	private boolean draggingWall = false;
+	// Current x-position of the user's mouse while they are moving the wall
 	private int mouseX = 0;
 
 	// Are we automatically moving the wall inwards?
@@ -50,9 +60,11 @@ public class SimComponent extends JComponent {
 					if (!model.bufferEmpty()) {
 						SimBuffer b = model.getBuffer();
 						if (b != null) {
+							// Update our knowledge of the particles and the
+							// container
 							particles = b.getParticles();
 							contWidth = b.getContWidth();
-							r = Particle.radius;
+							// Move the container according to user input
 							if (draggingWall) {
 								int max = cont.getMaxWidth();
 								int min = cont.getMinWidth();
@@ -66,6 +78,9 @@ public class SimComponent extends JComponent {
 						}
 					}
 					try {
+						// Control the refresh rate of the particles and wall
+						// based on the simulation speed (60 frames per second
+						// at 1x speed)
 						if (fps != 0) {
 							Thread.sleep(1000 / fps);
 						}
@@ -75,6 +90,7 @@ public class SimComponent extends JComponent {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
+					// Update the temperature and pressure labels
 					double tValue = model.getAverageT();
 					if (Double.isNaN(tValue)) {
 						tValue = 0;
@@ -170,9 +186,12 @@ public class SimComponent extends JComponent {
 		g.fillRect((int) contWidth, (contHeight / 2) - 5, 10, 10);
 		g.fillRect((int) contWidth + 10, (contHeight / 2) - 75, 7, 150);
 
+		// Draw particles themselves
 		double energy;
 		for (Particle p : particles) {
 			energy = Math.pow(p.getVel().normalise(), 2);
+			// Colour particles red if they are above the activation energy,
+			// cyan otherwise
 			if (colourParticlesAtActEnergy && energy > model.getActivationEnergy()) {
 				g.setColor(Color.RED);
 			} else {
@@ -211,9 +230,12 @@ public class SimComponent extends JComponent {
 		int min = cont.getMinWidth();
 		Thread t = new Thread(new Runnable() {
 			public void run() {
+				// Stop moving the wall out
 				if (autoMoveWallOut) {
 					autoMoveWallOut = false;
 				}
+				// If we are already moving the wall, pressing the button again
+				// should stop the movement
 				if (autoMoveWallIn) {
 					autoMoveWallIn = false;
 					model.getContainer().setWidthChange(0);
@@ -222,17 +244,24 @@ public class SimComponent extends JComponent {
 				button.setText("Stop Movement");
 
 				autoMoveWallIn = true;
+				// Set the buffer size to 1 to ensure that the position of the
+				// wall is updated as soon as the wall is moved
 				model.setBufferMaxSize(1);
 				model.rollbackBuffer();
+				// Move the wall inwards until the container is the smallest it
+				// can be
 				while (model.getContainer().getWidth() > min && autoMoveWallIn) {
 					model.moveWall(model.getContainer().getWidth() - d);
 					try {
+						// Adjust the rate at which wall moves based on the
+						// speed of the simulation
 						double sleep = 20.0 / ((double) fps / 60.0);
 						Thread.sleep((long) sleep);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
+				// Finish up moving the wall
 				if (autoMoveWallIn) {
 					model.moveWall(min);
 					model.setBufferMaxSize(10);
@@ -258,9 +287,12 @@ public class SimComponent extends JComponent {
 		int max = cont.getMaxWidth();
 		Thread t = new Thread(new Runnable() {
 			public void run() {
+				// Stop moving the wall in
 				if (autoMoveWallIn) {
 					autoMoveWallIn = false;
 				}
+				// If we are already moving the wall, pressing the button again
+				// should stop the movement
 				if (autoMoveWallOut) {
 					autoMoveWallOut = false;
 					model.getContainer().setWidthChange(0);
@@ -269,17 +301,24 @@ public class SimComponent extends JComponent {
 				button.setText("Stop Movement");
 
 				autoMoveWallOut = true;
+				// Set the buffer size to 1 to ensure that the position of the
+				// wall is updated as soon as the wall is moved
 				model.setBufferMaxSize(1);
 				model.rollbackBuffer();
+				// Move the wall outwards until the container is the largest it
+				// can be
 				while (model.getContainer().getWidth() < max && autoMoveWallOut) {
 					model.moveWall(model.getContainer().getWidth() + d);
 					try {
+						// Adjust the rate at which wall moves based on the
+						// speed of the simulation
 						double sleep = 20.0 / ((double) fps / 60.0);
 						Thread.sleep((long) sleep);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
+				// Finish up moving the wall
 				if (autoMoveWallOut) {
 					model.moveWall(max);
 					model.setBufferMaxSize(10);

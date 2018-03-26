@@ -13,16 +13,6 @@ public class Particle {
 	// Mass of hydrogen atom
 	public static double mass = 1.67E-27;
 
-	public Particle(int x, int y, int vx, int vy) {
-		this.pos = new Vector(x, y);
-		this.vel = new Vector(vx, vy);
-	}
-
-	public Particle(int x, int y) {
-		this.pos = new Vector(x, y);
-		this.vel = new Vector(-1, -1);
-	}
-
 	public Particle() {
 		this.pos = new Vector(-1, -1);
 		this.vel = new Vector(0, 0);
@@ -38,17 +28,6 @@ public class Particle {
 	 */
 	public void move() {
 		this.pos.add(vel);
-	}
-
-	/**
-	 * @param pos
-	 *            The new position
-	 * @param vel
-	 *            The new Velocity
-	 */
-	public void set(Vector pos, Vector vel) {
-		this.pos = pos;
-		this.vel = vel;
 	}
 
 	/**
@@ -96,14 +75,6 @@ public class Particle {
 	 */
 	public void setPos(double x, double y) {
 		this.pos = new Vector(x, y);
-	}
-
-	/**
-	 * @param pos
-	 *            The new position Vector of the particle
-	 */
-	public void setPos(Vector pos) {
-		this.pos = pos;
 	}
 
 	/**
