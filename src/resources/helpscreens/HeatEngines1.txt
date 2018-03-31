@@ -3,8 +3,8 @@
 Heat Engines and the Carnot Cycle
 </h2>
 <p style=\"padding:10;">
-The Carnot cycle is a <b>reversible</b> process which provides an upper limit on the efficiency of any engine. It assumes that no energy is lost to wasteful 
-processes such as friction. The cycle is reversible as the engine can convert heat into work (as in a typical car engine), or conversely work can be applied to the system in order to remove heat from it (as in a refrigerator). 
+The Carnot cycle is a <b>reversible</b> process which provides an upper limit on the efficiency of any engine. It assumes that no energy is lost to wasteful processes such as friction. 
+The cycle is reversible as the engine can convert heat into work (as in a typical car engine), or conversely work can be applied to the system in order to remove heat from it (as in a refrigerator). 
 In this simulation we are only considering the first case where heat is converted into work.
 <br><br>
 There are two "heat reservoirs" forming part of the heat engine at temperatures <i>T<sub>H</sub></i> and <i>T<sub>C</sub></i> (hot and cold respectively). 

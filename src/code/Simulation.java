@@ -300,6 +300,11 @@ public class Simulation extends Thread implements ActionListener {
 	 * there has been a collision, update their positions and velocities
 	 * accordingly.
 	 * 
+	 * The physics was adapted from the collideAtoms code at
+	 * https://sites.google.com/site/drjohnbmatthews/kineticmodel/code#Ensemble,
+	 * which references a very helpful explanation of the physics at
+	 * http://www.vobarian.com/collisions/2dcollisions2.pdf.
+	 * 
 	 * @param p
 	 *            The first particle
 	 * @param q

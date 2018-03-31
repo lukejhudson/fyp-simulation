@@ -729,6 +729,7 @@ public class ControlPanel extends JComponent {
 					// wall temp
 					if (i == 0) {
 						playPause.doClick(50);
+						fpsSlider.setValue(4);
 					}
 					comp.stopWalls();
 					cont.setWidth(cont.getMinWidth());
