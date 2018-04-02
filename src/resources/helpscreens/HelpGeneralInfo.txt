@@ -3,8 +3,10 @@
 General Information
 </h3>
 <p style=\"padding:10;">
-The purpose of this program is to provide a sandbox to test your understanding of heat engines, activation energy, and basic particle physics in general. 
+The purpose of this program is to provide a sandbox to test your understanding of heat engines, activation energy, and ideal gases in general. 
 Being able to visually see how these processes work and behave should give you more confidence in your understanding of them.
+<br><br>
+The simulation demonstrates heat engines by default, but you can switch into the activation energy mode using the drop-down menu in the top left.
 <br><br>
 The particles in the simulation are based on hydrogen atoms. This means that the particles have a mass of 1.67x10<sup>-27</sup> kg and a diameter of 5.29x10<sup>-11</sup> m.
 <br><br>

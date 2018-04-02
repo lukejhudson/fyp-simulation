@@ -469,6 +469,8 @@ public class Simulation extends Thread implements ActionListener {
 			double ratioMSS;
 			double scaleSpeedUp;
 			double scaleSlowDown;
+			// Scale the particle's speed to try to keep the average temperature
+			// of the particles approximately equal to the wall temperature
 			if (wallSpeed > 0) {
 				scaleSpeedUp = 1;
 				scaleSlowDown = 15;
@@ -476,8 +478,8 @@ public class Simulation extends Thread implements ActionListener {
 				scaleSpeedUp = 1.75;
 				scaleSlowDown = 1.75;
 			} else {
-				scaleSpeedUp = 1; // default 2, 1.5, 1
-				scaleSlowDown = 4.1; // default 7, 6.125, 4.1
+				scaleSpeedUp = 1;
+				scaleSlowDown = 4.1;
 			}
 			if (difference > 0) { // Wants to speed up
 				ratioMSS = (actualMSS + (difference / scaleSpeedUp)) / actualMSS;
@@ -500,11 +502,8 @@ public class Simulation extends Thread implements ActionListener {
 			// than the wall but still collides with the wall
 			if (!particlesPushWall && wallSpeed > 0 && Math.abs(vx) < wallSpeed) {
 				p.setVelX(-vx / 2);
-			} else if (!particlesPushWall && wallSpeed != 0
-					&& (wallSpeed > 0 || p.getVel().sqrNorm() < 3 * calculateExpectedMSS(T))) {
-				// If colliding with a wall moving inwards OR
-				// if colliding with a wall moving outwards AND
-				// the particle isn't moving too fast
+			} else if (!particlesPushWall && wallSpeed != 0) {
+				// If colliding with a moving wall
 				double wallM;
 				double partM = 1;
 				if (isInsulated) {
