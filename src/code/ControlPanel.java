@@ -548,7 +548,6 @@ public class ControlPanel extends JComponent {
 				numParticlesSlider.setValueIsAdjusting(true);
 				tempSlider.setValue(300);
 				actEnergySlider.setValue(10);
-				numParticlesSlider.setValue(250);
 				fpsSlider.setValue(4);
 
 				String m = (String) menu.getSelectedItem();
@@ -565,9 +564,10 @@ public class ControlPanel extends JComponent {
 
 				model.getContainer().setWidth(900);
 				model.getContainer().setWidthChange(0);
-				numParticlesSlider.setValueIsAdjusting(false);
+				numParticlesSlider.setValue(250);
 				restart.doClick();
 				insulated.setSelected(false);
+				numParticlesSlider.setValueIsAdjusting(false);
 			}
 		});
 
