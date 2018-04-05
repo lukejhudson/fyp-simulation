@@ -414,7 +414,7 @@ public class Simulation extends Thread implements ActionListener {
 		double prevEnergy = Math.pow(p.getVel().normalise(), 2);
 
 		// Find how much the wall has moved since last iteration
-		double wallSpeed = (double) container.getWidthChange();// / 3.0;
+		double wallSpeed = (double) container.getWidthChange();
 		// Don't let the particles gain too much energy
 		if (isInsulated && wallSpeed < -5) {
 			wallSpeed = -5;
@@ -754,11 +754,13 @@ public class Simulation extends Thread implements ActionListener {
 	 *         empty
 	 */
 	public SimBuffer getBuffer() {
-		if (!buffer.isEmpty()) {
+		try {
+			SimBuffer b = buffer.get(0);
 			removeBuffer0 = true;
-			return buffer.get(0);
+			return b;
+		} catch (IndexOutOfBoundsException e) {
+			return null;
 		}
-		return null;
 	}
 
 	/**

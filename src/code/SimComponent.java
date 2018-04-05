@@ -75,7 +75,7 @@ public class SimComponent extends JComponent {
 								}
 								model.moveWall(mouseX);
 							}
-						}
+						} 
 					}
 					try {
 						// Control the refresh rate of the particles and wall
