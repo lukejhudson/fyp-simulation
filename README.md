@@ -1,4 +1,3 @@
-# A Teaching Tool for Basic Particle Physics
 # Final Year Project - A Teaching Tool for Basic Particle Physics #
 ## About ##
 The aim of this project was to create a software teaching tool that allows the user to investigate the properties of an ideal gas through the use of a particle simulation. The initial simulation, along with the mechanisms for the user to control the simulation, was created in Java, and allowed the user to investigate the properties of ideal gases. The functionality of this simulation was then extended to explain the more advanced concepts of heat engines and activation energy. This was achieved by including tools and graphics to relate the behaviour of the particles to the to the properties of the gas as a whole. 
